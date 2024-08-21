@@ -94,6 +94,8 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
                     b.HasIndex("FileName", "DriveId", "ParentFolderId")
                         .IsUnique();
 
+                    NpgsqlIndexBuilderExtensions.AreNullsDistinct(b.HasIndex("FileName", "DriveId", "ParentFolderId"), false);
+
                     b.ToTable("Files", t =>
                         {
                             t.HasCheckConstraint("CK_Files_Parent", "(\"ParentFolderId\" IS NOT NULL AND \"DriveId\" IS NULL) OR (\"ParentFolderId\" IS NULL AND \"DriveId\" IS NOT NULL)");
@@ -132,6 +134,8 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
 
                     b.HasIndex("FolderName", "DriveId", "ParentFolderId")
                         .IsUnique();
+
+                    NpgsqlIndexBuilderExtensions.AreNullsDistinct(b.HasIndex("FolderName", "DriveId", "ParentFolderId"), false);
 
                     b.ToTable("Folders", t =>
                         {
@@ -173,6 +177,8 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
 
                     b.HasIndex("UserId", "FileId", "FolderId")
                         .IsUnique();
+
+                    NpgsqlIndexBuilderExtensions.AreNullsDistinct(b.HasIndex("UserId", "FileId", "FolderId"), false);
 
                     b.ToTable("Permissions", t =>
                         {

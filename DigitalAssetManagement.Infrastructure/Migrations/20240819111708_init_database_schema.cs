@@ -168,7 +168,8 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
                 name: "IX_Files_FileName_DriveId_ParentFolderId",
                 table: "Files",
                 columns: new[] { "FileName", "DriveId", "ParentFolderId" },
-                unique: true);
+                unique: true)
+                .Annotation("Npgsql:NullsDistinct", false);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Files_ParentFolderId",
@@ -184,7 +185,8 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
                 name: "IX_Folders_FolderName_DriveId_ParentFolderId",
                 table: "Folders",
                 columns: new[] { "FolderName", "DriveId", "ParentFolderId" },
-                unique: true);
+                unique: true)
+                .Annotation("Npgsql:NullsDistinct", false);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Folders_ParentFolderId",
@@ -205,7 +207,8 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
                 name: "IX_Permissions_UserId_FileId_FolderId",
                 table: "Permissions",
                 columns: new[] { "UserId", "FileId", "FolderId" },
-                unique: true);
+                unique: true)
+                .Annotation("Npgsql:NullsDistinct", false);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",
