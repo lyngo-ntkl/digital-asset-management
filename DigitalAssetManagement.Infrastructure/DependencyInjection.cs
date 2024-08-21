@@ -1,6 +1,9 @@
 ﻿using DigitalAssetManagement.Application.Repositories;
+using DigitalAssetManagement.Application.Services;
+using DigitalAssetManagement.Infrastructure.Common;
 using DigitalAssetManagement.Infrastructure.DatabaseContext;
 using DigitalAssetManagement.Infrastructure.Repositories;
+using DigitalAssetManagement.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,6 +30,11 @@ namespace DigitalAssetManagement.Infrastructure
             services.AddScoped<PermissionRepository, PermissionRepositoryImplementation>();
 
             // services
+            services.AddScoped<UserService, UserServiceImplementation>();
+
+            // helper
+            services.AddSingleton<HashingHelper, HashingHelperImplementation>();
+            services.AddSingleton<JwtHelper, JwtHelperImplementation>();
 
             return services;
         }
