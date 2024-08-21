@@ -23,13 +23,13 @@ namespace DigitalAssetManagement.Infrastructure.DatabaseContext
             modelBuilder.Entity<User>(options =>
             {
                 options.HasIndex(user => user.Email)
-                    .IsUnique();
+                    .IsUnique(true);
             });
 
             modelBuilder.Entity<Drive>(options =>
             {
                 options.HasIndex(drive => new { drive.DriverName, drive.UserId})
-                    .IsUnique();
+                    .IsUnique(true);
             });
 
             modelBuilder.Entity<Folder>(options =>
@@ -37,7 +37,8 @@ namespace DigitalAssetManagement.Infrastructure.DatabaseContext
                 options.ToTable(table => table
                     .HasCheckConstraint("CK_Folders_Parent", $"(\"{nameof(Folder.ParentFolderId)}\" IS NOT NULL AND \"{nameof(Folder.DriveId)}\" IS NULL) OR (\"{nameof(Folder.ParentFolderId)}\" IS NULL AND \"{nameof(Folder.DriveId)}\" IS NOT NULL)"));
                 options.HasIndex(folder => new { folder.FolderName, folder.DriveId, folder.ParentFolderId })
-                    .IsUnique();
+                    .IsUnique(true)
+                    .AreNullsDistinct(false);
             });
 
             modelBuilder.Entity<Domain.Entities.File>(options =>
@@ -45,13 +46,15 @@ namespace DigitalAssetManagement.Infrastructure.DatabaseContext
                 options.ToTable(table => table
                     .HasCheckConstraint("CK_Files_Parent", $"(\"{nameof(Domain.Entities.File.ParentFolderId)}\" IS NOT NULL AND \"{nameof(Domain.Entities.File.DriveId)}\" IS NULL) OR (\"{nameof(Domain.Entities.File.ParentFolderId)}\" IS NULL AND \"{nameof(Domain.Entities.File.DriveId)}\" IS NOT NULL)"));
                 options.HasIndex(file => new {file.FileName, file.DriveId, file.ParentFolderId})
-                    .IsUnique();
+                    .IsUnique(true)
+                    .AreNullsDistinct(false);
             });
 
             modelBuilder.Entity<Permission>(options =>
             {
                 options.HasIndex(permission => new { permission.UserId, permission.FileId, permission.FolderId })
-                    .IsUnique();
+                    .IsUnique(true)
+                    .AreNullsDistinct(false);
                 options.ToTable(table => table
                     .HasCheckConstraint("CK_Permissions_Asset", $"(\"{nameof(Permission.FolderId)}\" IS NOT NULL AND \"{nameof(Permission.FileId)}\" IS NULL) OR (\"{nameof(Permission.FolderId)}\" IS NULL AND \"{nameof(Permission.FileId)}\" IS NOT NULL)"));
             });
