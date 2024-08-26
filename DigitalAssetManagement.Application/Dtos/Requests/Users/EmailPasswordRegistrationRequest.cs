@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DigitalAssetManagement.Application.Common.Attributes;
+using System.ComponentModel.DataAnnotations;
 
 namespace DigitalAssetManagement.Application.Dtos.Requests.Users
 {
@@ -6,10 +7,10 @@ namespace DigitalAssetManagement.Application.Dtos.Requests.Users
     {
         [EmailAddress]
         public required string Email { get; set; }
-        // TODO: check password format
+        [Password]
         public required string Password { get; set; }
         public required string Name { get; set; }
-        // TODO: check phone number format
+        [PhoneNumber]
         public string? PhoneNumber { get; set; }
     }
 }

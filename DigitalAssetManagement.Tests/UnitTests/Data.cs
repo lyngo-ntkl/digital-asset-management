@@ -39,8 +39,11 @@ namespace DigitalAssetManagement.Tests.UnitTests
 
         public static string TestByteSize = "32";
         public static string TestIteration = "10";
+        public static string JwtKey = "This is the key used to sign and verify json web token, the key size must be greater than 512 bits";
+        public static string JwtIssuer = "lyntk";
         public static string TestPassword = "Qwertyuiop1234567890!!";
-        public static int ArraySize = 10;
+        public static string WrongTestPassword = "Qwerty123456789!";
+        public static int ArraySize = 5;
 
         private User[]? _users = null;
         private EmailPasswordRegistrationRequest[]? _emailPasswordRegistrationRequests;

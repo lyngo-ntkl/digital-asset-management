@@ -6,5 +6,6 @@ namespace DigitalAssetManagement.Application.Repositories
     {
         bool ExistByEmail(string email);
         User? GetByEmail(string email);
+        Task<User?> GetByEmailAsync(string email);
     }
 }

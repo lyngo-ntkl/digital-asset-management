@@ -15,17 +15,34 @@ namespace DigitalAssetManagement.Infrastructure.Services
         private readonly UnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly HashingHelper _hashingHelper;
+        private readonly JwtHelper _jwtHelper;
 
-        public UserServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, HashingHelper hashingHelper)
+        public UserServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, HashingHelper hashingHelper, JwtHelper jwtHelper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _hashingHelper = hashingHelper;
+            _jwtHelper = jwtHelper;
         }
 
-        public Task<AuthResponse> LoginWithEmailPassword(EmailPasswordAuthRequest request)
+        public async Task<AuthResponse> LoginWithEmailPassword(EmailPasswordAuthRequest request)
         {
-            throw new NotImplementedException();
+            var user = await _unitOfWork.UserRepository.GetByEmailAsync(request.Email);
+            if (user == null)
+            {
+                throw new BadRequestException(ExceptionMessage.UnregisteredEmail);
+            }
+
+            _hashingHelper.Hash(request.Password, user.PasswordSalt, out string hash);
+            if (hash != user.PasswordHash)
+            {
+                throw new BadRequestException(ExceptionMessage.UnmatchedPassword);
+            }
+
+            return new AuthResponse
+            {
+                AccessToken = _jwtHelper.GenerateAccessToken(user)
+            };
         }
 
         public async Task Register(EmailPasswordRegistrationRequest request)

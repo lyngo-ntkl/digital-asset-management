@@ -38,13 +38,13 @@ namespace DigitalAssetManagement.Infrastructure.Common
 
         public void Hash(string value, byte[] salt, out byte[] hash)
         {
-            var hashing = new Rfc2898DeriveBytes(value, salt, int.Parse(_configuration.GetSection("iteration").Value!), _hashAlgorithm);
+            var hashing = new Rfc2898DeriveBytes(value, salt, int.Parse(_configuration.GetSection("hashing:iteration").Value!), _hashAlgorithm);
             hash = hashing.GetBytes(int.Parse(_configuration.GetSection("hashing:hashByteSize").Value!));
         }
 
         public void Hash(string value, string salt, out string hash)
         {
-            var hashing = new Rfc2898DeriveBytes(value, Convert.FromBase64String(salt), int.Parse(_configuration.GetSection("iteration").Value!), _hashAlgorithm);
+            var hashing = new Rfc2898DeriveBytes(value, Convert.FromBase64String(salt), int.Parse(_configuration.GetSection("hashing:iteration").Value!), _hashAlgorithm);
             hash = Convert.ToBase64String(hashing.GetBytes(int.Parse(_configuration.GetSection("hashing:hashByteSize").Value!)));
         }
     }
