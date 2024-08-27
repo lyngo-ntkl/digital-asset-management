@@ -1,6 +1,7 @@
 ﻿using DigitalAssetManagement.Application.Repositories;
 using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Infrastructure.Common;
+using DigitalAssetManagement.Infrastructure.Common.Mappers;
 using DigitalAssetManagement.Infrastructure.DatabaseContext;
 using DigitalAssetManagement.Infrastructure.Repositories;
 using DigitalAssetManagement.Infrastructure.Services;
@@ -20,6 +21,9 @@ namespace DigitalAssetManagement.Infrastructure
                 options.UseNpgsql(configuration.GetConnectionString("defaultConnection"));
                 options.UseLazyLoadingProxies();
             });
+
+            // mapper
+            services.AddAutoMapper(typeof(MappingProfile));
 
             // repositories
             services.AddScoped<UnitOfWork, UnitOfWorkImplementation>();
