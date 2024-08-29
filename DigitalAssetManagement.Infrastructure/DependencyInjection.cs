@@ -23,7 +23,11 @@ namespace DigitalAssetManagement.Infrastructure
             });
 
             // mapper
-            services.AddAutoMapper(typeof(MappingProfile));
+            services.AddAutoMapper(typeof(UserMappingProfile));
+            services.AddAutoMapper(typeof(DriveMappingProfile));
+            services.AddAutoMapper(typeof(FolderMappingProfile));
+            services.AddAutoMapper(typeof(FileMappingProfile));
+            services.AddAutoMapper(typeof(PermissionMappingProfile));
 
             // repositories
             services.AddScoped<UnitOfWork, UnitOfWorkImplementation>();
@@ -35,6 +39,8 @@ namespace DigitalAssetManagement.Infrastructure
 
             // services
             services.AddScoped<UserService, UserServiceImplementation>();
+            services.AddScoped<FolderService, FolderServiceImplementation>();
+            services.AddScoped<PermissionService, PermissionServiceImplementation>();
 
             // helper
             services.AddSingleton<HashingHelper, HashingHelperImplementation>();

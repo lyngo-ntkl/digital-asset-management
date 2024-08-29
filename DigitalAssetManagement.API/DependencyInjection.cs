@@ -23,6 +23,9 @@ namespace DigitalAssetManagement.API
             services.AddAuthentication();
             services.AddAuthorization();
 
+            // httpcontextaccessor
+            services.AddHttpContextAccessor();
+
             return services;
         }
     }

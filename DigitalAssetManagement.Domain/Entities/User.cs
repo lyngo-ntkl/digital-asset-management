@@ -11,5 +11,6 @@ namespace DigitalAssetManagement.Domain.Entities
         public string? PhoneNumber { get; set; }
 
         public virtual ICollection<Drive> Drives { get; set; } = null!;
+        public virtual ICollection<Permission> Permissions { get; set; } = null!;
     }
 }

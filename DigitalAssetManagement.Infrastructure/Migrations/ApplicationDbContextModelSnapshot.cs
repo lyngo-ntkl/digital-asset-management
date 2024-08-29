@@ -54,7 +54,7 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
                     b.HasIndex("DriverName", "UserId")
                         .IsUnique();
 
-                    b.ToTable("Drives");
+                    b.ToTable("Drives", (string)null);
                 });
 
             modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.File", b =>
@@ -224,7 +224,7 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.Drive", b =>

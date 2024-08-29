@@ -7,6 +7,7 @@ using DigitalAssetManagement.Application.Repositories;
 using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Infrastructure.Common;
+using Microsoft.AspNetCore.Http;
 
 namespace DigitalAssetManagement.Infrastructure.Services
 {
@@ -16,13 +17,15 @@ namespace DigitalAssetManagement.Infrastructure.Services
         private readonly IMapper _mapper;
         private readonly HashingHelper _hashingHelper;
         private readonly JwtHelper _jwtHelper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public UserServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, HashingHelper hashingHelper, JwtHelper jwtHelper)
+        public UserServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, HashingHelper hashingHelper, JwtHelper jwtHelper, IHttpContextAccessor httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _hashingHelper = hashingHelper;
             _jwtHelper = jwtHelper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<AuthResponse> LoginWithEmailPassword(EmailPasswordAuthRequest request)
@@ -56,6 +59,21 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
             await _unitOfWork.UserRepository.InsertAsync(user);
             await _unitOfWork.SaveAsync();
+        }
+
+        public async Task<User> GetLoginUserAsync()
+        {
+            var authorizationHeader = _httpContextAccessor.HttpContext?.Request.Headers.FirstOrDefault(header => header.Key == "Authorization").Value;
+            var jwt = authorizationHeader.ToString()!.Split("Bearer ")[0];
+
+            int id = int.Parse(_jwtHelper.GetSid(jwt)!);
+            var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
+            if (user == null)
+            {
+                throw new UnauthorizedException();
+            }
+
+            return user;
         }
     }
 }

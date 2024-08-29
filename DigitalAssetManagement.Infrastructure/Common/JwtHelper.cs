@@ -10,6 +10,8 @@ namespace DigitalAssetManagement.Infrastructure.Common
     public interface JwtHelper
     {
         string GenerateAccessToken(User user);
+        IEnumerable<Claim> GetClaims(string jwt);
+        string? GetSid(string jwt);
     }
 
     public class JwtHelperImplementation : JwtHelper
@@ -24,7 +26,7 @@ namespace DigitalAssetManagement.Infrastructure.Common
         public string GenerateAccessToken(User user)
         {
             Claim[] claims = [
-                new Claim(ClaimTypes.Sid, user.Id.ToString()),
+                new Claim(ClaimTypes.Sid, user.Id.ToString()!),
             ];
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims);
 
@@ -44,6 +46,18 @@ namespace DigitalAssetManagement.Infrastructure.Common
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
             return tokenHandler.WriteToken(token);
+        }
+
+        public IEnumerable<Claim> GetClaims(string jwt)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.ReadJwtToken(jwt);
+            return token.Claims;
+        }
+
+        public string? GetSid(string jwt)
+        {
+            return GetClaims(jwt).FirstOrDefault(claim => claim.Type == ClaimTypes.Sid)?.Value;
         }
     }
 }

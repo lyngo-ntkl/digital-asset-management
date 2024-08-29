@@ -7,5 +7,7 @@
         public const string RegisteredEmail = "Email has been registered";
         public const string UnmatchedPassword = "Wrong password";
         public const string UnregisteredEmail = "Email hasn't been registered";
+        public const string UnallowedFolderModification = "User don't have permission to edit this folder";
+        public const string DriveNotFound = "Drive not found";
     }
 }
