@@ -6,8 +6,8 @@ namespace DigitalAssetManagement.Domain.Entities
     {
         public required string DriverName { get; set; }
 
-        public required int UserId { get; set; }
-        [ForeignKey(nameof(UserId))]
+        public required int OwnerId { get; set; }
+        [ForeignKey(nameof(OwnerId))]
         public virtual User? Owner { get; set; }
 
         public virtual ICollection<Folder> Folders { get; set; } = null!;

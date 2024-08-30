@@ -28,15 +28,15 @@ namespace DigitalAssetManagement.Infrastructure.DatabaseContext
 
             modelBuilder.Entity<Drive>(options =>
             {
-                options.HasIndex(drive => new { drive.DriverName, drive.UserId})
+                options.HasIndex(drive => new { drive.DriverName, drive.OwnerId})
                     .IsUnique(true);
             });
 
             modelBuilder.Entity<Folder>(options =>
             {
                 options.ToTable(table => table
-                    .HasCheckConstraint("CK_Folders_Parent", $"(\"{nameof(Folder.ParentFolderId)}\" IS NOT NULL AND \"{nameof(Folder.DriveId)}\" IS NULL) OR (\"{nameof(Folder.ParentFolderId)}\" IS NULL AND \"{nameof(Folder.DriveId)}\" IS NOT NULL)"));
-                options.HasIndex(folder => new { folder.FolderName, folder.DriveId, folder.ParentFolderId })
+                    .HasCheckConstraint("CK_Folders_Parent", $"(\"{nameof(Folder.ParentFolderId)}\" IS NOT NULL AND \"{nameof(Folder.ParentDriveId)}\" IS NULL) OR (\"{nameof(Folder.ParentFolderId)}\" IS NULL AND \"{nameof(Folder.ParentDriveId)}\" IS NOT NULL)"));
+                options.HasIndex(folder => new { folder.FolderName, folder.ParentDriveId, folder.ParentFolderId })
                     .IsUnique(true)
                     .AreNullsDistinct(false);
             });
@@ -44,8 +44,8 @@ namespace DigitalAssetManagement.Infrastructure.DatabaseContext
             modelBuilder.Entity<Domain.Entities.File>(options =>
             {
                 options.ToTable(table => table
-                    .HasCheckConstraint("CK_Files_Parent", $"(\"{nameof(Domain.Entities.File.ParentFolderId)}\" IS NOT NULL AND \"{nameof(Domain.Entities.File.DriveId)}\" IS NULL) OR (\"{nameof(Domain.Entities.File.ParentFolderId)}\" IS NULL AND \"{nameof(Domain.Entities.File.DriveId)}\" IS NOT NULL)"));
-                options.HasIndex(file => new {file.FileName, file.DriveId, file.ParentFolderId})
+                    .HasCheckConstraint("CK_Files_Parent", $"(\"{nameof(Domain.Entities.File.ParentFolderId)}\" IS NOT NULL AND \"{nameof(Domain.Entities.File.ParentDriveId)}\" IS NULL) OR (\"{nameof(Domain.Entities.File.ParentFolderId)}\" IS NULL AND \"{nameof(Domain.Entities.File.ParentDriveId)}\" IS NOT NULL)"));
+                options.HasIndex(file => new {file.FileName, file.ParentDriveId, file.ParentFolderId})
                     .IsUnique(true)
                     .AreNullsDistinct(false);
             });

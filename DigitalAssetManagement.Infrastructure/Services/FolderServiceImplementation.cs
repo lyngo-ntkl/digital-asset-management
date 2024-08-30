@@ -60,7 +60,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
                 {
                     throw new NotFoundException(ExceptionMessage.DriveNotFound);
                 }
-                if (drive.UserId == userId)
+                if (drive.OwnerId == userId)
                 {
                     return true;
                 }

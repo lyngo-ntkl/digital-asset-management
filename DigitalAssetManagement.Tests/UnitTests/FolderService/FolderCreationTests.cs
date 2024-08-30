@@ -67,7 +67,7 @@ namespace DigitalAssetManagement.Tests.UnitTests.Folders
                         {
                             Data.Instance.Users[i],
                             new FolderCreationRequestDto { FolderName = $"Folder {i}", ParentDriveId = i },
-                            new Drive { Id = i, UserId = i + 1, DriverName = $"Drive {i}", CreatedDate = DateTime.UtcNow, ModifiedDate = DateTime.UtcNow }
+                            new Drive { Id = i, OwnerId = i + 1, DriverName = $"Drive {i}", CreatedDate = DateTime.UtcNow, ModifiedDate = DateTime.UtcNow }
                         };
                     }
                 }

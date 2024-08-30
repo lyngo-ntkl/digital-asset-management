@@ -8,7 +8,8 @@ namespace DigitalAssetManagement.Domain.Entities
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int? Id { get; set; }
-        public required DateTime CreatedDate { get; set; }
-        public required DateTime ModifiedDate { get; set; }
+        public DateTime? CreatedDate { get; set; } = DateTime.UtcNow;
+        public DateTime? ModifiedDate { get; set; } = DateTime.UtcNow;
+        public bool IsDeleted { get; set; } = false;
     }
 }
