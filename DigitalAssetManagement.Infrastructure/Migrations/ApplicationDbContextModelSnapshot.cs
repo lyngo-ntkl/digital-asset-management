@@ -57,7 +57,7 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
                     b.HasIndex("DriverName", "OwnerId")
                         .IsUnique();
 
-                    b.ToTable("Drives");
+                    b.ToTable("Drives", (string)null);
                 });
 
             modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.File", b =>
@@ -102,7 +102,7 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
 
                     NpgsqlIndexBuilderExtensions.AreNullsDistinct(b.HasIndex("FileName", "ParentDriveId", "ParentFolderId"), false);
 
-                    b.ToTable("Files", t =>
+                    b.ToTable("Files", null, t =>
                         {
                             t.HasCheckConstraint("CK_Files_Parent", "(\"ParentFolderId\" IS NOT NULL AND \"ParentDriveId\" IS NULL) OR (\"ParentFolderId\" IS NULL AND \"ParentDriveId\" IS NOT NULL)");
                         });
@@ -146,7 +146,7 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
 
                     NpgsqlIndexBuilderExtensions.AreNullsDistinct(b.HasIndex("FolderName", "ParentDriveId", "ParentFolderId"), false);
 
-                    b.ToTable("Folders", t =>
+                    b.ToTable("Folders", null, t =>
                         {
                             t.HasCheckConstraint("CK_Folders_Parent", "(\"ParentFolderId\" IS NOT NULL AND \"ParentDriveId\" IS NULL) OR (\"ParentFolderId\" IS NULL AND \"ParentDriveId\" IS NOT NULL)");
                         });
@@ -192,7 +192,7 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
 
                     NpgsqlIndexBuilderExtensions.AreNullsDistinct(b.HasIndex("UserId", "FileId", "FolderId"), false);
 
-                    b.ToTable("Permissions", t =>
+                    b.ToTable("Permissions", null, t =>
                         {
                             t.HasCheckConstraint("CK_Permissions_Asset", "(\"FolderId\" IS NOT NULL AND \"FileId\" IS NULL) OR (\"FolderId\" IS NULL AND \"FileId\" IS NOT NULL)");
                         });
@@ -242,7 +242,7 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.Drive", b =>

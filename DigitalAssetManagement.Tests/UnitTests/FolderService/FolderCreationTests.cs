@@ -25,7 +25,7 @@ namespace DigitalAssetManagement.Tests.UnitTests.Folders
                         {
                             Data.Instance.Users[i],
                             new FolderCreationRequestDto { FolderName = $"Folder {i}", ParentFolderId = i },
-                            new Permission { Id = i, Role = Domain.Enums.Role.Reader, FolderId = i, UserId = i, CreatedDate = DateTime.UtcNow, ModifiedDate = DateTime.UtcNow}
+                            Data.Instance.ReaderPermissions[i]
                         };
                     }
                 }

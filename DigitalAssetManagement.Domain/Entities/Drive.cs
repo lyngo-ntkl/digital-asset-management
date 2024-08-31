@@ -4,6 +4,7 @@ namespace DigitalAssetManagement.Domain.Entities
 {
     public class Drive: BaseEntity
     {
+        // TODO: rename to DriveName
         public required string DriverName { get; set; }
 
         public required int OwnerId { get; set; }

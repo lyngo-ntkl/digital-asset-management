@@ -1,8 +1,8 @@
-﻿using AutoMapper;
-using DigitalAssetManagement.Application.Repositories;
+﻿using DigitalAssetManagement.Application.Repositories;
 using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Domain.Enums;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace DigitalAssetManagement.Infrastructure.Services
@@ -52,6 +52,71 @@ namespace DigitalAssetManagement.Infrastructure.Services
             }
 
             await _unitOfWork.SaveAsync();
+        }
+
+        public async Task<bool> HasReaderPermission(int userId, int fileIdOrFolderIdOrDriveId, bool isFile = false, bool isDrive = false)
+        {
+            if (isFile && isDrive)
+            {
+                throw new Exception();
+            }
+
+            if (isDrive && !await IsDriveOwner(userId, fileIdOrFolderIdOrDriveId))
+            {
+                return false;
+            }
+
+            var permission = await GetPermission(userId, fileIdOrFolderIdOrDriveId, isFile);
+            if (permission == null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private async Task<bool> IsDriveOwner(int userId, int driveId)
+        {
+            var drive = await _unitOfWork.DriveRepository.GetByIdAsync(driveId);
+            if (drive == null || drive.OwnerId != userId)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        private async Task<Permission?> GetPermission(int userId, int fileIdOrFolderId, bool isFile)
+        {
+            var parameter = Expression.Parameter(typeof(Permission));
+            Expression expression = Expression.Equal(
+                Expression.Constant(userId),
+                Expression.Property(parameter, nameof(Permission.UserId))
+            );
+
+            var id = Expression.Convert(Expression.Constant(fileIdOrFolderId), typeof(int?));
+            if (isFile)
+            {
+                expression = Expression.And(
+                    expression,
+                    Expression.Equal(
+                        Expression.Property(parameter, nameof(Permission.FileId)),
+                        id
+                    )
+                );
+            }
+            else
+            {
+                expression = Expression.And(
+                    expression,
+                    Expression.Equal(
+                        Expression.Property(parameter, nameof(Permission.FolderId)),
+                        id
+                    )
+                );
+            }
+
+            var permission = await _unitOfWork.PermissionRepository.GetOnConditionAsync(Expression.Lambda<Func<Permission, bool>>(expression, parameter));
+            return permission;
         }
     }
 }

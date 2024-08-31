@@ -80,7 +80,7 @@ namespace DigitalAssetManagement.Tests.UnitTests.Folders
         {
             // Arrange
             _userService!.Setup(us => us.GetLoginUserAsync()).ReturnsAsync(user);
-            _unitOfWork!.Setup(uow => uow.PermissionRepository.GetOnConditionAsync(p => p.FolderId == folderId && p.UserId == user.Id)).ReturnsAsync(permission);
+            _unitOfWork!.Setup(uow => uow.PermissionRepository.GetOnConditionAsync(p => p.UserId == user.Id && p.FolderId == folderId)).ReturnsAsync(permission);
             _unitOfWork!.Setup(uow => uow.FolderRepository.GetByIdAsync(folderId)).ReturnsAsync((Folder?) null);
 
             // Act
@@ -161,7 +161,7 @@ namespace DigitalAssetManagement.Tests.UnitTests.Folders
                             {
                                 Id = i,
                                 FolderName = $"Folder {i}",
-                                ParentDrive = new DriveResponseDto { Id = i, DriveName = $"Drive {i}" },
+                                ParentDrive = new DriveResponseDto { Id = i, DriverName = $"Drive {i}" },
                                 SubFolders = [
                                     new FolderResponseDto {Id = i + 1, FolderName = $"Folder {i + 1}"}
                                 ],

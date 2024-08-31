@@ -42,6 +42,24 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return _mapper.Map<FolderDetailResponseDto>(folder);
         }
 
+        public async Task<FolderDetailResponseDto> Get(int id)
+        {
+            User user = await _userService.GetLoginUserAsync();
+
+            if (!await _permissionService.HasReaderPermission(userId: user.Id!.Value, fileIdOrFolderIdOrDriveId: id))
+            {
+                throw new ForbiddenException(ExceptionMessage.UnallowedFolderAccess);
+            }
+
+            var folder = await _unitOfWork.FolderRepository.GetByIdAsync(id);
+            if (folder == null)
+            {
+                throw new NotFoundException(ExceptionMessage.FolderNotFound);
+            }
+
+            return _mapper.Map<FolderDetailResponseDto>(folder);
+        }
+
         private async Task<bool> HasModifiedPermission(int userId, int? folderId, int? driveId)
         {
             if (folderId != null)

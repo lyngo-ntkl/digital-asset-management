@@ -64,7 +64,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
         public async Task<User> GetLoginUserAsync()
         {
             var authorizationHeader = _httpContextAccessor.HttpContext?.Request.Headers.FirstOrDefault(header => header.Key == "Authorization").Value;
-            var jwt = authorizationHeader.ToString()!.Split("Bearer ")[0];
+            var jwt = authorizationHeader.ToString()!.Split("Bearer ")[1];
 
             int id = int.Parse(_jwtHelper.GetSid(jwt)!);
             var user = await _unitOfWork.UserRepository.GetByIdAsync(id);

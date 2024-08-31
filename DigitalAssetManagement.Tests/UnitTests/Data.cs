@@ -43,7 +43,7 @@ namespace DigitalAssetManagement.Tests.UnitTests
         public static string JwtIssuer = "lyntk";
         public static string TestPassword = "Qwertyuiop1234567890!!";
         public static string WrongTestPassword = "Qwerty123456789!";
-        public static int ArraySize = 5;
+        public static int ArraySize = 10;
 
         private User[]? _users = null;
         private EmailPasswordRegistrationRequest[]? _emailPasswordRegistrationRequests;
@@ -84,6 +84,23 @@ namespace DigitalAssetManagement.Tests.UnitTests
                     }
                 }
                 return _users;
+            }
+        }
+
+        public Permission[]? _readerPermissions = null;
+        public Permission[] ReaderPermissions
+        {
+            get
+            {
+                if (_readerPermissions == null)
+                {
+                    _readerPermissions = new Permission[ArraySize];
+                    for (int i = 0; i < ArraySize; i++)
+                    {
+                        _readerPermissions[i] = new Permission { Id = i, Role = Domain.Enums.Role.Reader, FolderId = i, UserId = i, CreatedDate = DateTime.UtcNow, ModifiedDate = DateTime.UtcNow };
+                    }
+                }
+                return _readerPermissions;
             }
         }
     }

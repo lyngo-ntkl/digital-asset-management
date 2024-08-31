@@ -16,6 +16,12 @@ namespace DigitalAssetManagement.API.Controllers
             _folderService = folderService;
         }
 
+        [HttpGet("{id}")]
+        public async Task<FolderDetailResponseDto> Get([FromRoute] int id)
+        {
+            return await _folderService.Get(id);
+        }
+
         [HttpPost]
         public async Task<FolderDetailResponseDto> Create(FolderCreationRequestDto request)
         {
