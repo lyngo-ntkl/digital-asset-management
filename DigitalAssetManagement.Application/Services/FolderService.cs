@@ -1,5 +1,5 @@
-﻿using DigitalAssetManagement.Application.Dtos.Requests;
-using DigitalAssetManagement.Application.Dtos.Responses;
+﻿using DigitalAssetManagement.Application.Dtos.Requests.Folders;
+using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 
 namespace DigitalAssetManagement.Application.Services
 {
@@ -7,5 +7,6 @@ namespace DigitalAssetManagement.Application.Services
     {
         Task<FolderDetailResponseDto> Create(FolderCreationRequestDto request);
         Task<FolderDetailResponseDto> Get(int id);
+        Task<FolderDetailResponseDto> MoveFolder(int id, FolderMovementRequestDto request);
     }
 }

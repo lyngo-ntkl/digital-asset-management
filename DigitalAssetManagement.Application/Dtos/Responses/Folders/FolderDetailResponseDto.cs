@@ -1,6 +1,6 @@
 ﻿using DigitalAssetManagement.Application.Common.Attributes;
 
-namespace DigitalAssetManagement.Application.Dtos.Responses
+namespace DigitalAssetManagement.Application.Dtos.Responses.Folders
 {
     [Xor(nameof(ParentFolder), nameof(ParentDrive))]
     public class FolderDetailResponseDto

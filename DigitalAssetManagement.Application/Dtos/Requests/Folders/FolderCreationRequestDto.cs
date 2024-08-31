@@ -1,6 +1,6 @@
 ﻿using DigitalAssetManagement.Application.Common.Attributes;
 
-namespace DigitalAssetManagement.Application.Dtos.Requests
+namespace DigitalAssetManagement.Application.Dtos.Requests.Folders
 {
     [Xor(nameof(ParentDriveId), nameof(ParentFolderId))]
     public class FolderCreationRequestDto

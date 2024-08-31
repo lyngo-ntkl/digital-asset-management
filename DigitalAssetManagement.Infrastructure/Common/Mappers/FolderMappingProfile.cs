@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using DigitalAssetManagement.Application.Dtos.Requests;
-using DigitalAssetManagement.Application.Dtos.Responses;
+using DigitalAssetManagement.Application.Dtos.Requests.Folders;
+using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 using DigitalAssetManagement.Domain.Entities;
 
 namespace DigitalAssetManagement.Infrastructure.Common.Mappers
@@ -15,6 +15,7 @@ namespace DigitalAssetManagement.Infrastructure.Common.Mappers
                 .ForAllMembers(config => config.Condition((src, dest, srcVal) => srcVal != null));
             CreateMap<FolderCreationRequestDto, Folder>()
                 .ForAllMembers(config => config.Condition((src, dest, srcVal) => srcVal != null));
+            CreateMap<FolderMovementRequestDto, Folder>();
         }
     }
 }

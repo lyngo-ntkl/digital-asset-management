@@ -1,6 +1,6 @@
 ﻿using DigitalAssetManagement.Application.Common;
-using DigitalAssetManagement.Application.Dtos.Requests;
 using DigitalAssetManagement.Application.Dtos.Responses;
+using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 using DigitalAssetManagement.Application.Exceptions;
 using DigitalAssetManagement.Domain.Entities;
 using Moq;
@@ -38,7 +38,7 @@ namespace DigitalAssetManagement.Tests.UnitTests.Folders
         {
             // Arrange
             _userService!.Setup(us => us.GetLoginUserAsync()).ReturnsAsync(user);
-            _unitOfWork!.Setup(uow => uow.PermissionRepository.GetOnConditionAsync(p => p.FolderId == folderId && p.UserId == user.Id))
+            _unitOfWork!.Setup(uow => uow.PermissionRepository.GetFirstOnConditionAsync(p => p.FolderId == folderId && p.UserId == user.Id))
                 .ReturnsAsync((Permission?) null);
 
             // Act
@@ -74,13 +74,14 @@ namespace DigitalAssetManagement.Tests.UnitTests.Folders
             }
         }
 
+        // TODO: don't know how to set up expression tree the right way
         [Test]
         [TestCaseSource(nameof(FolderNotFoundTestCases))]
         public void Get_GivenFolderDoesNotExist_ThrowNotFoundException(User user, int folderId, Permission permission)
         {
             // Arrange
             _userService!.Setup(us => us.GetLoginUserAsync()).ReturnsAsync(user);
-            _unitOfWork!.Setup(uow => uow.PermissionRepository.GetOnConditionAsync(p => p.UserId == user.Id && p.FolderId == folderId)).ReturnsAsync(permission);
+            _unitOfWork!.Setup(uow => uow.PermissionRepository.GetFirstOnConditionAsync(p => p.UserId == user.Id && p.FolderId == folderId)).ReturnsAsync(permission);
             _unitOfWork!.Setup(uow => uow.FolderRepository.GetByIdAsync(folderId)).ReturnsAsync((Folder?) null);
 
             // Act
@@ -182,7 +183,7 @@ namespace DigitalAssetManagement.Tests.UnitTests.Folders
         {
             // Arrange
             _userService!.Setup(us => us.GetLoginUserAsync()).ReturnsAsync(user);
-            _unitOfWork!.Setup(uow => uow.PermissionRepository.GetOnConditionAsync(p => p.UserId == user.Id && (int?) typeof(Permission).GetProperty(nameof(Permission.FolderId))!.GetValue(p) == folderId)).ReturnsAsync(permission);
+            _unitOfWork!.Setup(uow => uow.PermissionRepository.GetFirstOnConditionAsync(p => p.UserId == user.Id && (int?) typeof(Permission).GetProperty(nameof(Permission.FolderId))!.GetValue(p) == folderId)).ReturnsAsync(permission);
             _unitOfWork!.Setup(uow => uow.FolderRepository.GetByIdAsync(folderId)).ReturnsAsync(folder);
 
             // Act

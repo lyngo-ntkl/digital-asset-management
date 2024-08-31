@@ -18,7 +18,7 @@ namespace DigitalAssetManagement.API.Controllers
         }
 
         [HttpPost("authentication")]
-        public async Task<AuthResponse> LoginWithEmailPassword(EmailPasswordAuthRequest request)
+        public async Task<AuthResponse> LoginWithEmailPassword([FromBody] EmailPasswordAuthRequest request)
         {
             return await _userService.LoginWithEmailPassword(request);
         }

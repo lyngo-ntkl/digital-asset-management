@@ -9,8 +9,8 @@ namespace DigitalAssetManagement.Application.Repositories
         Task<T?> GetByIdAsync(int id);
         ICollection<T> GetAll(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderedQuery = null, string includedProperties = "", bool isTracked = true, bool isPaging = false, int pageSize = 10, int page = 1);
         Task<ICollection<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderedQuery = null, string includedProperties = "", bool isTracked = true, bool isPaging = false, int pageSize = 10, int page = 1);
-        T? GetOnCondition(Func<T, bool> condition);
-        Task<T?> GetOnConditionAsync(Expression<Func<T, bool>> condition);
+        T? GetFirstOnCondition(Func<T, bool> condition);
+        Task<T?> GetFirstOnConditionAsync(Expression<Func<T, bool>> condition);
         T Insert(T entity);
         Task<T> InsertAsync(T entity);
         void BatchInsert(IEnumerable<T> entities);

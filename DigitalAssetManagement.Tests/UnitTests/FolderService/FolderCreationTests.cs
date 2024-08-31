@@ -1,5 +1,5 @@
 ﻿using DigitalAssetManagement.Application.Common;
-using DigitalAssetManagement.Application.Dtos.Requests;
+using DigitalAssetManagement.Application.Dtos.Requests.Folders;
 using DigitalAssetManagement.Application.Exceptions;
 using DigitalAssetManagement.Domain.Entities;
 using Moq;
@@ -39,7 +39,7 @@ namespace DigitalAssetManagement.Tests.UnitTests.Folders
         {
             // Arrange
             _userService!.Setup(us => us.GetLoginUserAsync()).ReturnsAsync(user);
-            _unitOfWork!.Setup(uow => uow.PermissionRepository.GetOnConditionAsync(p => p.FolderId == request.ParentFolderId && p.UserId == user.Id))
+            _unitOfWork!.Setup(uow => uow.PermissionRepository.GetFirstOnConditionAsync(p => p.FolderId == request.ParentFolderId && p.UserId == user.Id))
                 .ReturnsAsync(permission);
 
             // Act

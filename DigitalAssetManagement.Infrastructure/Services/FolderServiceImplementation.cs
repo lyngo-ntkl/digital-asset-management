@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using DigitalAssetManagement.Application.Common;
-using DigitalAssetManagement.Application.Dtos.Requests;
-using DigitalAssetManagement.Application.Dtos.Responses;
+using DigitalAssetManagement.Application.Dtos.Requests.Folders;
+using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 using DigitalAssetManagement.Application.Exceptions;
 using DigitalAssetManagement.Application.Repositories;
 using DigitalAssetManagement.Application.Services;
@@ -60,11 +60,33 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return _mapper.Map<FolderDetailResponseDto>(folder);
         }
 
+        public async Task<FolderDetailResponseDto> MoveFolder(int id, FolderMovementRequestDto request)
+        {
+            User user = await _userService.GetLoginUserAsync();
+
+            if (!await _permissionService.HasAdminPermission(userId: user.Id!.Value, fileIdOrDriveIdOrFolderId: request.ParentFolderId ?? request.ParentDriveId!.Value, isDrive: request.ParentDriveId != null))
+            {
+                throw new ForbiddenException(ExceptionMessage.UnallowedFolderMovement);
+            }
+
+            var folder = await _unitOfWork.FolderRepository.GetByIdAsync(id);
+            if (folder == null)
+            {
+                throw new NotFoundException(ExceptionMessage.FolderNotFound);
+            }
+
+            folder = _mapper.Map(request, folder);
+            _unitOfWork.FolderRepository.Update(folder);
+            await _unitOfWork.SaveAsync();
+
+            return _mapper.Map<FolderDetailResponseDto>(folder);
+        }
+
         private async Task<bool> HasModifiedPermission(int userId, int? folderId, int? driveId)
         {
             if (folderId != null)
             {
-                var userPermissionToAccessFolder = await _unitOfWork.PermissionRepository.GetOnConditionAsync(permission => permission.FolderId == folderId && permission.UserId == userId);
+                var userPermissionToAccessFolder = await _unitOfWork.PermissionRepository.GetFirstOnConditionAsync(permission => permission.FolderId == folderId && permission.UserId == userId);
                 if (userPermissionToAccessFolder != null && userPermissionToAccessFolder.Role != Role.Reader)
                 {
                     return true;

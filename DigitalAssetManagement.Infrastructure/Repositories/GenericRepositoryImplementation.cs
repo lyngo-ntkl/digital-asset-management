@@ -145,12 +145,12 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             return await _dbSet.FindAsync(id);
         }
 
-        public T? GetOnCondition(Func<T, bool> condition)
+        public T? GetFirstOnCondition(Func<T, bool> condition)
         {
             return _dbSet.FirstOrDefault(condition);
         }
 
-        public async Task<T?> GetOnConditionAsync(Expression<Func<T, bool>> condition)
+        public async Task<T?> GetFirstOnConditionAsync(Expression<Func<T, bool>> condition)
         {
             return await _dbSet.FirstOrDefaultAsync(condition);
         }

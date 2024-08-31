@@ -1,4 +1,4 @@
-﻿namespace DigitalAssetManagement.Application.Dtos.Responses
+﻿namespace DigitalAssetManagement.Application.Dtos.Responses.Folders
 {
     public class FolderResponseDto
     {

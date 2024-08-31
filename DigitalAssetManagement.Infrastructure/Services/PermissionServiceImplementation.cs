@@ -115,8 +115,50 @@ namespace DigitalAssetManagement.Infrastructure.Services
                 );
             }
 
-            var permission = await _unitOfWork.PermissionRepository.GetOnConditionAsync(Expression.Lambda<Func<Permission, bool>>(expression, parameter));
+            var permission = await _unitOfWork.PermissionRepository.GetFirstOnConditionAsync(Expression.Lambda<Func<Permission, bool>>(expression, parameter));
             return permission;
+        }
+
+        public async Task<bool> HasAdminPermission(int userId, int fileIdOrDriveIdOrFolderId, bool isFile = false, bool isDrive = false)
+        {
+            if (isFile && isDrive)
+            {
+                throw new Exception();
+            }
+
+            if (isDrive && !await IsDriveOwner(userId, fileIdOrDriveIdOrFolderId))
+            {
+                return false;
+            }
+
+            var permission = await GetPermission(userId, fileIdOrDriveIdOrFolderId, isFile);
+            if (permission == null || permission.Role != Role.Admin)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public async Task<bool> HasModifiedPermission(int userId, int fileIdOrDriveIdOrFolderId, bool isFile = false, bool isDrive = false)
+        {
+            if (isFile && isDrive)
+            {
+                throw new Exception();
+            }
+
+            if (isDrive && !await IsDriveOwner(userId, fileIdOrDriveIdOrFolderId))
+            {
+                return false;
+            }
+
+            var permission = await GetPermission(userId, fileIdOrDriveIdOrFolderId, isFile);
+            if (permission == null || permission.Role == Role.Reader)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
