@@ -42,6 +42,24 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return _mapper.Map<FolderDetailResponseDto>(folder);
         }
 
+        public async Task Delete(int id)
+        {
+            User user = await _userService.GetLoginUserAsync();
+            if (!await HasModifiedPermission(user.Id!.Value, id, null))
+            {
+                throw new ForbiddenException(ExceptionMessage.UnallowedFolderModification);
+            }
+
+            var folder = await _unitOfWork.FolderRepository.GetByIdAsync(id);
+            if (folder == null)
+            {
+                throw new NotFoundException(ExceptionMessage.FolderNotFound);
+            }
+
+            _unitOfWork.FolderRepository.Delete(folder);
+            await _unitOfWork.SaveAsync();
+        }
+
         public async Task<FolderDetailResponseDto> Get(int id)
         {
             User user = await _userService.GetLoginUserAsync();
