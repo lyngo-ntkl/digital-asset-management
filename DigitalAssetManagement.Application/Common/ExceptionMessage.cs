@@ -13,5 +13,7 @@
         public const string FileNotFound = "File not found";
         public const string FolderNotFound = "Folder not found";
         public const string UnallowedFolderMovement = "User does not have permission to move folder to other drive or folder";
+        public const string UnallowedPermissionCreation = "User does not have permission to add new permission to this file or folder";
+        public const string UserNotFound = "User not found";
     }
 }

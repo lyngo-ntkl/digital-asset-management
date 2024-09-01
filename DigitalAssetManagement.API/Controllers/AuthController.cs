@@ -1,7 +1,6 @@
 ﻿using DigitalAssetManagement.Application.Dtos.Requests.Users;
 using DigitalAssetManagement.Application.Dtos.Responses.Users;
 using DigitalAssetManagement.Application.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DigitalAssetManagement.API.Controllers

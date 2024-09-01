@@ -1,4 +1,9 @@
-﻿using DigitalAssetManagement.Application.Repositories;
+﻿using AutoMapper;
+using DigitalAssetManagement.Application.Common;
+using DigitalAssetManagement.Application.Dtos.Requests;
+using DigitalAssetManagement.Application.Dtos.Responses;
+using DigitalAssetManagement.Application.Exceptions;
+using DigitalAssetManagement.Application.Repositories;
 using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Domain.Enums;
@@ -10,10 +15,54 @@ namespace DigitalAssetManagement.Infrastructure.Services
     public class PermissionServiceImplementation : PermissionService
     {
         private readonly UnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
+        private readonly UserService _userService;
 
-        public PermissionServiceImplementation(UnitOfWork unitOfWork)
+        public PermissionServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, UserService userService)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
+            _userService = userService;
+        }
+
+        public async Task CreateFolderPermission(int folderId, PermissionRequestDto request)
+        {
+            // TODO: refactor check permission of log in user
+            User loginUser = await _userService.GetLoginUserAsync();
+
+            if (!await HasAdminPermission(userId: loginUser.Id!.Value, fileIdOrDriveIdOrFolderId: folderId))
+            {
+                throw new ForbiddenException(ExceptionMessage.UnallowedFolderMovement);
+            }
+
+            var user = _unitOfWork.UserRepository.GetByEmail(request.Email);
+            if (user == null)
+            {
+                throw new NotFoundException(ExceptionMessage.UserNotFound);
+            }
+
+            var folder = await _unitOfWork.FolderRepository.GetByIdAsync(folderId);
+            if (folder == null)
+            {
+                throw new NotFoundException(ExceptionMessage.FolderNotFound);
+            }
+
+            List<Permission> permissions = new List<Permission>();
+            foreach (var fileId in folder.Files.Select(file => file.Id))
+            {
+                Permission filePermission = new Permission { UserId = user.Id!.Value, Role = request.Role, FileId = fileId };
+                permissions.Add(filePermission);
+            }
+            foreach (var subFolderId in folder.SubFolders.Select(subFolder => subFolder.Id))
+            {
+                Permission filePermission = new Permission { UserId = user.Id!.Value, Role = request.Role, FolderId = subFolderId };
+                permissions.Add(filePermission);
+            }
+            Permission permission = new Permission { UserId = user.Id!.Value, Role = request.Role, FolderId = folderId };
+            permissions.Add(permission);
+
+            await _unitOfWork.PermissionRepository.BatchInsertAsync(permissions);
+            await _unitOfWork.SaveAsync();
         }
 
         public async Task CreatePermission(int userId, int assetId, int? folderId, int? driveId, bool isFile = true)

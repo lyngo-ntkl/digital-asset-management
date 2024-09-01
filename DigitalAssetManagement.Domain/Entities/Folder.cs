@@ -12,8 +12,8 @@ namespace DigitalAssetManagement.Domain.Entities
         public virtual Folder? ParentFolder { get; set; }
         [ForeignKey(nameof(ParentDriveId))]
         public virtual Drive? ParentDrive { get; set; }
-        public virtual ICollection<File>? Files { get; set; } = null!;
-        public virtual ICollection<Folder>? SubFolders { get; set; } = null!;
-        public virtual ICollection<Permission>? Permissions { get; set; } = null!;
+        public virtual ICollection<File> Files { get; set; } = null!;
+        public virtual ICollection<Folder> SubFolders { get; set; } = null!;
+        public virtual ICollection<Permission> Permissions { get; set; } = null!;
     }
 }
