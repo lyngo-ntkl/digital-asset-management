@@ -44,5 +44,17 @@ namespace DigitalAssetManagement.API.Controllers
             await _permissionService.CreateFolderPermission(id, request);
             return new CreatedResult();
         }
+
+        [HttpPatch("{id}/trash")]
+        public async Task MoveToTrash([FromRoute] int id)
+        {
+            await _folderService.MoveToTrash(id);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task DeleteFolderPermanently([FromRoute] int id)
+        {
+            await _folderService.Delete(id);
+        }
     }
 }

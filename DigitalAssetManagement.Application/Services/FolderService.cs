@@ -8,6 +8,7 @@ namespace DigitalAssetManagement.Application.Services
         Task<FolderDetailResponseDto> Create(FolderCreationRequestDto request);
         Task<FolderDetailResponseDto> Get(int id);
         Task<FolderDetailResponseDto> MoveFolder(int id, FolderMovementRequestDto request);
+        Task MoveToTrash(int id);
         Task Delete(int id);
     }
 }
