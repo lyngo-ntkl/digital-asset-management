@@ -6,6 +6,7 @@ namespace DigitalAssetManagement.Application.Services
     public interface FolderService
     {
         Task<FolderDetailResponseDto> Create(FolderCreationRequestDto request);
+        Task<FolderDetailResponseDto> Update(int id, FolderModificationRequestDto request);
         Task<FolderDetailResponseDto> Get(int id);
         Task<FolderDetailResponseDto> MoveFolder(int id, FolderMovementRequestDto request);
         Task MoveToTrash(int id);

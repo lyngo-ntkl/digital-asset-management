@@ -16,6 +16,8 @@ namespace DigitalAssetManagement.Infrastructure.Common.Mappers
             CreateMap<FolderCreationRequestDto, Folder>()
                 .ForAllMembers(config => config.Condition((src, dest, srcVal) => srcVal != null));
             CreateMap<FolderMovementRequestDto, Folder>();
+            CreateMap<FolderModificationRequestDto, Folder>()
+                .ForAllMembers(config => config.Condition((src, dest, srcVal) => srcVal != null));
         }
     }
 }

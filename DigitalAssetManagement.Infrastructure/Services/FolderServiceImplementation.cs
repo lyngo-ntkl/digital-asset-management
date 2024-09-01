@@ -119,6 +119,27 @@ namespace DigitalAssetManagement.Infrastructure.Services
             await _unitOfWork.SaveAsync();
         }
 
+        public async Task<FolderDetailResponseDto> Update(int id, FolderModificationRequestDto request)
+        {
+            User user = await _userService.GetLoginUserAsync();
+            if (!await HasModifiedPermission(user.Id!.Value, id, null))
+            {
+                throw new ForbiddenException(ExceptionMessage.UnallowedFolderModification);
+            }
+
+            var folder = await _unitOfWork.FolderRepository.GetByIdAsync(id);
+            if (folder == null)
+            {
+                throw new NotFoundException(ExceptionMessage.FolderNotFound);
+            }
+
+            folder = _mapper.Map(request, folder);
+            _unitOfWork.FolderRepository.Update(folder);
+            await _unitOfWork.SaveAsync();
+
+            return _mapper.Map<FolderDetailResponseDto>(folder);
+        }
+
         private async Task<bool> HasModifiedPermission(int userId, int? folderId, int? driveId)
         {
             if (folderId != null)

@@ -32,6 +32,12 @@ namespace DigitalAssetManagement.API.Controllers
             return await _folderService.Create(request);
         }
 
+        [HttpPatch("{id}")]
+        public async Task<FolderDetailResponseDto> Update([FromRoute] int id, [FromBody] FolderModificationRequestDto request)
+        {
+            return await _folderService.Update(id, request);
+        }
+
         [HttpPatch("{id}/movement")]
         public async Task<FolderDetailResponseDto> MoveFolder([FromRoute] int id, [FromBody] FolderMovementRequestDto request)
         {
