@@ -49,7 +49,7 @@ namespace DigitalAssetManagement.Tests.UnitTests.Folders
             // Assert
             var exception = Assert.ThrowsAsync<ForbiddenException>(creation);
             Assert.That(exception, Is.Not.Null);
-            Assert.That(exception.Message, Is.EqualTo(ExceptionMessage.UnallowedFolderAccess));
+            Assert.That(exception.Message, Is.EqualTo(ExceptionMessage.UnallowedAccess));
         }
 
         private static object[]? _folderNotFoundTestCases = null;
@@ -74,7 +74,7 @@ namespace DigitalAssetManagement.Tests.UnitTests.Folders
             }
         }
 
-        // TODO: don't know how to set up expression tree the right way
+        // TODO: don't know how to set up expression tree the right way in test
         [Test]
         [TestCaseSource(nameof(FolderNotFoundTestCases))]
         public void Get_GivenFolderDoesNotExist_ThrowNotFoundException(User user, int folderId, Permission permission)

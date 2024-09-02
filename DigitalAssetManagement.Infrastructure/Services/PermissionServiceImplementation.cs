@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using DigitalAssetManagement.Application.Common;
 using DigitalAssetManagement.Application.Dtos.Requests;
-using DigitalAssetManagement.Application.Dtos.Responses;
 using DigitalAssetManagement.Application.Exceptions;
 using DigitalAssetManagement.Application.Repositories;
 using DigitalAssetManagement.Application.Services;
@@ -30,9 +29,9 @@ namespace DigitalAssetManagement.Infrastructure.Services
             // TODO: refactor check permission of log in user
             User loginUser = await _userService.GetLoginUserAsync();
 
-            if (!await HasAdminPermission(userId: loginUser.Id!.Value, fileIdOrDriveIdOrFolderId: folderId))
+            if (!await HasPermission(role: Role.Admin, userId: loginUser.Id!.Value, fileIdOrDriveIdOrFolderId: folderId))
             {
-                throw new ForbiddenException(ExceptionMessage.UnallowedFolderMovement);
+                throw new ForbiddenException(ExceptionMessage.UnallowedMovement);
             }
 
             var user = _unitOfWork.UserRepository.GetByEmail(request.Email);
@@ -103,37 +102,6 @@ namespace DigitalAssetManagement.Infrastructure.Services
             await _unitOfWork.SaveAsync();
         }
 
-        public async Task<bool> HasReaderPermission(int userId, int fileIdOrFolderIdOrDriveId, bool isFile = false, bool isDrive = false)
-        {
-            if (isFile && isDrive)
-            {
-                throw new Exception();
-            }
-
-            if (isDrive && !await IsDriveOwner(userId, fileIdOrFolderIdOrDriveId))
-            {
-                return false;
-            }
-
-            var permission = await GetPermission(userId, fileIdOrFolderIdOrDriveId, isFile);
-            if (permission == null)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        private async Task<bool> IsDriveOwner(int userId, int driveId)
-        {
-            var drive = await _unitOfWork.DriveRepository.GetByIdAsync(driveId);
-            if (drive == null || drive.OwnerId != userId)
-            {
-                return false;
-            }
-            return true;
-        }
-
         private async Task<Permission?> GetPermission(int userId, int fileIdOrFolderId, bool isFile)
         {
             var parameter = Expression.Parameter(typeof(Permission));
@@ -168,46 +136,57 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return permission;
         }
 
-        public async Task<bool> HasAdminPermission(int userId, int fileIdOrDriveIdOrFolderId, bool isFile = false, bool isDrive = false)
+        private async Task<Role?> GetPermissionRole(int userId, int fileIdOrFolderIdOrDriveId, bool isFile = false, bool isDrive = false)
         {
             if (isFile && isDrive)
             {
                 throw new Exception();
             }
 
-            if (isDrive && !await IsDriveOwner(userId, fileIdOrDriveIdOrFolderId))
+            if (isDrive && await IsDriveOwner(userId, fileIdOrFolderIdOrDriveId))
             {
-                return false;
+                return Role.Admin;
+            }
+            
+            if (!isDrive)
+            {
+                var permission = await GetPermission(userId, fileIdOrFolderIdOrDriveId, isFile);
+                if (permission != null)
+                {
+                    return permission.Role;
+                }
             }
 
-            var permission = await GetPermission(userId, fileIdOrDriveIdOrFolderId, isFile);
-            if (permission == null || permission.Role != Role.Admin)
-            {
-                return false;
-            }
-
-            return true;
+            return null;
         }
 
-        public async Task<bool> HasModifiedPermission(int userId, int fileIdOrDriveIdOrFolderId, bool isFile = false, bool isDrive = false)
+        public async Task<bool> HasPermission(Role role, int userId, int fileIdOrDriveIdOrFolderId, bool isFile = false, bool isDrive = false)
         {
-            if (isFile && isDrive)
+            var userRole = await GetPermissionRole(userId, fileIdOrDriveIdOrFolderId, isFile, isDrive);
+            switch (role)
             {
-                throw new Exception();
+                case Role.Reader:
+                    return userRole != null;
+                case Role.Contributor:
+                    return userRole != null && userRole != Role.Reader;
+                case Role.Admin:
+                    return userRole == Role.Admin;
+                default:
+                    return false;
             }
-
-            if (isDrive && !await IsDriveOwner(userId, fileIdOrDriveIdOrFolderId))
-            {
-                return false;
-            }
-
-            var permission = await GetPermission(userId, fileIdOrDriveIdOrFolderId, isFile);
-            if (permission == null || permission.Role == Role.Reader)
-            {
-                return false;
-            }
-
-            return true;
         }
+
+        public async Task<bool> HasPermissionLoginUser(Role role, int fileIdOrDriveIdOrFolderId, bool isFile = false, bool isDrive = false)
+        {
+            User user = await _userService.GetLoginUserAsync();
+            return await HasPermission(role, user.Id!.Value, fileIdOrDriveIdOrFolderId, isFile, isDrive);
+        }
+
+        private async Task<bool> IsDriveOwner(int userId, int driveId)
+        {
+            var drive = await _unitOfWork.DriveRepository.GetByIdAsync(driveId);
+            return drive != null && drive.OwnerId == userId;
+        }
+
     }
 }

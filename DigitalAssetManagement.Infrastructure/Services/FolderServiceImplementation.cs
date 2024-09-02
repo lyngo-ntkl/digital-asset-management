@@ -27,34 +27,29 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
         public async Task<FolderDetailResponseDto> Create(FolderCreationRequestDto request)
         {
-            User user = await _userService.GetLoginUserAsync();
-            if (!await HasModifiedPermission(user.Id!.Value, request.ParentFolderId, request.ParentDriveId))
+            User loginUser = await _userService.GetLoginUserAsync();
+            if (!await _permissionService.HasPermission(Role.Contributor, userId: loginUser.Id!.Value, fileIdOrDriveIdOrFolderId: request.ParentFolderId ?? request.ParentDriveId!.Value, isDrive: request.ParentDriveId != null))
             {
-                throw new ForbiddenException(ExceptionMessage.UnallowedFolderModification);
+                throw new ForbiddenException(ExceptionMessage.UnallowedModification);
             }
 
             var folder = _mapper.Map<Folder>(request);
             folder = await _unitOfWork.FolderRepository.InsertAsync(folder);
             await _unitOfWork.SaveAsync();
 
-            await _permissionService.CreatePermission(user.Id.Value, folder.Id!.Value, request.ParentFolderId, request.ParentDriveId, false);
+            await _permissionService.CreatePermission(loginUser.Id!.Value, folder.Id!.Value, request.ParentFolderId, request.ParentDriveId, false);
 
             return _mapper.Map<FolderDetailResponseDto>(folder);
         }
 
         public async Task Delete(int id)
         {
-            User user = await _userService.GetLoginUserAsync();
-            if (!await HasModifiedPermission(user.Id!.Value, id, null))
+            if (!await _permissionService.HasPermissionLoginUser(Role.Contributor, fileIdOrDriveIdOrFolderId: id))
             {
-                throw new ForbiddenException(ExceptionMessage.UnallowedFolderModification);
+                throw new ForbiddenException(ExceptionMessage.UnallowedModification);
             }
 
-            var folder = await _unitOfWork.FolderRepository.GetByIdAsync(id);
-            if (folder == null)
-            {
-                throw new NotFoundException(ExceptionMessage.FolderNotFound);
-            }
+            var folder = await GetFolderAsync(id);
 
             _unitOfWork.FolderRepository.Delete(folder);
             await _unitOfWork.SaveAsync();
@@ -62,36 +57,34 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
         public async Task<FolderDetailResponseDto> Get(int id)
         {
-            User user = await _userService.GetLoginUserAsync();
-
-            if (!await _permissionService.HasReaderPermission(userId: user.Id!.Value, fileIdOrFolderIdOrDriveId: id))
+            if (!await _permissionService.HasPermissionLoginUser(role: Role.Reader, fileIdOrDriveIdOrFolderId: id))
             {
-                throw new ForbiddenException(ExceptionMessage.UnallowedFolderAccess);
+                throw new ForbiddenException(ExceptionMessage.UnallowedAccess);
             }
 
-            var folder = await _unitOfWork.FolderRepository.GetByIdAsync(id);
-            if (folder == null)
-            {
-                throw new NotFoundException(ExceptionMessage.FolderNotFound);
-            }
+            var folder = await GetFolderAsync(id);
 
             return _mapper.Map<FolderDetailResponseDto>(folder);
         }
 
-        public async Task<FolderDetailResponseDto> MoveFolder(int id, FolderMovementRequestDto request)
+        private async Task<Folder> GetFolderAsync(int id)
         {
-            User user = await _userService.GetLoginUserAsync();
-
-            if (!await _permissionService.HasAdminPermission(userId: user.Id!.Value, fileIdOrDriveIdOrFolderId: request.ParentFolderId ?? request.ParentDriveId!.Value, isDrive: request.ParentDriveId != null))
-            {
-                throw new ForbiddenException(ExceptionMessage.UnallowedFolderMovement);
-            }
-
             var folder = await _unitOfWork.FolderRepository.GetByIdAsync(id);
             if (folder == null)
             {
                 throw new NotFoundException(ExceptionMessage.FolderNotFound);
             }
+            return folder;
+        }
+
+        public async Task<FolderDetailResponseDto> MoveFolder(int id, FolderMovementRequestDto request)
+        {
+            if (!await _permissionService.HasPermissionLoginUser(role: Role.Admin, fileIdOrDriveIdOrFolderId: request.ParentFolderId ?? request.ParentDriveId!.Value, isDrive: request.ParentDriveId != null))
+            {
+                throw new ForbiddenException(ExceptionMessage.UnallowedMovement);
+            }
+
+            var folder = await GetFolderAsync(id);
 
             folder = _mapper.Map(request, folder);
             _unitOfWork.FolderRepository.Update(folder);
@@ -102,17 +95,12 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
         public async Task MoveToTrash(int id)
         {
-            User user = await _userService.GetLoginUserAsync();
-            if (!await HasModifiedPermission(user.Id!.Value, id, null))
+            if (!await _permissionService.HasPermissionLoginUser(Role.Contributor, fileIdOrDriveIdOrFolderId: id))
             {
-                throw new ForbiddenException(ExceptionMessage.UnallowedFolderModification);
+                throw new ForbiddenException(ExceptionMessage.UnallowedModification);
             }
 
-            var folder = await _unitOfWork.FolderRepository.GetByIdAsync(id);
-            if (folder == null)
-            {
-                throw new NotFoundException(ExceptionMessage.FolderNotFound);
-            }
+            var folder = await GetFolderAsync(id);
 
             folder.IsDeleted = true;
             _unitOfWork.FolderRepository.Update(folder);
@@ -121,50 +109,18 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
         public async Task<FolderDetailResponseDto> Update(int id, FolderModificationRequestDto request)
         {
-            User user = await _userService.GetLoginUserAsync();
-            if (!await HasModifiedPermission(user.Id!.Value, id, null))
+            if (!await _permissionService.HasPermissionLoginUser(Role.Contributor, fileIdOrDriveIdOrFolderId: id))
             {
-                throw new ForbiddenException(ExceptionMessage.UnallowedFolderModification);
+                throw new ForbiddenException(ExceptionMessage.UnallowedModification);
             }
 
-            var folder = await _unitOfWork.FolderRepository.GetByIdAsync(id);
-            if (folder == null)
-            {
-                throw new NotFoundException(ExceptionMessage.FolderNotFound);
-            }
+            var folder = await GetFolderAsync(id);
 
             folder = _mapper.Map(request, folder);
             _unitOfWork.FolderRepository.Update(folder);
             await _unitOfWork.SaveAsync();
 
             return _mapper.Map<FolderDetailResponseDto>(folder);
-        }
-
-        private async Task<bool> HasModifiedPermission(int userId, int? folderId, int? driveId)
-        {
-            if (folderId != null)
-            {
-                var userPermissionToAccessFolder = await _unitOfWork.PermissionRepository.GetFirstOnConditionAsync(permission => permission.FolderId == folderId && permission.UserId == userId);
-                if (userPermissionToAccessFolder != null && userPermissionToAccessFolder.Role != Role.Reader)
-                {
-                    return true;
-                }
-            }
-
-            if (driveId != null)
-            {
-                var drive = _unitOfWork.DriveRepository.GetById(driveId.Value);
-                if (drive == null)
-                {
-                    throw new NotFoundException(ExceptionMessage.DriveNotFound);
-                }
-                if (drive.OwnerId == userId)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
     }

@@ -50,7 +50,7 @@ namespace DigitalAssetManagement.Tests.UnitTests.Folders
             // Assert
             var exception = Assert.ThrowsAsync<ForbiddenException>(creation);
             Assert.That(exception, Is.Not.Null);
-            Assert.That(exception.Message, Is.EqualTo(ExceptionMessage.UnallowedFolderModification));
+            Assert.That(exception.Message, Is.EqualTo(ExceptionMessage.UnallowedModification));
         }
 
         private static object[]? _userIsNotOwnerOfDriveTestCases = null;
@@ -91,7 +91,7 @@ namespace DigitalAssetManagement.Tests.UnitTests.Folders
             // Assert
             var exception = Assert.ThrowsAsync<ForbiddenException>(creation);
             Assert.That(exception, Is.Not.Null);
-            Assert.That(exception.Message, Is.EqualTo(ExceptionMessage.UnallowedFolderModification));
+            Assert.That(exception.Message, Is.EqualTo(ExceptionMessage.UnallowedModification));
         }
     }
 }
