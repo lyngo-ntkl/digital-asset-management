@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
-using DigitalAssetManagement.Application.Dtos.Responses;
+using DigitalAssetManagement.Application.Common;
+using DigitalAssetManagement.Application.Dtos.Responses.Drives;
+using DigitalAssetManagement.Application.Exceptions;
 using DigitalAssetManagement.Application.Repositories;
 using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
 using System.Linq.Expressions;
-using System.Reflection;
 
 namespace DigitalAssetManagement.Infrastructure.Services
 {
@@ -19,6 +20,23 @@ namespace DigitalAssetManagement.Infrastructure.Services
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _userService = userService;
+        }
+
+        public async Task<DriveDetailsResponseDto> GetById(int id)
+        {
+            var drive = await _unitOfWork.DriveRepository.GetByIdAsync(id);
+            if (drive == null)
+            {
+                throw new NotFoundException(ExceptionMessage.DriveNotFound);
+            }
+
+            var user = await _userService.GetLoginUserAsync();
+            if (drive.OwnerId != user.Id)
+            {
+                throw new ForbiddenException(ExceptionMessage.UnallowedAccess);
+            }
+
+            return _mapper.Map<DriveDetailsResponseDto>(drive);
         }
 
         public async Task<List<DriveResponseDto>> GetDriveOwnedByLoginUser(string? name)

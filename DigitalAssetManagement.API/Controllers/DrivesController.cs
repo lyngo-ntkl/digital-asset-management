@@ -1,4 +1,4 @@
-﻿using DigitalAssetManagement.Application.Dtos.Responses;
+﻿using DigitalAssetManagement.Application.Dtos.Responses.Drives;
 using DigitalAssetManagement.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,6 +19,12 @@ namespace DigitalAssetManagement.API.Controllers
         public async Task<List<DriveResponseDto>> GetDriveOwnedByLoginUser([FromQuery] string? name)
         {
             return await _driveService.GetDriveOwnedByLoginUser(name);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<DriveDetailsResponseDto> GetById([FromRoute] int id)
+        {
+            return await _driveService.GetById(id);
         }
     }
 }
