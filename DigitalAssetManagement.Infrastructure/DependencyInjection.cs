@@ -5,6 +5,8 @@ using DigitalAssetManagement.Infrastructure.Common.Mappers;
 using DigitalAssetManagement.Infrastructure.DatabaseContext;
 using DigitalAssetManagement.Infrastructure.Repositories;
 using DigitalAssetManagement.Infrastructure.Services;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +30,13 @@ namespace DigitalAssetManagement.Infrastructure
             services.AddAutoMapper(typeof(FolderMappingProfile));
             services.AddAutoMapper(typeof(FileMappingProfile));
             services.AddAutoMapper(typeof(PermissionMappingProfile));
+
+            // hangfire
+            services.AddHangfire(options =>
+            {
+                options.UsePostgreSqlStorage(opts => opts.UseNpgsqlConnection(configuration.GetConnectionString("defaultConnection")));
+            });
+            services.AddHangfireServer();
 
             // repositories
             services.AddScoped<UnitOfWork, UnitOfWorkImplementation>();

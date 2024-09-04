@@ -24,12 +24,24 @@ namespace DigitalAssetManagement.Infrastructure.DatabaseContext
             {
                 options.HasIndex(user => user.Email)
                     .IsUnique(true);
+                options.HasMany(user => user.Drives)
+                    .WithOne(drive => drive.Owner)
+                    .OnDelete(DeleteBehavior.Cascade);
+                options.HasMany(user => user.Permissions)
+                    .WithOne(permission => permission.User)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Drive>(options =>
             {
-                options.HasIndex(drive => new { drive.DriverName, drive.OwnerId})
+                options.HasIndex(drive => new { drive.DriveName, drive.OwnerId})
                     .IsUnique(true);
+                options.HasMany(drive => drive.Files)
+                    .WithOne(file => file.ParentDrive)
+                    .OnDelete(DeleteBehavior.Cascade);
+                options.HasMany(drive => drive.Folders)
+                    .WithOne(folder => folder.ParentDrive)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Folder>(options =>
@@ -39,6 +51,15 @@ namespace DigitalAssetManagement.Infrastructure.DatabaseContext
                 options.HasIndex(folder => new { folder.FolderName, folder.ParentDriveId, folder.ParentFolderId })
                     .IsUnique(true)
                     .AreNullsDistinct(false);
+                options.HasMany(folder => folder.SubFolders)
+                    .WithOne(folder => folder.ParentFolder)
+                    .OnDelete(DeleteBehavior.Cascade);
+                options.HasMany(folder => folder.Permissions)
+                    .WithOne(permission => permission.Folder)
+                    .OnDelete(DeleteBehavior.Cascade);
+                options.HasMany(folder => folder.Files)
+                    .WithOne(file => file.ParentFolder)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Domain.Entities.File>(options =>
@@ -48,6 +69,9 @@ namespace DigitalAssetManagement.Infrastructure.DatabaseContext
                 options.HasIndex(file => new {file.FileName, file.ParentDriveId, file.ParentFolderId})
                     .IsUnique(true)
                     .AreNullsDistinct(false);
+                options.HasMany(file => file.Permissions)
+                    .WithOne(permission => permission.File)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Permission>(options =>

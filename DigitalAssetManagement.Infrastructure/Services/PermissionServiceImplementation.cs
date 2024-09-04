@@ -14,19 +14,16 @@ namespace DigitalAssetManagement.Infrastructure.Services
     public class PermissionServiceImplementation : PermissionService
     {
         private readonly UnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
         private readonly UserService _userService;
 
-        public PermissionServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, UserService userService)
+        public PermissionServiceImplementation(UnitOfWork unitOfWork, UserService userService)
         {
             _unitOfWork = unitOfWork;
-            _mapper = mapper;
             _userService = userService;
         }
 
         public async Task CreateFolderPermission(int folderId, PermissionRequestDto request)
         {
-            // TODO: refactor check permission of log in user
             User loginUser = await _userService.GetLoginUserAsync();
 
             if (!await HasPermission(role: Role.Admin, userId: loginUser.Id!.Value, fileIdOrDriveIdOrFolderId: folderId))

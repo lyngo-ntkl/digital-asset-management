@@ -7,22 +7,26 @@ using DigitalAssetManagement.Application.Repositories;
 using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Domain.Enums;
+using Hangfire;
 
 namespace DigitalAssetManagement.Infrastructure.Services
 {
     public class FolderServiceImplementation : FolderService
     {
+        private const int DeleteWaitDays = 30;
         private readonly UnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly UserService _userService;
         private readonly PermissionService _permissionService;
+        private readonly IBackgroundJobClient _backgroundJobClient;
 
-        public FolderServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, UserService userService, PermissionService permissionService)
+        public FolderServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, UserService userService, PermissionService permissionService, IBackgroundJobClient backgroundJobClient)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _userService = userService;
             _permissionService = permissionService;
+            _backgroundJobClient = backgroundJobClient;
         }
 
         public async Task<FolderDetailResponseDto> Create(FolderCreationRequestDto request)
@@ -42,17 +46,20 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return _mapper.Map<FolderDetailResponseDto>(folder);
         }
 
+        public async Task DeleteFolder(int id)
+        {
+            var folder = await GetFolderAsync(id);
+            _unitOfWork.FolderRepository.Delete(folder);
+            await _unitOfWork.SaveAsync();
+        }
+
         public async Task Delete(int id)
         {
             if (!await _permissionService.HasPermissionLoginUser(Role.Contributor, fileIdOrDriveIdOrFolderId: id))
             {
                 throw new ForbiddenException(ExceptionMessage.UnallowedModification);
             }
-
-            var folder = await GetFolderAsync(id);
-
-            _unitOfWork.FolderRepository.Delete(folder);
-            await _unitOfWork.SaveAsync();
+            await DeleteFolder(id);
         }
 
         public async Task<FolderDetailResponseDto> Get(int id)
@@ -69,7 +76,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
         private async Task<Folder> GetFolderAsync(int id)
         {
-            var folder = await _unitOfWork.FolderRepository.GetByIdAsync(id);
+            var folder = await _unitOfWork.FolderRepository.GetByIdAsync(id, includedProperties: $"{nameof(Folder.SubFolders)},{nameof(Folder.Files)},{nameof(Folder.Permissions)}");
             if (folder == null)
             {
                 throw new NotFoundException(ExceptionMessage.FolderNotFound);
@@ -105,6 +112,8 @@ namespace DigitalAssetManagement.Infrastructure.Services
             folder.IsDeleted = true;
             _unitOfWork.FolderRepository.Update(folder);
             await _unitOfWork.SaveAsync();
+
+            _backgroundJobClient.Schedule(() => this.DeleteFolder(id), TimeSpan.FromDays(DeleteWaitDays));
         }
 
         public async Task<FolderDetailResponseDto> Update(int id, FolderModificationRequestDto request)

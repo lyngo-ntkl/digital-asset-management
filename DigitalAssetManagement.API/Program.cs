@@ -1,5 +1,6 @@
 using DigitalAssetManagement.API;
 using DigitalAssetManagement.Infrastructure;
+using Hangfire;
 var builder = WebApplication.CreateBuilder(args);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -26,5 +27,7 @@ app.MapControllers();
 app.UseCors();
 
 app.UseExceptionHandler();
+
+app.UseHangfireDashboard("/dashboard");
 
 app.Run();

@@ -7,6 +7,7 @@ namespace DigitalAssetManagement.Application.Repositories
     {
         T? GetById(int id);
         Task<T?> GetByIdAsync(int id);
+        Task<T?> GetByIdAsync(int id, string includedProperties);
         ICollection<T> GetAll(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderedQuery = null, string includedProperties = "", bool isTracked = true, bool isPaging = false, int pageSize = 10, int page = 1);
         Task<ICollection<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderedQuery = null, string includedProperties = "", bool isTracked = true, bool isPaging = false, int pageSize = 10, int page = 1);
         T? GetFirstOnCondition(Func<T, bool> condition);

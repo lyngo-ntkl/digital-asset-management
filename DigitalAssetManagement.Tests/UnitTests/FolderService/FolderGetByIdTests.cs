@@ -150,7 +150,7 @@ namespace DigitalAssetManagement.Tests.UnitTests.Folders
                             new Folder {
                                 Id = i,
                                 FolderName = $"Folder {i}",
-                                ParentDrive = new Drive { Id = i, DriverName = $"Drive {i}", OwnerId = i },
+                                ParentDrive = new Drive { Id = i, DriveName = $"Drive {i}", OwnerId = i },
                                 SubFolders = [
                                     new Folder { Id = i + 1, FolderName = $"Folder {i + 1}" }
                                 ],
@@ -162,7 +162,7 @@ namespace DigitalAssetManagement.Tests.UnitTests.Folders
                             {
                                 Id = i,
                                 FolderName = $"Folder {i}",
-                                ParentDrive = new DriveResponseDto { Id = i, DriverName = $"Drive {i}" },
+                                ParentDrive = new DriveResponseDto { Id = i, DriveName = $"Drive {i}" },
                                 SubFolders = [
                                     new FolderResponseDto {Id = i + 1, FolderName = $"Folder {i + 1}"}
                                 ],

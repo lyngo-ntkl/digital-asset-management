@@ -6,6 +6,7 @@ using DigitalAssetManagement.Infrastructure.Common.Mappers;
 using DigitalAssetManagement.Infrastructure.DatabaseContext;
 using DigitalAssetManagement.Infrastructure.Repositories;
 using DigitalAssetManagement.Infrastructure.Services;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
@@ -19,14 +20,16 @@ namespace DigitalAssetManagement.Tests.UnitTests.Folders
         protected IMapper? _mapper;
         protected FolderService? _folderService;
         protected PermissionService? _permissionService;
+        protected Mock<IBackgroundJobClient> _backgroundJobClient;
         [SetUp]
         public void Init()
         {
             _unitOfWork = new Mock<UnitOfWork>();
             _mapper = (new MapperConfiguration(config => config.AddProfile<UserMappingProfile>())).CreateMapper();
             _userService = new Mock<UserService>();
-            _permissionService = new PermissionServiceImplementation(_unitOfWork.Object);
-            _folderService = new FolderServiceImplementation(_unitOfWork.Object, _mapper, _userService.Object, _permissionService);
+            _permissionService = new PermissionServiceImplementation(_unitOfWork.Object, _userService.Object);
+            _backgroundJobClient = new Mock<IBackgroundJobClient>();
+            _folderService = new FolderServiceImplementation(_unitOfWork.Object, _mapper, _userService.Object, _permissionService, _backgroundJobClient.Object);
         }
     }
 }

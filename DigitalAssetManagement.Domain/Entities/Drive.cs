@@ -4,8 +4,7 @@ namespace DigitalAssetManagement.Domain.Entities
 {
     public class Drive: BaseEntity
     {
-        // TODO: rename to DriveName
-        public required string DriverName { get; set; }
+        public required string DriveName { get; set; }
 
         public required int OwnerId { get; set; }
         [ForeignKey(nameof(OwnerId))]

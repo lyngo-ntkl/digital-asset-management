@@ -45,7 +45,7 @@ namespace DigitalAssetManagement.API.Controllers
         }
 
         [HttpPost("{id}/permissions")]
-        public async Task<ActionResult> AddPermission([FromRoute] int id, [FromForm] PermissionRequestDto request)
+        public async Task<ActionResult> AddPermission([FromRoute] int id, [FromBody] PermissionRequestDto request)
         {
             await _permissionService.CreateFolderPermission(id, request);
             return new CreatedResult();

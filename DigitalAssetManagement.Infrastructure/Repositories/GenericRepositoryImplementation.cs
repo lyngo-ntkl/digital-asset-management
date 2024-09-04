@@ -145,6 +145,16 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             return await _dbSet.FindAsync(id);
         }
 
+        public async Task<T?> GetByIdAsync(int id, string includedProperties)
+        {
+            IQueryable<T> data = _dbSet;
+            foreach (var includedProperty in includedProperties.Split(',', StringSplitOptions.RemoveEmptyEntries))
+            {
+                data = data.Include(includedProperty);
+            }
+            return await _dbSet.FindAsync(id);
+        }
+
         public T? GetFirstOnCondition(Func<T, bool> condition)
         {
             return _dbSet.FirstOrDefault(condition);
