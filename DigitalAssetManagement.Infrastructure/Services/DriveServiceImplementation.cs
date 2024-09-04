@@ -140,5 +140,26 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
             _backgroundJobClient.Schedule(() => this.DeleteDrive(id), TimeSpan.FromDays(int.Parse(_configuration["schedule:deletedWaitDays"]!)));
         }
+
+        public async Task<DriveDetailsResponseDto> Update(int id, DriveRequestDto request)
+        {
+            var drive = await _unitOfWork.DriveRepository.GetByIdAsync(id);
+            if (drive == null)
+            {
+                throw new NotFoundException(ExceptionMessage.DriveNotFound);
+            }
+
+            var user = await _userService.GetLoginUserAsync();
+            if (drive.OwnerId != user.Id)
+            {
+                throw new ForbiddenException(ExceptionMessage.UnallowedModification);
+            }
+
+            drive = _mapper.Map(request, drive);
+            _unitOfWork.DriveRepository.Update(drive);
+            await _unitOfWork.SaveAsync();
+
+            return _mapper.Map<DriveDetailsResponseDto>(drive);
+        }
     }
 }

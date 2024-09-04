@@ -10,5 +10,6 @@ namespace DigitalAssetManagement.Application.Services
         Task<DriveDetailsResponseDto> GetById(int id);
         Task<List<DriveResponseDto>> GetDriveOwnedByLoginUser(string? name);
         Task MoveToTrash(int id);
+        Task<DriveDetailsResponseDto> Update(int id, DriveRequestDto request);
     }
 }
