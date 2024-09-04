@@ -11,6 +11,7 @@ using DigitalAssetManagement.Application.Exceptions;
 using DigitalAssetManagement.Application.Dtos.Requests.Users;
 using DigitalAssetManagement.Application.Common;
 using DigitalAssetManagement.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 namespace DigitalAssetManagement.Tests.UnitTests
 {
     [TestFixture]
@@ -21,6 +22,7 @@ namespace DigitalAssetManagement.Tests.UnitTests
         private Mock<IConfiguration>? _configuration;
         private HashingHelper? _hashingHelper;
         private JwtHelper? _jwtHelper;
+        private Mock<IHttpContextAccessor>? _httpContextAccessor;
         private UserService? _service;
         [SetUp]
         public void Init()
@@ -29,7 +31,7 @@ namespace DigitalAssetManagement.Tests.UnitTests
             _configuration = new Mock<IConfiguration>();
             _hashingHelper = new HashingHelperImplementation(_configuration.Object);
             _jwtHelper = new JwtHelperImplementation(_configuration.Object);
-            _mapper = (new MapperConfiguration(config => config.AddProfile<MappingProfile>())).CreateMapper(x =>
+            _mapper = (new MapperConfiguration(config => config.AddProfile<UserMappingProfile>())).CreateMapper(x =>
             {
                 if (x == typeof(PasswordMappingAction))
                 {
@@ -37,7 +39,8 @@ namespace DigitalAssetManagement.Tests.UnitTests
                 }
                 return null;
             });
-            _service = new UserServiceImplementation(_unitOfWork.Object, _mapper, _hashingHelper, _jwtHelper);
+            _httpContextAccessor = new Mock<IHttpContextAccessor>();
+            _service = new UserServiceImplementation(_unitOfWork.Object, _mapper, _hashingHelper, _jwtHelper, _httpContextAccessor.Object);
 
             _configuration.Setup(c => c.GetSection("hashing:saltByteSize").Value).Returns(Data.TestByteSize);
             _configuration.Setup(c => c.GetSection("hashing:hashByteSize").Value).Returns(Data.TestByteSize);

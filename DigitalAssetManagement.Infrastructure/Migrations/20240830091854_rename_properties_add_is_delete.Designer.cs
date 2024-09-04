@@ -3,6 +3,7 @@ using System;
 using DigitalAssetManagement.Infrastructure.DatabaseContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DigitalAssetManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240830091854_rename_properties_add_is_delete")]
+    partial class rename_properties_add_is_delete
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,7 +40,7 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("DriveName")
+                    b.Property<string>("DriverName")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -54,7 +57,7 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.HasIndex("DriveName", "OwnerId")
+                    b.HasIndex("DriverName", "OwnerId")
                         .IsUnique();
 
                     b.ToTable("Drives");
@@ -260,13 +263,11 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
                 {
                     b.HasOne("DigitalAssetManagement.Domain.Entities.Drive", "ParentDrive")
                         .WithMany("Files")
-                        .HasForeignKey("ParentDriveId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("ParentDriveId");
 
                     b.HasOne("DigitalAssetManagement.Domain.Entities.Folder", "ParentFolder")
                         .WithMany("Files")
-                        .HasForeignKey("ParentFolderId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("ParentFolderId");
 
                     b.Navigation("ParentDrive");
 
@@ -277,13 +278,11 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
                 {
                     b.HasOne("DigitalAssetManagement.Domain.Entities.Drive", "ParentDrive")
                         .WithMany("Folders")
-                        .HasForeignKey("ParentDriveId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("ParentDriveId");
 
                     b.HasOne("DigitalAssetManagement.Domain.Entities.Folder", "ParentFolder")
                         .WithMany("SubFolders")
-                        .HasForeignKey("ParentFolderId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("ParentFolderId");
 
                     b.Navigation("ParentDrive");
 
@@ -294,13 +293,11 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
                 {
                     b.HasOne("DigitalAssetManagement.Domain.Entities.File", "File")
                         .WithMany("Permissions")
-                        .HasForeignKey("FileId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("FileId");
 
                     b.HasOne("DigitalAssetManagement.Domain.Entities.Folder", "Folder")
                         .WithMany("Permissions")
-                        .HasForeignKey("FolderId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("FolderId");
 
                     b.HasOne("DigitalAssetManagement.Domain.Entities.User", "User")
                         .WithMany("Permissions")

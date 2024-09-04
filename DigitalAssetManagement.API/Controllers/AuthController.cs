@@ -1,7 +1,6 @@
 ﻿using DigitalAssetManagement.Application.Dtos.Requests.Users;
 using DigitalAssetManagement.Application.Dtos.Responses.Users;
 using DigitalAssetManagement.Application.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DigitalAssetManagement.API.Controllers
@@ -18,7 +17,7 @@ namespace DigitalAssetManagement.API.Controllers
         }
 
         [HttpPost("authentication")]
-        public async Task<AuthResponse> LoginWithEmailPassword(EmailPasswordAuthRequest request)
+        public async Task<AuthResponse> LoginWithEmailPassword([FromBody] EmailPasswordAuthRequest request)
         {
             return await _userService.LoginWithEmailPassword(request);
         }

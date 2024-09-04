@@ -8,11 +8,11 @@ namespace DigitalAssetManagement.Domain.Entities
         // TODO: decide whether it's a url to access file, a file content itself (byte[])
         public required string FileContent { get; set; }
         public int? ParentFolderId { get; set; }
-        public int? DriveId { get; set; }
+        public int? ParentDriveId { get; set; }
         [ForeignKey(nameof(ParentFolderId))]
         public virtual Folder? ParentFolder { get; set; }
-        [ForeignKey(nameof(DriveId))]
-        public virtual Drive? Drive { get; set; }
+        [ForeignKey(nameof(ParentDriveId))]
+        public virtual Drive? ParentDrive { get; set; }
         public virtual ICollection<Permission> Permissions { get; set; } = null!;
     }
 }

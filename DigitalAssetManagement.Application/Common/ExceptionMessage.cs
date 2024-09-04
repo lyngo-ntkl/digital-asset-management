@@ -7,5 +7,13 @@
         public const string RegisteredEmail = "Email has been registered";
         public const string UnmatchedPassword = "Wrong password";
         public const string UnregisteredEmail = "Email hasn't been registered";
+        public const string UnallowedModification = "User doesn't have permission to modify this folder, file or drive";
+        public const string DriveNotFound = "Drive not found";
+        public const string UnallowedAccess = "User doesn't have permission to access this folder, file or drive";
+        public const string FileNotFound = "File not found";
+        public const string FolderNotFound = "Folder not found";
+        public const string UnallowedMovement = "User does not have permission to move folder or file to other drive or folder";
+        public const string UnallowedPermissionCreation = "User does not have permission to add new permission to this file or folder";
+        public const string UserNotFound = "User not found";
     }
 }

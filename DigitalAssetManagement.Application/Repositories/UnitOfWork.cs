@@ -8,5 +8,6 @@
         DriveRepository DriveRepository { get; }
         FileRepository FileRepository { get; }
         FolderRepository FolderRepository { get; }
+        PermissionRepository PermissionRepository { get; }
     }
 }

@@ -10,14 +10,16 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
         private readonly DriveRepository _driveRepository;
         private readonly FolderRepository _folderRepository;
         private readonly FileRepository _fileRepository;
+        private readonly PermissionRepository _permissionRepository;
 
-        public UnitOfWorkImplementation(ApplicationDbContext context, UserRepository userRepository, DriveRepository driveRepository, FolderRepository folderRepository, FileRepository fileRepository)
+        public UnitOfWorkImplementation(ApplicationDbContext context, UserRepository userRepository, DriveRepository driveRepository, FolderRepository folderRepository, FileRepository fileRepository, PermissionRepository permissionRepository)
         {
             _context = context;
             _userRepository = userRepository;
             _driveRepository = driveRepository;
             _folderRepository = folderRepository;
             _fileRepository = fileRepository;
+            _permissionRepository = permissionRepository;
         }
 
         public UserRepository UserRepository => _userRepository;
@@ -27,6 +29,8 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
         public FileRepository FileRepository => _fileRepository;
 
         public FolderRepository FolderRepository => _folderRepository;
+
+        public PermissionRepository PermissionRepository => _permissionRepository;
 
         public int Save()
         {

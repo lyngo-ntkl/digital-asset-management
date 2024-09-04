@@ -17,6 +17,16 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             _dbSet = _context.Set<T>();
         }
 
+        public void BatchInsert(IEnumerable<T> entities)
+        {
+            _dbSet.AddRange(entities);
+        }
+
+        public async Task BatchInsertAsync(IEnumerable<T> entities)
+        {
+            await _dbSet.AddRangeAsync(entities);
+        }
+
         public int BatchUpdate<TProperty>(Func<T, TProperty> property, Func<T, TProperty> value, Expression<Func<T, bool>>? filter = null)
         {
             IQueryable<T> data = _dbSet.AsQueryable();
@@ -61,7 +71,7 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             return entity;
         }
 
-        public ICollection<T> GetAll(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderedQuery = null, string includedProperties = "")
+        public ICollection<T> GetAll(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderedQuery = null, string includedProperties = "", bool isTracked = true, bool isPaging = false, int pageSize = 10, int page = 1)
         {
             IQueryable<T> data = _dbSet.AsQueryable();
 
@@ -74,16 +84,26 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             {
                 data = data.Include(includeProperty);
             }
-
+            
             if (orderedQuery != null)
             {
-                return orderedQuery(data).ToList();
+                data = orderedQuery(data);
+            }
+
+            if (isPaging)
+            {
+                data = data.Skip((page - 1) * pageSize).Take(pageSize);
+            }
+
+            if (!isTracked)
+            {
+                data = data.AsNoTracking();
             }
 
             return data.ToList();
         }
 
-        public async Task<ICollection<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderedQuery = null, string includedProperties = "")
+        public async Task<ICollection<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderedQuery = null, string includedProperties = "", bool isTracked = true, bool isPaging = false, int pageSize = 10, int page = 1)
         {
             IQueryable<T> data = _dbSet.AsQueryable();
 
@@ -99,7 +119,17 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
 
             if (orderedQuery != null)
             {
-                return await orderedQuery(data).ToListAsync();
+                data = orderedQuery(data);
+            }
+
+            if (isPaging)
+            {
+                data = data.Skip((page - 1) * pageSize).Take(pageSize);
+            }
+
+            if (!isTracked)
+            {
+                data = data.AsNoTracking();
             }
 
             return await data.ToListAsync();
@@ -113,6 +143,26 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
         public async Task<T?> GetByIdAsync(int id)
         {
             return await _dbSet.FindAsync(id);
+        }
+
+        public async Task<T?> GetByIdAsync(int id, string includedProperties)
+        {
+            IQueryable<T> data = _dbSet;
+            foreach (var includedProperty in includedProperties.Split(',', StringSplitOptions.RemoveEmptyEntries))
+            {
+                data = data.Include(includedProperty);
+            }
+            return await _dbSet.FindAsync(id);
+        }
+
+        public T? GetFirstOnCondition(Func<T, bool> condition)
+        {
+            return _dbSet.FirstOrDefault(condition);
+        }
+
+        public async Task<T?> GetFirstOnConditionAsync(Expression<Func<T, bool>> condition)
+        {
+            return await _dbSet.FirstOrDefaultAsync(condition);
         }
 
         public T Insert(T entity)
