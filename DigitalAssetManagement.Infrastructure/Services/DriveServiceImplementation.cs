@@ -37,6 +37,24 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return _mapper.Map<DriveDetailsResponseDto>(drive);
         }
 
+        public async Task Delete(int id)
+        {
+            var drive = await _unitOfWork.DriveRepository.GetByIdAsync(id);
+            if (drive == null)
+            {
+                throw new NotFoundException(ExceptionMessage.DriveNotFound);
+            }
+
+            var user = await _userService.GetLoginUserAsync();
+            if (drive.OwnerId != user.Id)
+            {
+                throw new ForbiddenException(ExceptionMessage.UnallowedModification);
+            }
+
+            _unitOfWork.DriveRepository.Delete(drive);
+            await _unitOfWork.SaveAsync();
+        }
+
         public async Task<DriveDetailsResponseDto> GetById(int id)
         {
             var drive = await _unitOfWork.DriveRepository.GetByIdAsync(id);
