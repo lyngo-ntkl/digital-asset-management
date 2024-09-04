@@ -48,6 +48,7 @@ namespace DigitalAssetManagement.Infrastructure
 
             // services
             services.AddScoped<UserService, UserServiceImplementation>();
+            services.AddScoped<DriveService, DriveServiceImplementation>();
             services.AddScoped<FolderService, FolderServiceImplementation>();
             services.AddScoped<PermissionService, PermissionServiceImplementation>();
 
