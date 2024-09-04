@@ -9,5 +9,6 @@ namespace DigitalAssetManagement.Application.Services
         Task Delete(int id);
         Task<DriveDetailsResponseDto> GetById(int id);
         Task<List<DriveResponseDto>> GetDriveOwnedByLoginUser(string? name);
+        Task MoveToTrash(int id);
     }
 }

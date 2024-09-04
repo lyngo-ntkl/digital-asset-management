@@ -8,5 +8,6 @@ namespace DigitalAssetManagement.Application.Dtos.Responses.Drives
         public string? DriveName { get; set; }
         public ICollection<FolderResponseDto>? Folders { get; set; }
         public ICollection<FileResponseDto>? Files { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

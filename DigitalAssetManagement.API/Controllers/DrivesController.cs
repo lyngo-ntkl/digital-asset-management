@@ -34,6 +34,12 @@ namespace DigitalAssetManagement.API.Controllers
             return await _driveService.Create(request);
         }
 
+        [HttpPatch("{id}/trash")]
+        public async Task MoveToTrash([FromRoute] int id)
+        {
+            await _driveService.MoveToTrash(id);
+        }
+
         [HttpDelete("{id}")]
         public async Task Delete([FromRoute] int id)
         {

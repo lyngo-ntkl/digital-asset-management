@@ -8,25 +8,27 @@ using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Domain.Enums;
 using Hangfire;
+using Microsoft.Extensions.Configuration;
 
 namespace DigitalAssetManagement.Infrastructure.Services
 {
     public class FolderServiceImplementation : FolderService
     {
-        private const int DeleteWaitDays = 30;
         private readonly UnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly UserService _userService;
         private readonly PermissionService _permissionService;
         private readonly IBackgroundJobClient _backgroundJobClient;
+        private readonly IConfiguration _configuration;
 
-        public FolderServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, UserService userService, PermissionService permissionService, IBackgroundJobClient backgroundJobClient)
+        public FolderServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, UserService userService, PermissionService permissionService, IBackgroundJobClient backgroundJobClient, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _userService = userService;
             _permissionService = permissionService;
             _backgroundJobClient = backgroundJobClient;
+            _configuration = configuration;
         }
 
         public async Task<FolderDetailResponseDto> Create(FolderCreationRequestDto request)
@@ -109,11 +111,12 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
             var folder = await GetFolderAsync(id);
 
+            // TODO: change status of subfolders & file
             folder.IsDeleted = true;
             _unitOfWork.FolderRepository.Update(folder);
             await _unitOfWork.SaveAsync();
 
-            _backgroundJobClient.Schedule(() => this.DeleteFolder(id), TimeSpan.FromDays(DeleteWaitDays));
+            _backgroundJobClient.Schedule(() => this.DeleteFolder(id), TimeSpan.FromDays(int.Parse(_configuration["schedule:deletedWaitDays"]!)));
         }
 
         public async Task<FolderDetailResponseDto> Update(int id, FolderModificationRequestDto request)

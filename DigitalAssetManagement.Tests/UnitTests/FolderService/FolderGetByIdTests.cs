@@ -1,5 +1,6 @@
 ﻿using DigitalAssetManagement.Application.Common;
 using DigitalAssetManagement.Application.Dtos.Responses;
+using DigitalAssetManagement.Application.Dtos.Responses.Drives;
 using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 using DigitalAssetManagement.Application.Exceptions;
 using DigitalAssetManagement.Domain.Entities;

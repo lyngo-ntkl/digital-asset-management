@@ -7,5 +7,6 @@
         // TODO: recheck this
         public int? ParentFolderId { get; set; }
         public int? ParentDriveId { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }
