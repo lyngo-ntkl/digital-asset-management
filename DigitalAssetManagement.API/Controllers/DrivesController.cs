@@ -1,4 +1,5 @@
-﻿using DigitalAssetManagement.Application.Dtos.Responses.Drives;
+﻿using DigitalAssetManagement.Application.Dtos.Requests.Drives;
+using DigitalAssetManagement.Application.Dtos.Responses.Drives;
 using DigitalAssetManagement.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,6 +26,12 @@ namespace DigitalAssetManagement.API.Controllers
         public async Task<DriveDetailsResponseDto> GetById([FromRoute] int id)
         {
             return await _driveService.GetById(id);
+        }
+
+        [HttpPost]
+        public async Task<DriveDetailsResponseDto> Create([FromBody] DriveRequestDto request)
+        {
+            return await _driveService.Create(request);
         }
     }
 }

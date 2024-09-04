@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DigitalAssetManagement.Application.Common;
+using DigitalAssetManagement.Application.Dtos.Requests.Drives;
 using DigitalAssetManagement.Application.Dtos.Responses.Drives;
 using DigitalAssetManagement.Application.Exceptions;
 using DigitalAssetManagement.Application.Repositories;
@@ -20,6 +21,20 @@ namespace DigitalAssetManagement.Infrastructure.Services
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _userService = userService;
+        }
+
+        public async Task<DriveDetailsResponseDto> Create(DriveRequestDto request)
+        {
+            User user = await _userService.GetLoginUserAsync();
+            var drive = new Drive {
+                DriveName = request.DriveName,
+                OwnerId = user.Id!.Value
+            };
+
+            drive = await _unitOfWork.DriveRepository.InsertAsync(drive);
+            await _unitOfWork.SaveAsync();
+
+            return _mapper.Map<DriveDetailsResponseDto>(drive);
         }
 
         public async Task<DriveDetailsResponseDto> GetById(int id)
