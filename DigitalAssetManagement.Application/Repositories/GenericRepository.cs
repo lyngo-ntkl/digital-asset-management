@@ -1,4 +1,5 @@
 ﻿using DigitalAssetManagement.Domain.Entities;
+using Microsoft.EntityFrameworkCore.Query;
 using System.Linq.Expressions;
 
 namespace DigitalAssetManagement.Application.Repositories
@@ -17,8 +18,8 @@ namespace DigitalAssetManagement.Application.Repositories
         void BatchInsert(IEnumerable<T> entities);
         Task BatchInsertAsync(IEnumerable<T> entities);
         T Update(T entity);
-        int BatchUpdate<TProperty>(Func<T, TProperty> property, Func<T, TProperty> value, Expression<Func<T, bool>>? filter = null);
-        Task<int> BatchUpdateAsync<TProperty>(Func<T, TProperty> property, Func<T, TProperty> value, CancellationToken cancellationToken = default, Expression<Func<T, bool>>? filter = null);
+        int BatchUpdate(Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> setPropertyCalls, Expression<Func<T, bool>>? filter = null);
+        Task<int> BatchUpdateAsync(Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> setPropertyCalls, CancellationToken cancellationToken = default, Expression<Func<T, bool>>? filter = null);
         T Delete(T entity);
         Task<T?> DeleteAsync(int id);
     }

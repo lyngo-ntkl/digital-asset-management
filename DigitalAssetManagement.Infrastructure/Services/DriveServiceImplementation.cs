@@ -157,9 +157,10 @@ namespace DigitalAssetManagement.Infrastructure.Services
                 throw new ForbiddenException(ExceptionMessage.UnallowedModification);
             }
 
-            // TODO: change status of subfolders & file
             drive.IsDeleted = true;
             _unitOfWork.DriveRepository.Update(drive);
+            await _unitOfWork.FolderRepository.BatchUpdateAsync(folder => folder.SetProperty(f => f.IsDeleted, f => true), filter: folder => folder.HierarchicalPath!.Value.IsDescendantOf(drive.HierarchicalPath!.Value));
+            await _unitOfWork.FileRepository.BatchUpdateAsync(file => file.SetProperty(f => f.IsDeleted, f => true), filter: file => file.HierarchicalPath!.Value.IsDescendantOf(drive.HierarchicalPath!.Value));
             await _unitOfWork.SaveAsync();
 
             _backgroundJobClient.Schedule(() => this.DeleteDrive(id), TimeSpan.FromDays(int.Parse(_configuration["schedule:deletedWaitDays"]!)));

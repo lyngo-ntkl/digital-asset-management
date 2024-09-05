@@ -3,6 +3,7 @@ using DigitalAssetManagement.Application.Repositories;
 using DigitalAssetManagement.Infrastructure.DatabaseContext;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace DigitalAssetManagement.Infrastructure.Repositories
 {
@@ -27,7 +28,7 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             await _dbSet.AddRangeAsync(entities);
         }
 
-        public int BatchUpdate<TProperty>(Func<T, TProperty> property, Func<T, TProperty> value, Expression<Func<T, bool>>? filter = null)
+        public int BatchUpdate(Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> setPropertyCalls, Expression<Func<T, bool>>? filter = null)
         {
             IQueryable<T> data = _dbSet.AsQueryable();
             
@@ -36,11 +37,11 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
                 data = data.Where(filter);
             }
 
-            return data.ExecuteUpdate(data => data.SetProperty(property, value));
+            return data.ExecuteUpdate(setPropertyCalls);
 
         }
 
-        public async Task<int> BatchUpdateAsync<TProperty>(Func<T, TProperty> property, Func<T, TProperty> value, CancellationToken cancellationToken = default, Expression<Func<T, bool>>? filter = null)
+        public async Task<int> BatchUpdateAsync(Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> setPropertyCalls, CancellationToken cancellationToken = default, Expression<Func<T, bool>>? filter = null)
         {
             IQueryable<T> data = _dbSet.AsQueryable();
 
@@ -49,7 +50,7 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
                 data = data.Where(filter);
             }
 
-            return await data.ExecuteUpdateAsync(data => data.SetProperty(property, value));
+            return await data.ExecuteUpdateAsync(setPropertyCalls);
         }
 
         public T Delete(T entity)

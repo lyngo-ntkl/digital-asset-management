@@ -132,9 +132,8 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
             var folder = await GetFolderAsync(id);
 
-            // TODO: change status of subfolders & file
-            folder.IsDeleted = true;
-            _unitOfWork.FolderRepository.Update(folder);
+            await _unitOfWork.FolderRepository.BatchUpdateAsync(folder1 => folder1.SetProperty(f => f.IsDeleted, f => true), filter: f => f.HierarchicalPath!.Value.IsDescendantOf(folder.HierarchicalPath!.Value));
+            await _unitOfWork.FileRepository.BatchUpdateAsync(file => file.SetProperty(f => f.IsDeleted, f => true), filter: file => file.HierarchicalPath!.Value.IsDescendantOf(folder.HierarchicalPath!.Value));
             await _unitOfWork.SaveAsync();
 
             _backgroundJobClient.Schedule(() => this.DeleteFolder(id), TimeSpan.FromDays(int.Parse(_configuration["schedule:deletedWaitDays"]!)));
