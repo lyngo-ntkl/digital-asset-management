@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DigitalAssetManagement.Domain.Entities
 {
@@ -7,6 +8,7 @@ namespace DigitalAssetManagement.Domain.Entities
         public required string FileName { get; set; }
         // TODO: decide whether it's a url to access file, a file content itself (byte[])
         public required string FileContent { get; set; }
+        public LTree? HierarchicalPath { get; set; }
         public int? ParentFolderId { get; set; }
         public int? ParentDriveId { get; set; }
         [ForeignKey(nameof(ParentFolderId))]

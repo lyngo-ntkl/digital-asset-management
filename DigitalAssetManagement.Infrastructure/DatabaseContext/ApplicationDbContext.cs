@@ -42,6 +42,9 @@ namespace DigitalAssetManagement.Infrastructure.DatabaseContext
                 options.HasMany(drive => drive.Folders)
                     .WithOne(folder => folder.ParentDrive)
                     .OnDelete(DeleteBehavior.Cascade);
+                options.HasMany(drive => drive.Permissions)
+                    .WithOne(permission => permission.Drive)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Folder>(options =>
@@ -76,11 +79,14 @@ namespace DigitalAssetManagement.Infrastructure.DatabaseContext
 
             modelBuilder.Entity<Permission>(options =>
             {
-                options.HasIndex(permission => new { permission.UserId, permission.FileId, permission.FolderId })
+                options.HasIndex(permission => new { permission.UserId, permission.FileId, permission.FolderId, permission.DriveId })
                     .IsUnique(true)
                     .AreNullsDistinct(false);
                 options.ToTable(table => table
-                    .HasCheckConstraint("CK_Permissions_Asset", $"(\"{nameof(Permission.FolderId)}\" IS NOT NULL AND \"{nameof(Permission.FileId)}\" IS NULL) OR (\"{nameof(Permission.FolderId)}\" IS NULL AND \"{nameof(Permission.FileId)}\" IS NOT NULL)"));
+                    .HasCheckConstraint("CK_Permissions_Asset",
+                    $"(\"{nameof(Permission.FolderId)}\" IS NOT NULL AND \"{nameof(Permission.FileId)}\" IS NULL AND \"{nameof(Permission.DriveId)}\" IS NULL) " +
+                    $"OR (\"{nameof(Permission.FolderId)}\" IS NULL AND \"{nameof(Permission.FileId)}\" IS NOT NULL AND \"{nameof(Permission.DriveId)}\" IS NULL) " +
+                    $"OR (\"{nameof(Permission.FolderId)}\" IS NULL AND \"{nameof(Permission.FileId)}\" IS NULL AND \"{nameof(Permission.DriveId)}\" IS NOT NULL)"));
             });
         }
     }

@@ -9,6 +9,9 @@
   },
   "jwt": {
     "key": "This is the key used to sign and verify json web token, the key size must be greater than 512 bits"
+  },
+  "schedule": {
+    "deletedWaitDays": 30
   }
 }
 ```

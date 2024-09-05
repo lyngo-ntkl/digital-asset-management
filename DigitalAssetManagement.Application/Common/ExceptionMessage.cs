@@ -15,5 +15,6 @@
         public const string UnallowedMovement = "User does not have permission to move folder or file to other drive or folder";
         public const string UnallowedPermissionCreation = "User does not have permission to add new permission to this file or folder";
         public const string UserNotFound = "User not found";
+        public const string UnsupportedAssetType = "Unsupported asset type";
     }
 }
