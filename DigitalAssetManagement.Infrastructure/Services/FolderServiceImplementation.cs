@@ -8,6 +8,7 @@ using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Domain.Enums;
 using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace DigitalAssetManagement.Infrastructure.Services
@@ -34,7 +35,10 @@ namespace DigitalAssetManagement.Infrastructure.Services
         public async Task<FolderDetailResponseDto> Create(FolderCreationRequestDto request)
         {
             User loginUser = await _userService.GetLoginUserAsync();
-            if (!await _permissionService.HasPermission(Role.Contributor, userId: loginUser.Id!.Value, fileIdOrDriveIdOrFolderId: request.ParentFolderId ?? request.ParentDriveId!.Value, isDrive: request.ParentDriveId != null))
+            int parentId = request.ParentFolderId ?? request.ParentDriveId!.Value;
+            Type parentType = request.ParentFolderId != null ? typeof(Folder) : typeof(Drive);
+
+            if (!await _permissionService.HasPermission(Role.Contributor, userId: loginUser.Id!.Value, assetId: parentId, assetType: parentType))
             {
                 throw new ForbiddenException(ExceptionMessage.UnallowedModification);
             }
@@ -43,7 +47,23 @@ namespace DigitalAssetManagement.Infrastructure.Services
             folder = await _unitOfWork.FolderRepository.InsertAsync(folder);
             await _unitOfWork.SaveAsync();
 
-            await _permissionService.CreatePermission(loginUser.Id!.Value, folder.Id!.Value, request.ParentFolderId, request.ParentDriveId, false);
+            // TODO: why can't load navigation property here even though I has already set lazy loading proxies?
+            LTree? parentHierarchicalPath;
+            if (request.ParentFolderId != null)
+            {
+                var parentFolder = await _unitOfWork.FolderRepository.GetByIdAsync(request.ParentFolderId!.Value);
+                parentHierarchicalPath = parentFolder?.HierarchicalPath;
+            }
+            else
+            {
+                var parentDrive = await _unitOfWork.DriveRepository.GetByIdAsync(request.ParentDriveId!.Value);
+                parentHierarchicalPath = parentDrive?.HierarchicalPath;
+            }
+            folder.HierarchicalPath = new LTree($"{parentHierarchicalPath!.Value}.{folder.Id}");
+            _unitOfWork.FolderRepository.Update(folder);
+            await _unitOfWork.SaveAsync();
+
+            await _permissionService.DuplicatePermissions(folder.Id!.Value, parentId, parentType, typeof(Folder));
 
             return _mapper.Map<FolderDetailResponseDto>(folder);
         }
@@ -57,7 +77,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
         public async Task Delete(int id)
         {
-            if (!await _permissionService.HasPermissionLoginUser(Role.Contributor, fileIdOrDriveIdOrFolderId: id))
+            if (!await _permissionService.HasPermissionLoginUser(Role.Contributor, assetId: id, typeof(Folder)))
             {
                 throw new ForbiddenException(ExceptionMessage.UnallowedModification);
             }
@@ -66,7 +86,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
         public async Task<FolderDetailResponseDto> Get(int id)
         {
-            if (!await _permissionService.HasPermissionLoginUser(role: Role.Reader, fileIdOrDriveIdOrFolderId: id))
+            if (!await _permissionService.HasPermissionLoginUser(role: Role.Reader, assetId: id, typeof(Folder)))
             {
                 throw new ForbiddenException(ExceptionMessage.UnallowedAccess);
             }
@@ -78,7 +98,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
         private async Task<Folder> GetFolderAsync(int id)
         {
-            var folder = await _unitOfWork.FolderRepository.GetByIdAsync(id, includedProperties: $"{nameof(Folder.SubFolders)},{nameof(Folder.Files)},{nameof(Folder.Permissions)}");
+            var folder = await _unitOfWork.FolderRepository.GetByIdAsync(id, includedProperties: $"{nameof(Folder.ParentDrive)},{nameof(Folder.ParentFolder)},{nameof(Folder.SubFolders)},{nameof(Folder.Files)},{nameof(Folder.Permissions)}");
             if (folder == null)
             {
                 throw new NotFoundException(ExceptionMessage.FolderNotFound);
@@ -88,13 +108,14 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
         public async Task<FolderDetailResponseDto> MoveFolder(int id, FolderMovementRequestDto request)
         {
-            if (!await _permissionService.HasPermissionLoginUser(role: Role.Admin, fileIdOrDriveIdOrFolderId: request.ParentFolderId ?? request.ParentDriveId!.Value, isDrive: request.ParentDriveId != null))
+            if (!await _permissionService.HasPermissionLoginUser(role: Role.Admin, assetId: request.ParentFolderId ?? request.ParentDriveId!.Value, assetType: typeof(Folder)))
             {
                 throw new ForbiddenException(ExceptionMessage.UnallowedMovement);
             }
 
             var folder = await GetFolderAsync(id);
 
+            // TODO: update permission
             folder = _mapper.Map(request, folder);
             _unitOfWork.FolderRepository.Update(folder);
             await _unitOfWork.SaveAsync();
@@ -104,7 +125,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
         public async Task MoveToTrash(int id)
         {
-            if (!await _permissionService.HasPermissionLoginUser(Role.Contributor, fileIdOrDriveIdOrFolderId: id))
+            if (!await _permissionService.HasPermissionLoginUser(Role.Contributor, assetId: id, assetType: typeof(Folder)))
             {
                 throw new ForbiddenException(ExceptionMessage.UnallowedModification);
             }
@@ -121,7 +142,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
         public async Task<FolderDetailResponseDto> Update(int id, FolderModificationRequestDto request)
         {
-            if (!await _permissionService.HasPermissionLoginUser(Role.Contributor, fileIdOrDriveIdOrFolderId: id))
+            if (!await _permissionService.HasPermissionLoginUser(Role.Contributor, assetId: id, typeof(Folder)))
             {
                 throw new ForbiddenException(ExceptionMessage.UnallowedModification);
             }

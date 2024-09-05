@@ -1,10 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DigitalAssetManagement.Domain.Entities
 {
     public class Folder: BaseEntity
     {
         public required string FolderName { get; set; }
+        public LTree? HierarchicalPath { get; set; }
         public int? ParentFolderId { get; set; }
         public int? ParentDriveId { get; set; }
 

@@ -6,6 +6,7 @@ using DigitalAssetManagement.Application.Exceptions;
 using DigitalAssetManagement.Application.Repositories;
 using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
+using DigitalAssetManagement.Domain.Enums;
 using Hangfire;
 using Microsoft.Extensions.Configuration;
 using System.Linq.Expressions;
@@ -17,34 +18,47 @@ namespace DigitalAssetManagement.Infrastructure.Services
         private readonly UnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly UserService _userService;
+        private readonly PermissionService _permissionService;
         private readonly IBackgroundJobClient _backgroundJobClient;
         private readonly IConfiguration _configuration;
 
-        public DriveServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, UserService userService, IBackgroundJobClient backgroundJobClient, IConfiguration configuration)
+        public DriveServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, UserService userService, PermissionService permissionService, IBackgroundJobClient backgroundJobClient, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _userService = userService;
+            _permissionService = permissionService;
             _backgroundJobClient = backgroundJobClient;
             _configuration = configuration;
         }
 
         public async Task<DriveDetailsResponseDto> Create(DriveRequestDto request)
         {
-            User user = await _userService.GetLoginUserAsync();
+            User loginUser = await _userService.GetLoginUserAsync();
             var drive = new Drive {
                 DriveName = request.DriveName,
-                OwnerId = user.Id!.Value
+                OwnerId = loginUser.Id!.Value
             };
 
             drive = await _unitOfWork.DriveRepository.InsertAsync(drive);
             await _unitOfWork.SaveAsync();
+
+            drive.HierarchicalPath = new Microsoft.EntityFrameworkCore.LTree($"{loginUser.Id}.{drive.Id}");
+            _unitOfWork.DriveRepository.Update(drive);
+            await _unitOfWork.SaveAsync();
+
+            await _permissionService.CreatePermission(loginUser.Id!.Value, drive.Id!.Value, Role.Admin, typeof(Drive));
 
             return _mapper.Map<DriveDetailsResponseDto>(drive);
         }
 
         public async Task Delete(int id)
         {
+            if (!await _permissionService.HasPermissionLoginUser(Role.Admin, id, typeof(Drive)))
+            {
+                throw new ForbiddenException(ExceptionMessage.UnallowedModification);
+            }
+
             var drive = await _unitOfWork.DriveRepository.GetByIdAsync(id);
             if (drive == null)
             {
@@ -75,6 +89,11 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
         public async Task<DriveDetailsResponseDto> GetById(int id)
         {
+            if (! await _permissionService.HasPermissionLoginUser(Role.Reader, id, typeof(Drive)))
+            {
+                throw new ForbiddenException(ExceptionMessage.UnallowedAccess);
+            }
+
             var drive = await _unitOfWork.DriveRepository.GetByIdAsync(id);
             if (drive == null)
             {
@@ -121,6 +140,11 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
         public async Task MoveToTrash(int id)
         {
+            if (!await _permissionService.HasPermissionLoginUser(Role.Contributor, id, typeof(Drive)))
+            {
+                throw new ForbiddenException(ExceptionMessage.UnallowedModification);
+            }
+
             var drive = await _unitOfWork.DriveRepository.GetByIdAsync(id);
             if (drive == null)
             {
@@ -143,6 +167,11 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
         public async Task<DriveDetailsResponseDto> Update(int id, DriveRequestDto request)
         {
+            if (!await _permissionService.HasPermissionLoginUser(Role.Contributor, id, typeof(Drive)))
+            {
+                throw new ForbiddenException(ExceptionMessage.UnallowedModification);
+            }
+
             var drive = await _unitOfWork.DriveRepository.GetByIdAsync(id);
             if (drive == null)
             {
