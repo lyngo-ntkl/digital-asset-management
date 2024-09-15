@@ -1,5 +1,6 @@
 ﻿using DigitalAssetManagement.Application.Common.Attributes;
 using DigitalAssetManagement.Application.Dtos.Responses.Drives;
+using DigitalAssetManagement.Application.Dtos.Responses.Files;
 
 namespace DigitalAssetManagement.Application.Dtos.Responses.Folders
 {

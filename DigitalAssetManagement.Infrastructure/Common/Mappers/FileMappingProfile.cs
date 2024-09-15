@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using DigitalAssetManagement.Application.Dtos.Responses;
+using DigitalAssetManagement.Application.Dtos.Responses.Files;
 
 namespace DigitalAssetManagement.Infrastructure.Common.Mappers
 {

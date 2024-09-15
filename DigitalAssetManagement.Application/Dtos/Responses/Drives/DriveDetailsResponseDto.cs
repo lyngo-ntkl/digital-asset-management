@@ -1,4 +1,5 @@
-﻿using DigitalAssetManagement.Application.Dtos.Responses.Folders;
+﻿using DigitalAssetManagement.Application.Dtos.Responses.Files;
+using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 
 namespace DigitalAssetManagement.Application.Dtos.Responses.Drives
 {

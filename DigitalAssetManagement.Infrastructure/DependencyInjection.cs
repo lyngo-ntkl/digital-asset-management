@@ -50,11 +50,13 @@ namespace DigitalAssetManagement.Infrastructure
             services.AddScoped<UserService, UserServiceImplementation>();
             services.AddScoped<DriveService, DriveServiceImplementation>();
             services.AddScoped<FolderService, FolderServiceImplementation>();
+            services.AddScoped<FileService, FileServiceImplementation>();
             services.AddScoped<PermissionService, PermissionServiceImplementation>();
 
             // helper
             services.AddSingleton<HashingHelper, HashingHelperImplementation>();
             services.AddSingleton<JwtHelper, JwtHelperImplementation>();
+            services.AddSingleton<FileHelper, FileHelperImplementation>();
 
             return services;
         }
