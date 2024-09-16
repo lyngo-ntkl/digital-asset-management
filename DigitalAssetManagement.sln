@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Infr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Application", "DigitalAssetManagement.Application\DigitalAssetManagement.Application.csproj", "{0571A29B-CE07-42F2-BCF1-F79083B9E6F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DigitalAssetManagement.Tests", "DigitalAssetManagement.Tests\DigitalAssetManagement.Tests.csproj", "{B71E0534-51BC-4D41-8BFC-55D65E582563}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Tests", "DigitalAssetManagement.Tests\DigitalAssetManagement.Tests.csproj", "{B71E0534-51BC-4D41-8BFC-55D65E582563}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{9E12B54E-FD39-417F-A004-BD6BA807157A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{B71E0534-51BC-4D41-8BFC-55D65E582563}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B71E0534-51BC-4D41-8BFC-55D65E582563}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B71E0534-51BC-4D41-8BFC-55D65E582563}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E12B54E-FD39-417F-A004-BD6BA807157A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E12B54E-FD39-417F-A004-BD6BA807157A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E12B54E-FD39-417F-A004-BD6BA807157A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E12B54E-FD39-417F-A004-BD6BA807157A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

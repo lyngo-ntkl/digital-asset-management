@@ -1,0 +1,26 @@
+version: '3.4'
+
+services:
+  digitalassetmanagement.api:
+    image: ${DOCKER_REGISTRY-}digitalassetmanagementapi
+    container_name: digitalasset.api
+    build:
+      context: .
+      dockerfile: DigitalAssetManagement.API\Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+  digitalassetmanagement.database:
+    image: postgres:latest
+    container_name: digitalasset.database
+    environment:
+      - POSTGRES_DB=digital_asset_management
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=12345
+    volumes:
+      - digital-asset-db:/postgresql/digital-asset-data
+    ports:
+      - 5432:5432
+
+volumes:
+  digital-asset-db:
