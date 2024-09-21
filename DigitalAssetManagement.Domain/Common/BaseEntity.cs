@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace DigitalAssetManagement.Domain.Entities
+namespace DigitalAssetManagement.Domain.Common
 {
     public class BaseEntity
     {

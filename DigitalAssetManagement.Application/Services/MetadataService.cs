@@ -3,7 +3,7 @@ using DigitalAssetManagement.Application.Dtos.Responses.Drives;
 
 namespace DigitalAssetManagement.Application.Services
 {
-    public interface DriveService
+    public interface MetadataService
     {
         Task<DriveDetailsResponseDto> Create(DriveRequestDto request);
         Task Delete(int id);

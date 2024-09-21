@@ -1,9 +1,9 @@
-﻿using DigitalAssetManagement.Domain.Entities;
-using DigitalAssetManagement.Application.Repositories;
+﻿using DigitalAssetManagement.Application.Repositories;
 using DigitalAssetManagement.Infrastructure.DatabaseContext;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
+using DigitalAssetManagement.Domain.Common;
 
 namespace DigitalAssetManagement.Infrastructure.Repositories
 {
@@ -18,12 +18,12 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             _dbSet = _context.Set<T>();
         }
 
-        public void BatchInsert(IEnumerable<T> entities)
+        public void BatchAdd(IEnumerable<T> entities)
         {
             _dbSet.AddRange(entities);
         }
 
-        public async Task BatchInsertAsync(IEnumerable<T> entities)
+        public async Task BatchAddAsync(IEnumerable<T> entities)
         {
             await _dbSet.AddRangeAsync(entities);
         }
@@ -70,6 +70,16 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
                 _dbSet.Remove(entity);
             }
             return entity;
+        }
+
+        public bool ExistByCondition(Expression<Func<T, bool>> condition)
+        {
+            return _dbSet.Any(condition);
+        }
+
+        public async Task<bool> ExistByConditionAsync(Expression<Func<T, bool>> condition)
+        {
+            return await _dbSet.AnyAsync(condition);
         }
 
         public ICollection<T> GetAll(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderedQuery = null, string includedProperties = "", bool isTracked = true, bool isPaging = false, int pageSize = 10, int page = 1)
@@ -166,12 +176,12 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             return await _dbSet.FirstOrDefaultAsync(condition);
         }
 
-        public T Insert(T entity)
+        public T Add(T entity)
         {
             return _dbSet.Add(entity).Entity;
         }
 
-        public async Task<T> InsertAsync(T entity)
+        public async Task<T> AddAsync(T entity)
         {
             var entityEntry = await _dbSet.AddAsync(entity);
             return entityEntry.Entity;

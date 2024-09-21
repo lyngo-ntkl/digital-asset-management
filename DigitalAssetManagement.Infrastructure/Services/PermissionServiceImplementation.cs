@@ -37,21 +37,21 @@ namespace DigitalAssetManagement.Infrastructure.Services
                 permissions.Add(new Permission { UserId = userId, FileId = file.Id, Role = role });
             }
 
-            await _unitOfWork.PermissionRepository.BatchInsertAsync(permissions);
+            await _unitOfWork.PermissionRepository.BatchAddAsync(permissions);
             await _unitOfWork.SaveAsync();
         }
 
         private async Task CreateDrivePermission(int userId, int driveId, Role role)
         {
             var permission = new Permission { UserId = userId, DriveId = driveId, Role = role };
-            await _unitOfWork.PermissionRepository.InsertAsync(permission);
+            await _unitOfWork.PermissionRepository.AddAsync(permission);
             await _unitOfWork.SaveAsync();
         }
 
         private async Task CreateFilePermission(int userId, int fileId, Role role)
         {
             var permission = new Permission { UserId = userId, FileId = fileId, Role = role };
-            await _unitOfWork.PermissionRepository.InsertAsync(permission);
+            await _unitOfWork.PermissionRepository.AddAsync(permission);
             await _unitOfWork.SaveAsync();
         }
 
@@ -82,7 +82,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
         private async Task CreateFolderPermission(int userId, int folderId, Role role)
         {
             var permission = new Permission { UserId = userId, FolderId = folderId, Role = role };
-            await _unitOfWork.PermissionRepository.InsertAsync(permission);
+            await _unitOfWork.PermissionRepository.AddAsync(permission);
             await _unitOfWork.SaveAsync();
         }
 
@@ -124,7 +124,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
                 childPropertyInfo!.SetValue(permission, childId);
             }
 
-            await _unitOfWork.PermissionRepository.BatchInsertAsync(permissions);
+            await _unitOfWork.PermissionRepository.BatchAddAsync(permissions);
             await _unitOfWork.SaveAsync();
         }
 

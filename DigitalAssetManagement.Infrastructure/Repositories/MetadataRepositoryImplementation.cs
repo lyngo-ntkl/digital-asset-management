@@ -4,9 +4,9 @@ using DigitalAssetManagement.Infrastructure.DatabaseContext;
 
 namespace DigitalAssetManagement.Infrastructure.Repositories
 {
-    public class FolderRepositoryImplementation : GenericRepositoryImplementation<Folder>, FolderRepository
+    public class MetadataRepositoryImplementation : GenericRepositoryImplementation<Metadata>, MetadataRepository
     {
-        public FolderRepositoryImplementation(ApplicationDbContext context) : base(context)
+        public MetadataRepositoryImplementation(ApplicationDbContext context) : base(context)
         {
         }
     }

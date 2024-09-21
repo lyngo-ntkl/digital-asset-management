@@ -41,20 +41,18 @@ namespace DigitalAssetManagement.Infrastructure
             // repositories
             services.AddScoped<UnitOfWork, UnitOfWorkImplementation>();
             services.AddScoped<UserRepository, UserRepositoryImplementation>();
-            services.AddScoped<DriveRepository, DriveRepositoryImplementation>();
-            services.AddScoped<FolderRepository, FolderRepositoryImplementation>();
-            services.AddScoped<FileRepository, FileRepositoryImplementation>();
+            services.AddScoped<MetadataRepository, MetadataRepositoryImplementation>();
             services.AddScoped<PermissionRepository, PermissionRepositoryImplementation>();
 
             // services
             services.AddScoped<UserService, UserServiceImplementation>();
-            services.AddScoped<DriveService, DriveServiceImplementation>();
-            services.AddScoped<FolderService, FolderServiceImplementation>();
+            services.AddScoped<MetadataService, MetadataServiceImplementation>();
             services.AddScoped<PermissionService, PermissionServiceImplementation>();
 
             // helper
             services.AddSingleton<HashingHelper, HashingHelperImplementation>();
             services.AddSingleton<JwtHelper, JwtHelperImplementation>();
+            services.AddScoped<SystemFolderHelper, SystemFolderHelperImplementation>();
 
             return services;
         }

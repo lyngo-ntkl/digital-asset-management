@@ -8,12 +8,13 @@ using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Domain.Enums;
 using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Linq.Expressions;
 
 namespace DigitalAssetManagement.Infrastructure.Services
 {
-    public class DriveServiceImplementation : DriveService
+    public class MetadataServiceImplementation : MetadataService
     {
         private readonly UnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -22,7 +23,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
         private readonly IBackgroundJobClient _backgroundJobClient;
         private readonly IConfiguration _configuration;
 
-        public DriveServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, UserService userService, PermissionService permissionService, IBackgroundJobClient backgroundJobClient, IConfiguration configuration)
+        public MetadataServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, UserService userService, PermissionService permissionService, IBackgroundJobClient backgroundJobClient, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;

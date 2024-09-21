@@ -2,7 +2,7 @@
 
 namespace DigitalAssetManagement.Application.Repositories
 {
-    public interface FolderRepository: GenericRepository<Folder>
+    public interface MetadataRepository: GenericRepository<Metadata>
     {
     }
 }

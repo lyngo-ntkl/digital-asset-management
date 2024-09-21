@@ -30,7 +30,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
         public async Task<AuthResponse> LoginWithEmailPassword(EmailPasswordAuthRequest request)
         {
-            var user = await _unitOfWork.UserRepository.GetByEmailAsync(request.Email);
+            var user = await _unitOfWork.UserRepository.GetFirstOnConditionAsync(u => u.Email == request.Email);
             if (user == null)
             {
                 throw new BadRequestException(ExceptionMessage.UnregisteredEmail);
@@ -50,14 +50,14 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
         public async Task Register(EmailPasswordRegistrationRequest request)
         {
-            if (_unitOfWork.UserRepository.ExistByEmail(request.Email))
+            if (_unitOfWork.UserRepository.ExistByCondition(u => u.Email == request.Email))
             {
                 throw new BadRequestException(ExceptionMessage.RegisteredEmail);
             }
 
             var user = _mapper.Map<User>(request);
 
-            await _unitOfWork.UserRepository.InsertAsync(user);
+            await _unitOfWork.UserRepository.AddAsync(user);
             await _unitOfWork.SaveAsync();
         }
 

@@ -9,9 +9,9 @@ namespace DigitalAssetManagement.API.Controllers
     [ApiController]
     public class DrivesController : ControllerBase
     {
-        private readonly DriveService _driveService;
+        private readonly MetadataService _driveService;
 
-        public DrivesController(DriveService driveService)
+        public DrivesController(MetadataService driveService)
         {
             _driveService = driveService;
         }
