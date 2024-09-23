@@ -1,4 +1,5 @@
 ﻿
+using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Infrastructure.Common;
@@ -31,5 +32,10 @@ namespace DigitalAssetManagement.Infrastructure.Services
                 Role = Domain.Enums.Role.Admin
             });
         }
+
+        //public async Task<FolderResponseDto> GetLoginUserDrive()
+        //{
+        //    _metadataService.
+        //}
     }
 }

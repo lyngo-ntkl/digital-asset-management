@@ -1,5 +1,6 @@
 ﻿using DigitalAssetManagement.Application.Dtos.Requests.Drives;
 using DigitalAssetManagement.Application.Dtos.Responses.Drives;
+using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 using DigitalAssetManagement.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,17 +10,17 @@ namespace DigitalAssetManagement.API.Controllers
     [ApiController]
     public class DrivesController : ControllerBase
     {
-        private readonly MetadataService _driveService;
+        private readonly DriveService _driveService;
 
-        public DrivesController(MetadataService driveService)
+        public DrivesController(DriveService driveService)
         {
             _driveService = driveService;
         }
 
         //[HttpGet]
-        //public async Task<List<DriveResponseDto>> GetDriveOwnedByLoginUser([FromQuery] string? name)
+        //public async Task<FolderResponseDto> GetDriveOwnedByLoginUser()
         //{
-        //    return await _driveService.GetDriveOwnedByLoginUser(name);
+        //    return await _driveService.GetLoginUserDrive();
         //}
 
         //[HttpGet("{id}")]

@@ -1,7 +1,7 @@
-﻿using DigitalAssetManagement.Application.Dtos.Requests;
-using DigitalAssetManagement.Application.Dtos.Requests.Folders;
+﻿using DigitalAssetManagement.Application.Dtos.Requests.Folders;
 using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 using DigitalAssetManagement.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DigitalAssetManagement.API.Controllers
@@ -11,12 +11,12 @@ namespace DigitalAssetManagement.API.Controllers
     public class FoldersController : ControllerBase
     {
         private readonly FolderService _folderService;
-        private readonly PermissionService _permissionService;
+        private readonly IAuthorizationService _authorizationService;
 
-        public FoldersController(FolderService folderService, PermissionService permissionService)
+        public FoldersController(FolderService folderService, IAuthorizationService authorizationService)
         {
             _folderService = folderService;
-            _permissionService = permissionService;
+            _authorizationService = authorizationService;
         }
 
         //[HttpGet("{id}")]
@@ -27,8 +27,10 @@ namespace DigitalAssetManagement.API.Controllers
 
         [HttpPost]
         [ProducesResponseType<FolderDetailResponseDto>(StatusCodes.Status201Created)]
+        [Authorize]
         public async Task<ActionResult<FolderDetailResponseDto>> Create([FromBody] FolderCreationRequestDto request)
         {
+            await _authorizationService.AuthorizeAsync(User, request, "Contributor");
             return await _folderService.AddNewFolder(request);
         }
 

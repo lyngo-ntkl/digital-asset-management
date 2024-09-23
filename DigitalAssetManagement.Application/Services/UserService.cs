@@ -8,6 +8,6 @@ namespace DigitalAssetManagement.Application.Services
     {
         Task<AuthResponse> LoginWithEmailPassword(EmailPasswordAuthRequest request);
         Task Register(EmailPasswordRegistrationRequest request);
-        Task<User> GetLoginUserAsync();
+        Task<User?> Get(int id);
     }
 }

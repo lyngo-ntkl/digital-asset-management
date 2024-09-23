@@ -125,7 +125,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
         private async Task<Permission?> GetPermission(int userId, int metadataId)
         {
-            var permission = await _unitOfWork.PermissionRepository.GetFirstOnConditionAsync(p => p.Id == metadataId && p.Id == userId && !p.IsDeleted);
+            var permission = await _unitOfWork.PermissionRepository.GetFirstOnConditionAsync(p => p.MetadataId == metadataId && p.UserId == userId && !p.IsDeleted);
             return permission;
         }
 

@@ -4,16 +4,19 @@ using DigitalAssetManagement.Application.Repositories;
 using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Domain.Enums;
+using DigitalAssetManagement.Infrastructure.Common;
 
 namespace DigitalAssetManagement.Infrastructure.Services
 {
     public class MetadataServiceImplementation : MetadataService
     {
         private readonly UnitOfWork _unitOfWork;
+        private readonly JwtHelper _jwtHelper;
 
-        public MetadataServiceImplementation(UnitOfWork unitOfWork)
+        public MetadataServiceImplementation(UnitOfWork unitOfWork, JwtHelper jwtHelper)
         {
             _unitOfWork = unitOfWork;
+            _jwtHelper = jwtHelper;
         }
 
         public async Task<Metadata> Add(Metadata metadata)
@@ -61,14 +64,11 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return metadata;
         }
 
-        public async Task<Metadata> GetUserDrive(int ownerId)
-        {
-            var driveMetadata = await _unitOfWork.MetadataRepository.GetFirstOnConditionAsync(m => m.OwnerId == ownerId && m.MetadataType == MetadataType.UserDrive);
-            if (driveMetadata == null)
-            {
-                throw new NotFoundException(ExceptionMessage.MetadataNotFound);
-            }
-            return driveMetadata;
-        }
+        //public async Task<Metadata?> GetLoginUserDriveMetadata()
+        //{
+        //    var loginUserId = int.Parse(_jwtHelper.ExtractSidFromAuthorizationHeader()!);
+        //    var driveMetadata = await _unitOfWork.MetadataRepository.GetFirstOnConditionAsync(m => m.OwnerId == loginUserId && m.MetadataType == MetadataType.UserDrive);
+        //    return driveMetadata;
+        //}
     }
 }

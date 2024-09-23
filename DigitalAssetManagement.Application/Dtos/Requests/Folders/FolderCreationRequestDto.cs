@@ -1,10 +1,9 @@
-﻿using DigitalAssetManagement.Application.Common.Attributes;
+﻿using DigitalAssetManagement.Application.Common.Requests;
 
 namespace DigitalAssetManagement.Application.Dtos.Requests.Folders
 {
-    public class FolderCreationRequestDto
+    public class FolderCreationRequestDto: MetadataParentRequestDto
     {
         public required string Name { get; set; }
-        public int? ParentId { get; set; }
     }
 }
