@@ -5,7 +5,7 @@
         int Save();
         Task<int> SaveAsync();
         UserRepository UserRepository { get; }
-        MetadataRepository DriveRepository { get; }
+        MetadataRepository MetadataRepository { get; }
         PermissionRepository PermissionRepository { get; }
     }
 }

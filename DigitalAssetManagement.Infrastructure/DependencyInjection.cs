@@ -26,17 +26,15 @@ namespace DigitalAssetManagement.Infrastructure
 
             // mapper
             services.AddAutoMapper(typeof(UserMappingProfile));
-            services.AddAutoMapper(typeof(DriveMappingProfile));
-            services.AddAutoMapper(typeof(FolderMappingProfile));
-            services.AddAutoMapper(typeof(FileMappingProfile));
             services.AddAutoMapper(typeof(PermissionMappingProfile));
+            services.AddAutoMapper(typeof(MetadataMappingProfile));
 
             // hangfire
-            services.AddHangfire(options =>
-            {
-                options.UsePostgreSqlStorage(opts => opts.UseNpgsqlConnection(configuration.GetConnectionString("defaultConnection")));
-            });
-            services.AddHangfireServer();
+            //services.AddHangfire(options =>
+            //{
+            //    options.UsePostgreSqlStorage(opts => opts.UseNpgsqlConnection(configuration.GetConnectionString("defaultConnection")));
+            //});
+            //services.AddHangfireServer();
 
             // repositories
             services.AddScoped<UnitOfWork, UnitOfWorkImplementation>();
@@ -45,9 +43,11 @@ namespace DigitalAssetManagement.Infrastructure
             services.AddScoped<PermissionRepository, PermissionRepositoryImplementation>();
 
             // services
-            services.AddScoped<UserService, UserServiceImplementation>();
+            services.AddScoped<DriveService, DriveServiceImplementation>();
+            services.AddScoped<FolderService, FolderServiceImplementation>();
             services.AddScoped<MetadataService, MetadataServiceImplementation>();
             services.AddScoped<PermissionService, PermissionServiceImplementation>();
+            services.AddScoped<UserService, UserServiceImplementation>();
 
             // helper
             services.AddSingleton<HashingHelper, HashingHelperImplementation>();

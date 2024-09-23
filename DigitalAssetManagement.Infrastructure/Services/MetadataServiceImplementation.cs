@@ -1,196 +1,74 @@
-﻿using AutoMapper;
-using DigitalAssetManagement.Application.Common;
-using DigitalAssetManagement.Application.Dtos.Requests.Drives;
-using DigitalAssetManagement.Application.Dtos.Responses.Drives;
+﻿using DigitalAssetManagement.Application.Common;
 using DigitalAssetManagement.Application.Exceptions;
 using DigitalAssetManagement.Application.Repositories;
 using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Domain.Enums;
-using Hangfire;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using System.Linq.Expressions;
 
 namespace DigitalAssetManagement.Infrastructure.Services
 {
     public class MetadataServiceImplementation : MetadataService
     {
         private readonly UnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-        private readonly UserService _userService;
-        private readonly PermissionService _permissionService;
-        private readonly IBackgroundJobClient _backgroundJobClient;
-        private readonly IConfiguration _configuration;
 
-        public MetadataServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, UserService userService, PermissionService permissionService, IBackgroundJobClient backgroundJobClient, IConfiguration configuration)
+        public MetadataServiceImplementation(UnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _mapper = mapper;
-            _userService = userService;
-            _permissionService = permissionService;
-            _backgroundJobClient = backgroundJobClient;
-            _configuration = configuration;
         }
 
-        public async Task<DriveDetailsResponseDto> Create(DriveRequestDto request)
+        public async Task<Metadata> Add(Metadata metadata)
         {
-            User loginUser = await _userService.GetLoginUserAsync();
-            var drive = new Drive {
-                DriveName = request.DriveName,
-                OwnerId = loginUser.Id!.Value
+            metadata = await _unitOfWork.MetadataRepository.AddAsync(metadata);
+            await _unitOfWork.SaveAsync();
+            return metadata;
+        }
+
+        public async Task<Metadata> Add(string name, string absolutePath, int ownerId, MetadataType type)
+        {
+            var newMetadata = new Metadata
+            {
+                Name = name,
+                AbsolutePath = absolutePath,
+                MetadataType = type,
+                OwnerId = ownerId
             };
-
-            drive = await _unitOfWork.DriveRepository.InsertAsync(drive);
+            newMetadata = await _unitOfWork.MetadataRepository.AddAsync(newMetadata);
             await _unitOfWork.SaveAsync();
-
-            drive.HierarchicalPath = new Microsoft.EntityFrameworkCore.LTree($"{loginUser.Id}.{drive.Id}");
-            _unitOfWork.DriveRepository.Update(drive);
-            await _unitOfWork.SaveAsync();
-
-            await _permissionService.CreatePermission(loginUser.Id!.Value, drive.Id!.Value, Role.Admin, typeof(Drive));
-
-            return _mapper.Map<DriveDetailsResponseDto>(drive);
+            return newMetadata;
         }
 
-        public async Task Delete(int id)
+        public async Task<Metadata> AddDrive(string name, string absolutePath, int ownerId)
         {
-            if (!await _permissionService.HasPermissionLoginUser(Role.Admin, id, typeof(Drive)))
+            var newDriveMetadata = new Metadata
             {
-                throw new ForbiddenException(ExceptionMessage.UnallowedModification);
-            }
-
-            var drive = await _unitOfWork.DriveRepository.GetByIdAsync(id);
-            if (drive == null)
-            {
-                throw new NotFoundException(ExceptionMessage.DriveNotFound);
-            }
-
-            var user = await _userService.GetLoginUserAsync();
-            if (drive.OwnerId != user.Id)
-            {
-                throw new ForbiddenException(ExceptionMessage.UnallowedModification);
-            }
-
-            _unitOfWork.DriveRepository.Delete(drive);
+                Name = name,
+                AbsolutePath = absolutePath,
+                MetadataType = MetadataType.UserDrive,
+                OwnerId = ownerId
+            };
+            newDriveMetadata = await _unitOfWork.MetadataRepository.AddAsync(newDriveMetadata);
             await _unitOfWork.SaveAsync();
+            return newDriveMetadata;
         }
 
-        public async Task DeleteDrive(int id)
+        public async Task<Metadata> GetById(int id)
         {
-            var drive = await _unitOfWork.DriveRepository.GetByIdAsync(id);
-            if (drive == null)
+            var metadata = await _unitOfWork.MetadataRepository.GetByIdAsync(id);
+            if (metadata == null)
             {
-                throw new NotFoundException(ExceptionMessage.DriveNotFound);
+                throw new NotFoundException(ExceptionMessage.MetadataNotFound);
             }
-            
-            _unitOfWork.DriveRepository.Delete(drive);
-            await _unitOfWork.SaveAsync();
+            return metadata;
         }
 
-        public async Task<DriveDetailsResponseDto> GetById(int id)
+        public async Task<Metadata> GetUserDrive(int ownerId)
         {
-            if (! await _permissionService.HasPermissionLoginUser(Role.Reader, id, typeof(Drive)))
+            var driveMetadata = await _unitOfWork.MetadataRepository.GetFirstOnConditionAsync(m => m.OwnerId == ownerId && m.MetadataType == MetadataType.UserDrive);
+            if (driveMetadata == null)
             {
-                throw new ForbiddenException(ExceptionMessage.UnallowedAccess);
+                throw new NotFoundException(ExceptionMessage.MetadataNotFound);
             }
-
-            var drive = await _unitOfWork.DriveRepository.GetByIdAsync(id);
-            if (drive == null)
-            {
-                throw new NotFoundException(ExceptionMessage.DriveNotFound);
-            }
-
-            var user = await _userService.GetLoginUserAsync();
-            if (drive.OwnerId != user.Id)
-            {
-                throw new ForbiddenException(ExceptionMessage.UnallowedAccess);
-            }
-
-            return _mapper.Map<DriveDetailsResponseDto>(drive);
-        }
-
-        public async Task<List<DriveResponseDto>> GetDriveOwnedByLoginUser(string? name)
-        {
-            User user = await _userService.GetLoginUserAsync();
-
-            var parameter = Expression.Parameter(typeof(Drive));
-            Expression expression = Expression.Equal(
-                Expression.Constant(user.Id),
-                Expression.Property(parameter, nameof(Drive.OwnerId))
-            );
-
-            if (!string.IsNullOrWhiteSpace(name))
-            {
-                expression = Expression.And(
-                    expression,
-                    Expression.Call(
-                        Expression.Call(
-                            Expression.Property(parameter, nameof(Drive.DriveName)),
-                            typeof(string).GetMethod("ToLower", Type.EmptyTypes) ?? throw new InvalidOperationException("Method string.Contains is invalid or deprecated")
-                        ), 
-                        typeof(string).GetMethod("Contains", new[] { typeof(string) }) ?? throw new InvalidOperationException("Method string.Contains is invalid or deprecated"),
-                        Expression.Constant(name.ToLower())
-                    )
-                );
-            }
-
-            var drives = await _unitOfWork.DriveRepository.GetAllAsync(filter: Expression.Lambda<Func<Drive, bool>>(expression, parameter));
-            return _mapper.Map<List<DriveResponseDto>>(drives);
-        }
-
-        public async Task MoveToTrash(int id)
-        {
-            if (!await _permissionService.HasPermissionLoginUser(Role.Contributor, id, typeof(Drive)))
-            {
-                throw new ForbiddenException(ExceptionMessage.UnallowedModification);
-            }
-
-            var drive = await _unitOfWork.DriveRepository.GetByIdAsync(id);
-            if (drive == null)
-            {
-                throw new NotFoundException(ExceptionMessage.DriveNotFound);
-            }
-
-            var user = await _userService.GetLoginUserAsync();
-            if (drive.OwnerId != user.Id)
-            {
-                throw new ForbiddenException(ExceptionMessage.UnallowedModification);
-            }
-
-            drive.IsDeleted = true;
-            _unitOfWork.DriveRepository.Update(drive);
-            await _unitOfWork.FolderRepository.BatchUpdateAsync(folder => folder.SetProperty(f => f.IsDeleted, f => true), filter: folder => folder.HierarchicalPath!.Value.IsDescendantOf(drive.HierarchicalPath!.Value));
-            await _unitOfWork.FileRepository.BatchUpdateAsync(file => file.SetProperty(f => f.IsDeleted, f => true), filter: file => file.HierarchicalPath!.Value.IsDescendantOf(drive.HierarchicalPath!.Value));
-            await _unitOfWork.SaveAsync();
-
-            _backgroundJobClient.Schedule(() => this.DeleteDrive(id), TimeSpan.FromDays(int.Parse(_configuration["schedule:deletedWaitDays"]!)));
-        }
-
-        public async Task<DriveDetailsResponseDto> Update(int id, DriveRequestDto request)
-        {
-            if (!await _permissionService.HasPermissionLoginUser(Role.Contributor, id, typeof(Drive)))
-            {
-                throw new ForbiddenException(ExceptionMessage.UnallowedModification);
-            }
-
-            var drive = await _unitOfWork.DriveRepository.GetByIdAsync(id);
-            if (drive == null)
-            {
-                throw new NotFoundException(ExceptionMessage.DriveNotFound);
-            }
-
-            var user = await _userService.GetLoginUserAsync();
-            if (drive.OwnerId != user.Id)
-            {
-                throw new ForbiddenException(ExceptionMessage.UnallowedModification);
-            }
-
-            drive = _mapper.Map(request, drive);
-            _unitOfWork.DriveRepository.Update(drive);
-            await _unitOfWork.SaveAsync();
-
-            return _mapper.Map<DriveDetailsResponseDto>(drive);
+            return driveMetadata;
         }
     }
 }

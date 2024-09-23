@@ -28,6 +28,6 @@ app.UseCors();
 
 app.UseExceptionHandler();
 
-app.UseHangfireDashboard("/dashboard");
+//app.UseHangfireDashboard("/dashboard");
 
 app.Run();

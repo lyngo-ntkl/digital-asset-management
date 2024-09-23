@@ -18,14 +18,28 @@ namespace DigitalAssetManagement.Infrastructure.Services
         private readonly HashingHelper _hashingHelper;
         private readonly JwtHelper _jwtHelper;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly DriveService _driveService;
 
-        public UserServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, HashingHelper hashingHelper, JwtHelper jwtHelper, IHttpContextAccessor httpContextAccessor)
+        public UserServiceImplementation(UnitOfWork unitOfWork, 
+            IMapper mapper, 
+            HashingHelper hashingHelper, 
+            JwtHelper jwtHelper, 
+            IHttpContextAccessor httpContextAccessor,
+            DriveService driveService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _hashingHelper = hashingHelper;
             _jwtHelper = jwtHelper;
             _httpContextAccessor = httpContextAccessor;
+            _driveService = driveService;
+        }
+
+        private async Task<User> Add(User user)
+        {
+            user = await _unitOfWork.UserRepository.AddAsync(user);
+            await _unitOfWork.SaveAsync();
+            return user;
         }
 
         public async Task<AuthResponse> LoginWithEmailPassword(EmailPasswordAuthRequest request)
@@ -55,10 +69,8 @@ namespace DigitalAssetManagement.Infrastructure.Services
                 throw new BadRequestException(ExceptionMessage.RegisteredEmail);
             }
 
-            var user = _mapper.Map<User>(request);
-
-            await _unitOfWork.UserRepository.AddAsync(user);
-            await _unitOfWork.SaveAsync();
+            var user = await Add(_mapper.Map<User>(request));
+            await _driveService.AddNewDrive(user.Id!.Value);
         }
 
         public async Task<User> GetLoginUserAsync()

@@ -2,6 +2,6 @@
 {
     public enum MetadataType
     {
-        File, Folder, Drive
+        File, Folder, UserDrive
     }
 }

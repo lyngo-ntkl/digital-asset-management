@@ -35,15 +35,15 @@ namespace DigitalAssetManagement.Infrastructure.DatabaseContext
             {
                 options.HasIndex(metadata => metadata.AbsolutePath)
                     .IsUnique(true);
-                options.HasMany(metadata => metadata.Permissions)
-                    .WithOne(permission => permission.Metadata)
-                    .OnDelete(DeleteBehavior.Cascade);
+                //options.HasMany(metadata => metadata.Permissions)
+                //    .WithOne(permission => permission.Metadata)
+                //    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Permission>(options =>
             {
-                options.HasIndex(permission => new { permission.UserId, permission.Metadata })
-                    .IsUnique(true);
+                //options.HasIndex(permission => new { permission.UserId, permission.Metadata })
+                //    .IsUnique(true);
             });
         }
     }

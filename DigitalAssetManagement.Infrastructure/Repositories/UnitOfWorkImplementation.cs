@@ -7,20 +7,20 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
     {
         private readonly ApplicationDbContext _context;
         private readonly UserRepository _userRepository;
-        private readonly MetadataRepository _driveRepository;
+        private readonly MetadataRepository _metadataRepository;
         private readonly PermissionRepository _permissionRepository;
 
         public UnitOfWorkImplementation(ApplicationDbContext context, UserRepository userRepository, MetadataRepository driveRepository, PermissionRepository permissionRepository)
         {
             _context = context;
             _userRepository = userRepository;
-            _driveRepository = driveRepository;
+            _metadataRepository = driveRepository;
             _permissionRepository = permissionRepository;
         }
 
         public UserRepository UserRepository => _userRepository;
 
-        public MetadataRepository DriveRepository => _driveRepository;
+        public MetadataRepository MetadataRepository => _metadataRepository;
 
         public PermissionRepository PermissionRepository => _permissionRepository;
 
