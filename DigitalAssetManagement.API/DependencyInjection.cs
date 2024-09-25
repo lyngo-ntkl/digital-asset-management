@@ -71,7 +71,7 @@ namespace DigitalAssetManagement.API
                 };
             });
 
-            services.AddScoped<IAuthorizationHandler, CustomAuthorizationHandler>();
+            services.AddTransient<IAuthorizationHandler, CustomAuthorizationHandler>();
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("Contributor", policy =>

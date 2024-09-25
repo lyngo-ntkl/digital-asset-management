@@ -9,7 +9,7 @@ namespace DigitalAssetManagement.Application.Services
         Task<Metadata> Add(string name, string absolutePath, int ownerId, MetadataType type);
         Task<Metadata> AddDrive(string name, string absolutePath, int ownerId);
         Task<Metadata> GetById(int id);
-        //Task<Metadata?> GetLoginUserDriveMetadata();
+        Task<Metadata?> GetLoginUserDriveMetadata();
         //Task<DriveDetailsResponseDto> Create(DriveRequestDto request);
         //Task Delete(int id);
         //Task<DriveDetailsResponseDto> GetById(int id);

@@ -2,6 +2,7 @@
 using DigitalAssetManagement.Application.Dtos.Responses.Drives;
 using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 using DigitalAssetManagement.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DigitalAssetManagement.API.Controllers
@@ -15,6 +16,13 @@ namespace DigitalAssetManagement.API.Controllers
         public DrivesController(DriveService driveService)
         {
             _driveService = driveService;
+        }
+
+        [HttpGet("my-drive")]
+        [Authorize]
+        public async Task<FolderDetailResponseDto> GetLoginUserDrive()
+        {
+            return await _driveService.GetLoginUserDrive();
         }
 
         //[HttpGet]

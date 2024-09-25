@@ -3,6 +3,8 @@ using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 using DigitalAssetManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using System.Net.Mime;
 
 namespace DigitalAssetManagement.API.Controllers
 {
@@ -28,7 +30,7 @@ namespace DigitalAssetManagement.API.Controllers
         [HttpPost]
         [ProducesResponseType<FolderDetailResponseDto>(StatusCodes.Status201Created)]
         [Authorize]
-        public async Task<ActionResult<FolderDetailResponseDto>> Create([FromBody] FolderCreationRequestDto request)
+        public async Task<ActionResult<FolderDetailResponseDto>> CreateFolder([FromBody] FolderCreationRequestDto request)
         {
             await _authorizationService.AuthorizeAsync(User, request, "Contributor");
             return await _folderService.AddNewFolder(request);

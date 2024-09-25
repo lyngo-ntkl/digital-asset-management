@@ -1,5 +1,7 @@
 ﻿using DigitalAssetManagement.Application.Dtos.Requests.Users;
+using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 using DigitalAssetManagement.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

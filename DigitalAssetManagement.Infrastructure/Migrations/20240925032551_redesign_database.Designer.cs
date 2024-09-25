@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DigitalAssetManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240922023044_redesign_database")]
+    [Migration("20240925032551_redesign_database")]
     partial class redesign_database
     {
         /// <inheritdoc />
@@ -61,12 +61,17 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
                     b.Property<int>("OwnerId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("ParentMetadataId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AbsolutePath")
                         .IsUnique();
 
                     b.HasIndex("OwnerId");
+
+                    b.HasIndex("ParentMetadataId");
 
                     b.ToTable("Metadata");
                 });
@@ -101,7 +106,8 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
 
                     b.HasIndex("MetadataId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "MetadataId")
+                        .IsUnique();
 
                     b.ToTable("Permissions");
                 });
@@ -161,12 +167,19 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("DigitalAssetManagement.Domain.Entities.Metadata", "ParentMetadata")
+                        .WithMany("ChildrenMetadata")
+                        .HasForeignKey("ParentMetadataId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.Navigation("Owner");
+
+                    b.Navigation("ParentMetadata");
                 });
 
             modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.Permission", b =>
                 {
-                    b.HasOne("DigitalAssetManagement.Domain.Entities.Metadata", null)
+                    b.HasOne("DigitalAssetManagement.Domain.Entities.Metadata", "Metadata")
                         .WithMany("Permissions")
                         .HasForeignKey("MetadataId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -178,11 +191,15 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Metadata");
+
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.Metadata", b =>
                 {
+                    b.Navigation("ChildrenMetadata");
+
                     b.Navigation("Permissions");
                 });
 

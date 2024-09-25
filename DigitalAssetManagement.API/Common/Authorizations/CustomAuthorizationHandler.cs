@@ -1,4 +1,5 @@
-﻿using DigitalAssetManagement.Application.Common.Requests;
+﻿using DigitalAssetManagement.Application.Common;
+using DigitalAssetManagement.Application.Common.Requests;
 using DigitalAssetManagement.Application.Exceptions;
 using DigitalAssetManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -23,12 +24,12 @@ namespace DigitalAssetManagement.API.Common.Authorizations
             var loginUser = await _userService.Get(loginUserId);
             if (loginUser == null)
             {
-                throw new ForbiddenException();
+                throw new UnauthorizedException();
             }
 
             if (!await _permissionService.HasPermission(requirement.Role, loginUserId, resource.ParentId))
             {
-                throw new ForbiddenException();
+                throw new ForbiddenException(ExceptionMessage.NoPermission);
             }
 
             context.Succeed(requirement);
