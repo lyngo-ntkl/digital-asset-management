@@ -54,10 +54,26 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return newDriveMetadata;
         }
 
+        public async Task DeleteMetadata(Metadata metadata)
+        {
+            _unitOfWork.MetadataRepository.Delete(metadata);
+            await _unitOfWork.SaveAsync();
+        }
+
         public async Task<Metadata> GetById(int id)
         {
             var metadata = await _unitOfWork.MetadataRepository.GetByIdAsync(id);
             if (metadata == null)
+            {
+                throw new NotFoundException(ExceptionMessage.MetadataNotFound);
+            }
+            return metadata;
+        }
+
+        public async Task<Metadata> GetFolderMetadataById(int id)
+        {
+            var metadata = await _unitOfWork.MetadataRepository.GetByIdAsync(id);
+            if (metadata == null || metadata.MetadataType != MetadataType.Folder)
             {
                 throw new NotFoundException(ExceptionMessage.MetadataNotFound);
             }
@@ -73,5 +89,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
             );
             return driveMetadata.FirstOrDefault();
         }
+
+        
     }
 }

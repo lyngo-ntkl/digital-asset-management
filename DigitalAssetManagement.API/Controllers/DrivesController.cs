@@ -1,4 +1,5 @@
-﻿using DigitalAssetManagement.Application.Dtos.Requests.Drives;
+﻿using DigitalAssetManagement.Application.Common.Requests;
+using DigitalAssetManagement.Application.Dtos.Requests.Drives;
 using DigitalAssetManagement.Application.Dtos.Responses.Drives;
 using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 using DigitalAssetManagement.Application.Services;
@@ -12,17 +13,25 @@ namespace DigitalAssetManagement.API.Controllers
     public class DrivesController : ControllerBase
     {
         private readonly DriveService _driveService;
+        private readonly IAuthorizationService _authorizationService;
 
-        public DrivesController(DriveService driveService)
+        public DrivesController(DriveService driveService, IAuthorizationService authorizationService)
         {
             _driveService = driveService;
+            _authorizationService = authorizationService;
         }
 
         [HttpGet("my-drive")]
         [Authorize]
         public async Task<FolderDetailResponseDto> GetLoginUserDrive()
         {
-            return await _driveService.GetLoginUserDrive();
+            var myDrive = await _driveService.GetLoginUserDrive();
+            await _authorizationService.AuthorizeAsync(
+                User,
+                new MetadataParentRequestDto { ParentId = myDrive.Id },
+                "Admin"
+            );
+            return myDrive;
         }
 
         //[HttpGet]

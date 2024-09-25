@@ -5,6 +5,7 @@ using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Domain.Enums;
 using DigitalAssetManagement.Infrastructure.Common;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DigitalAssetManagement.Infrastructure.Services
 {
@@ -15,22 +16,24 @@ namespace DigitalAssetManagement.Infrastructure.Services
         private readonly SystemFolderHelper _systemFolderHelper;
         private readonly MetadataService _metadataService;
         private readonly PermissionService _permissionService;
+        private readonly IAuthorizationService _authorizationService;
 
         public FolderServiceImplementation(
             IMapper mapper, 
             JwtHelper jwtHelper,
             SystemFolderHelper systemFolderHelper, 
             MetadataService metadataService, 
-            PermissionService permissionService)
+            PermissionService permissionService,
+            IAuthorizationService authorizationService)
         {
             _mapper = mapper;
             _jwtHelper = jwtHelper;
             _systemFolderHelper = systemFolderHelper;
             _metadataService = metadataService;
             _permissionService = permissionService;
+            _authorizationService = authorizationService;
         }
 
-        // done
         public async Task<FolderDetailResponseDto> AddNewFolder(FolderCreationRequestDto request)
         {
             var loginUserId = int.Parse(_jwtHelper.ExtractSidFromAuthorizationHeader()!);
@@ -50,6 +53,13 @@ namespace DigitalAssetManagement.Infrastructure.Services
             await _permissionService.DuplicatePermissions(newFolderMetadata.Id!.Value, parentMetadata.Id!.Value);
 
             return _mapper.Map<FolderDetailResponseDto>(parentMetadata);
+        }
+
+        public async Task DeleteFolder(int id)
+        {
+            Metadata metadata = await _metadataService.GetFolderMetadataById(id);
+            _systemFolderHelper.DeleteFolder(metadata.AbsolutePath);
+            await _metadataService.DeleteMetadata(metadata);
         }
     }
 }

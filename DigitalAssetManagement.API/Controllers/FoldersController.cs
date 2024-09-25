@@ -1,4 +1,5 @@
-﻿using DigitalAssetManagement.Application.Dtos.Requests.Folders;
+﻿using DigitalAssetManagement.Application.Common.Requests;
+using DigitalAssetManagement.Application.Dtos.Requests.Folders;
 using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 using DigitalAssetManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -61,10 +62,16 @@ namespace DigitalAssetManagement.API.Controllers
         //    await _folderService.MoveToTrash(id);
         //}
 
-        //[HttpDelete("{id}")]
-        //public async Task DeleteFolderPermanently([FromRoute] int id)
-        //{
-        //    await _folderService.Delete(id);
-        //}
+        [HttpDelete("{id}")]
+        [Authorize]
+        public async Task DeleteFolder([FromRoute] int id)
+        {
+            await _authorizationService.AuthorizeAsync(
+                User, 
+                new MetadataParentRequestDto { ParentId = id}, 
+                "Contributor"
+            );
+            await _folderService.DeleteFolder(id);
+        }
     }
 }

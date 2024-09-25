@@ -67,7 +67,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
             }
 
             var user = await Add(_mapper.Map<User>(request));
-            await _driveService.AddNewDrive(user.Id!.Value);
+            await _driveService.AddNewDrive(user.Id!.Value, user.Name);
         }
 
         public async Task<User?> Get(int id)

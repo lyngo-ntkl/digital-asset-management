@@ -6,6 +6,7 @@ namespace DigitalAssetManagement.Infrastructure.Common
     {
         DirectoryInfo AddFolder(string folderName, out string folderAbsolutePath);
         DirectoryInfo AddFolder(string folderName, string parentAbsolutePath, out string folderAbsolutePath);
+        void DeleteFolder(string absolutePath);
     }
 
     public class SystemFolderHelperImplementation: SystemFolderHelper
@@ -35,9 +36,10 @@ namespace DigitalAssetManagement.Infrastructure.Common
             return directoryInfo;
         }
 
-        public void UploadFolder()
+        public void DeleteFolder(string absolutePath)
         {
-            throw new NotImplementedException();
+            var path = $"{BasePath}{absolutePath}";
+            Directory.Delete(path, recursive: true);
         }
     }
 }

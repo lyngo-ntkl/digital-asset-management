@@ -11,6 +11,6 @@ namespace DigitalAssetManagement.Application.Services
         //Task<FolderDetailResponseDto> MoveFolder(int id, FolderMovementRequestDto request);
         //Task MoveToTrash(int id);
         //Task Delete(int id);
-        //Task DeleteFolder(int id);
+        Task DeleteFolder(int id);
     }
 }
