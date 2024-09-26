@@ -5,6 +5,7 @@ namespace DigitalAssetManagement.Infrastructure.Common
     public interface SystemFileHelper
     {
         string AddFile(Stream fileStream, string fileName, string parentPath);
+        void DeleteFile(string absolutePath);
     }
 
     public class SystemFileHelperImplementation: SystemFileHelper
@@ -41,6 +42,12 @@ namespace DigitalAssetManagement.Infrastructure.Common
             fileStream.Close();
 
             return fileAbsolutePath;
+        }
+
+        public void DeleteFile(string absolutePath)
+        {
+            var path = $"{BasePath}{absolutePath}";
+            File.Delete(path);
         }
     }
 }

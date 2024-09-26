@@ -76,6 +76,16 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return metadata;
         }
 
+        public async Task<Metadata> GetFileMetadataById(int id)
+        {
+            var metadata = await _unitOfWork.MetadataRepository.GetByIdAsync(id);
+            if (metadata == null || metadata.MetadataType != MetadataType.File)
+            {
+                throw new NotFoundException(ExceptionMessage.MetadataNotFound);
+            }
+            return metadata;
+        }
+
         public async Task<Metadata> GetFolderMetadataById(int id)
         {
             var metadata = await _unitOfWork.MetadataRepository.GetByIdAsync(id);

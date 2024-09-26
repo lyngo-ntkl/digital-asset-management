@@ -11,6 +11,7 @@ namespace DigitalAssetManagement.Application.Services
         Task AddRange(ICollection<Metadata> metadata);
         Task DeleteMetadata(Metadata metadata);
         Task<Metadata> GetById(int id);
+        Task<Metadata> GetFileMetadataById(int id);
         Task<Metadata> GetFolderMetadataById(int id);
         Task<Metadata?> GetLoginUserDriveMetadata();
         //Task<DriveDetailsResponseDto> Create(DriveRequestDto request);

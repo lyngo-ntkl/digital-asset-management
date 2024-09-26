@@ -43,7 +43,8 @@ namespace DigitalAssetManagement.Infrastructure.Services
                 Name = request.Name,
                 AbsolutePath = newFolderAbsolutePath,
                 MetadataType = MetadataType.Folder,
-                OwnerId = loginUserId
+                OwnerId = loginUserId,
+                ParentMetadataId = request.ParentId
             };
             newFolderMetadata = await _metadataService.Add(newFolderMetadata);
 

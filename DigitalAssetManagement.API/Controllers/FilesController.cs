@@ -1,4 +1,5 @@
-﻿using DigitalAssetManagement.Application.Dtos.Requests;
+﻿using DigitalAssetManagement.Application.Common.Requests;
+using DigitalAssetManagement.Application.Dtos.Requests;
 using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 using DigitalAssetManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -28,6 +29,17 @@ namespace DigitalAssetManagement.API.Controllers
             await _authorizationService.AuthorizeAsync(User, request, "Contributor");
             await _fileService.AddFiles(request);
             return Created();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task DeleteFile([FromRoute] int id)
+        {
+            await _authorizationService.AuthorizeAsync(
+                User,
+                new MetadataParentRequestDto { ParentId = id },
+                "Contributor"
+            );
+            await _fileService.DeleteFile(id);
         }
     }
 }
