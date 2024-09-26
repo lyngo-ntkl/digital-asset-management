@@ -16,22 +16,19 @@ namespace DigitalAssetManagement.Infrastructure.Services
         private readonly SystemFolderHelper _systemFolderHelper;
         private readonly MetadataService _metadataService;
         private readonly PermissionService _permissionService;
-        private readonly IAuthorizationService _authorizationService;
 
         public FolderServiceImplementation(
             IMapper mapper, 
             JwtHelper jwtHelper,
             SystemFolderHelper systemFolderHelper, 
             MetadataService metadataService, 
-            PermissionService permissionService,
-            IAuthorizationService authorizationService)
+            PermissionService permissionService)
         {
             _mapper = mapper;
             _jwtHelper = jwtHelper;
             _systemFolderHelper = systemFolderHelper;
             _metadataService = metadataService;
             _permissionService = permissionService;
-            _authorizationService = authorizationService;
         }
 
         public async Task<FolderDetailResponseDto> AddNewFolder(FolderCreationRequestDto request)
@@ -52,7 +49,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
             await _permissionService.DuplicatePermissions(newFolderMetadata.Id!.Value, parentMetadata.Id!.Value);
 
-            return _mapper.Map<FolderDetailResponseDto>(parentMetadata);
+            return _mapper.Map<FolderDetailResponseDto>(newFolderMetadata);
         }
 
         public async Task DeleteFolder(int id)

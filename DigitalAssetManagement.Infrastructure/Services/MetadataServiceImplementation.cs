@@ -54,6 +54,12 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return newDriveMetadata;
         }
 
+        public async Task AddRange(ICollection<Metadata> metadata)
+        {
+            await _unitOfWork.MetadataRepository.BatchAddAsync(metadata);
+            await _unitOfWork.SaveAsync();
+        }
+
         public async Task DeleteMetadata(Metadata metadata)
         {
             _unitOfWork.MetadataRepository.Delete(metadata);

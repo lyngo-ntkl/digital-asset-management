@@ -1,5 +1,6 @@
 using DigitalAssetManagement.API;
 using DigitalAssetManagement.Infrastructure;
+using DigitalAssetManagement.Infrastructure.Common;
 using Hangfire;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    //app.ApplyMigrations();
 }
 
 app.UseHttpsRedirection();

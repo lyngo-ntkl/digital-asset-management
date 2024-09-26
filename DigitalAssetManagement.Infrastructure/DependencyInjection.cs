@@ -44,6 +44,7 @@ namespace DigitalAssetManagement.Infrastructure
 
             // services
             services.AddScoped<DriveService, DriveServiceImplementation>();
+            services.AddScoped<FileService,  FileServiceImplementation>();
             services.AddScoped<FolderService, FolderServiceImplementation>();
             services.AddScoped<MetadataService, MetadataServiceImplementation>();
             services.AddScoped<PermissionService, PermissionServiceImplementation>();
@@ -52,6 +53,7 @@ namespace DigitalAssetManagement.Infrastructure
             // helper
             services.AddSingleton<HashingHelper, HashingHelperImplementation>();
             services.AddSingleton<JwtHelper, JwtHelperImplementation>();
+            services.AddScoped<SystemFileHelper, SystemFileHelperImplementation>();
             services.AddScoped<SystemFolderHelper, SystemFolderHelperImplementation>();
 
             return services;

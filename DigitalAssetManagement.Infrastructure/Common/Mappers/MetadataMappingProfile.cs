@@ -11,6 +11,7 @@ namespace DigitalAssetManagement.Infrastructure.Common.Mappers
         {
             CreateMap<MetadataType, string>()
                 .ConvertUsing(metadataType => metadataType.ToString());
+            CreateMap<Metadata, MetadataResponseDto>();
             CreateMap<Metadata, FolderDetailResponseDto>()
                 .ForMember(dto => dto.Children, opt => opt.MapFrom(entity => entity.ChildrenMetadata))
                 .ForAllMembers(opt => opt.Condition((src, dest, value) => value != null));
