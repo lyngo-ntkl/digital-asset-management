@@ -23,6 +23,10 @@ namespace DigitalAssetManagement.Infrastructure
                 options.UseNpgsql(configuration.GetConnectionString("defaultConnection"));
                 options.UseLazyLoadingProxies();
             });
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = configuration.GetConnectionString("redis");
+            });
 
             // mapper
             services.AddAutoMapper(typeof(UserMappingProfile));
@@ -38,9 +42,11 @@ namespace DigitalAssetManagement.Infrastructure
 
             // repositories
             services.AddScoped<UnitOfWork, UnitOfWorkImplementation>();
-            services.AddScoped<UserRepository, UserRepositoryImplementation>();
             services.AddScoped<MetadataRepository, MetadataRepositoryImplementation>();
             services.AddScoped<PermissionRepository, PermissionRepositoryImplementation>();
+            //services.AddScoped<UserRepository, UserRepositoryImplementation>();
+            services.AddScoped<UserRepository, CachedUserRepositoryImplementation>();
+            services.AddScoped<UserRepositoryImplementation>();
 
             // services
             services.AddScoped<DriveService, DriveServiceImplementation>();

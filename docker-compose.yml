@@ -21,6 +21,13 @@ services:
       - digital-asset-db:/postgresql/digital-asset-data
     ports:
       - 5432:5432
+  digitalassetmanagement.cache:
+    image: redis:latest
+    container_name: digitalasset.cache
+    restart: always
+    ports:
+      - 6379:6379
+
 
 volumes:
   digital-asset-db:
