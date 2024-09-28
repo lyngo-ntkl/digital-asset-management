@@ -19,6 +19,7 @@ namespace DigitalAssetManagement.API.Controllers
         }
 
         [HttpPost("registration")]
+        [AllowAnonymous]
         public async Task Register([FromBody] EmailPasswordRegistrationRequest request)
         {
             await _userService.Register(request);

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Hosting;
+using System.Text.RegularExpressions;
 
 namespace DigitalAssetManagement.Infrastructure.Common
 {
@@ -13,7 +14,7 @@ namespace DigitalAssetManagement.Infrastructure.Common
     {
         private const string BaseFolder = "Files";
         private readonly string BasePath;
-        private const string FolderSeparator = "\\";
+        private const string FolderSeparator = "/";
 
         public SystemFolderHelperImplementation(IHostEnvironment env)
         {
@@ -22,17 +23,17 @@ namespace DigitalAssetManagement.Infrastructure.Common
 
         public DirectoryInfo AddFolder(string folderName, out string folderAbsolutePath)
         {
-            var path = $"{BasePath}{folderName}";
+            folderAbsolutePath = folderName;
+            var path = $"{BasePath}{folderAbsolutePath}";
             var directoryInfo = Directory.CreateDirectory(path);
-            folderAbsolutePath = directoryInfo.FullName.Split(BasePath, StringSplitOptions.RemoveEmptyEntries)[0];
             return directoryInfo;
         }
 
         public DirectoryInfo AddFolder(string folderName, string parentAbsolutePath, out string folderAbsolutePath)
         {
-            var path = $"{BasePath}{parentAbsolutePath}{FolderSeparator}{folderName}";
+            folderAbsolutePath = $"{parentAbsolutePath}{FolderSeparator}{folderName}";
+            var path = $"{BasePath}{folderAbsolutePath}";
             var directoryInfo = Directory.CreateDirectory(path);
-            folderAbsolutePath = directoryInfo.FullName.Split(BasePath, StringSplitOptions.RemoveEmptyEntries)[0];
             return directoryInfo;
         }
 
