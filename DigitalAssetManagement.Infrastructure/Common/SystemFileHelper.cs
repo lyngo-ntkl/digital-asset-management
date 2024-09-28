@@ -13,7 +13,7 @@ namespace DigitalAssetManagement.Infrastructure.Common
         private const string BaseFolder = "Files";
         private readonly string BasePath;
         private readonly int FileBufferSize = 2048;
-        private const string FolderSeparator = "\\";
+        private const string FolderSeparator = "/";
 
         public SystemFileHelperImplementation(IHostEnvironment environment)
         {

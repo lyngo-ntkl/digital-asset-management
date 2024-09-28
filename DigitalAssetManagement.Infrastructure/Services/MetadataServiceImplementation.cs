@@ -106,6 +106,9 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return driveMetadata.FirstOrDefault();
         }
 
-        
+        public async Task<bool> IsFileExist(int id)
+        {
+            return await _unitOfWork.MetadataRepository.ExistByConditionAsync(m => m.Id == id && m.MetadataType == MetadataType.File);
+        }
     }
 }

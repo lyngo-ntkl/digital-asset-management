@@ -2,6 +2,7 @@
 using DigitalAssetManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System.Linq.Expressions;
 
@@ -12,17 +13,26 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
     {
         private static JsonSerializerSettings serializerSettings = new JsonSerializerSettings
         {
-            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            MaxDepth = 0
         };
         private readonly UserRepositoryImplementation _userDecorator;
         private readonly IDistributedCache _distributedCache;
+        private readonly IConfiguration _configuration;
+        private readonly DistributedCacheEntryOptions _options;
 
         public CachedUserRepositoryImplementation(
             UserRepositoryImplementation implementation,
-            IDistributedCache distributedCache)
+            IDistributedCache distributedCache,
+            IConfiguration configuration)
         {
             _userDecorator = implementation;
             _distributedCache = distributedCache;
+            _configuration = configuration;
+            _options = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(double.Parse(_configuration["jwt:expirationDays"]!))
+            };
         }
 
         public User Add(User entity)
@@ -98,7 +108,7 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
                 {
                     return user;
                 }
-                _distributedCache.SetString(key, JsonConvert.SerializeObject(user));
+                _distributedCache.SetString(key, JsonConvert.SerializeObject(user), _options);
             }
 
             user = JsonConvert.DeserializeObject<User>(cachedUser);
@@ -116,7 +126,7 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
                 user = await _userDecorator.GetByIdAsync(id);
                 if (user != null)
                 {
-                    await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(user, serializerSettings));
+                    await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(user, serializerSettings), _options);
                 }
                 return user;
             }
@@ -138,7 +148,7 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
                 {
                     return user;
                 }
-                await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(user, serializerSettings));
+                await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(user, serializerSettings), _options);
             }
 
             user = JsonConvert.DeserializeObject<User>(cachedUser, serializerSettings);

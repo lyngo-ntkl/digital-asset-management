@@ -30,6 +30,17 @@ namespace DigitalAssetManagement.API.Controllers
             return Created();
         }
 
+        [HttpPost("{id}/permissions")]
+        public async Task AddPermission([FromRoute] int id, PermissionRequestDto request)
+        {
+            await _authorizationService.AuthorizeAsync(
+                User,
+                new MetadataParentRequestDto { ParentId = id },
+                "Admin"
+            );
+            await _fileService.AddFilePermission(id, request);
+        }
+
         [HttpDelete("{id}")]
         public async Task DeleteFile([FromRoute] int id)
         {

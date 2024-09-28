@@ -14,8 +14,8 @@ namespace DigitalAssetManagement.Application.Services
         Task<Metadata> GetFileMetadataById(int id);
         Task<Metadata> GetFolderMetadataById(int id);
         Task<Metadata?> GetLoginUserDriveMetadata();
+        Task<bool> IsFileExist(int id);
         //Task<DriveDetailsResponseDto> Create(DriveRequestDto request);
-        //Task<DriveDetailsResponseDto> GetById(int id);
         //Task<List<DriveResponseDto>> GetDriveOwnedByLoginUser(string? name);
         //Task MoveToTrash(int id);
         //Task<DriveDetailsResponseDto> Update(int id, DriveRequestDto request);

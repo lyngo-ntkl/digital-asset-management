@@ -70,9 +70,19 @@ namespace DigitalAssetManagement.Infrastructure.Services
             await _driveService.AddNewDrive(user.Id!.Value, user.Name);
         }
 
-        public async Task<User?> Get(int id)
+        public async Task<User?> GetById(int id)
         {
             return await _unitOfWork.UserRepository.GetByIdAsync(id);
+        }
+
+        public async Task<User> GetByEmail(string email)
+        {
+            var user = await _unitOfWork.UserRepository.GetFirstOnConditionAsync(u => u.Email == email);
+            if (user == null)
+            {
+                throw new NotFoundException(ExceptionMessage.UserNotFound);
+            }
+            return user;
         }
     }
 }

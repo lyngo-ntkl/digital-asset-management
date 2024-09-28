@@ -21,7 +21,7 @@ namespace DigitalAssetManagement.API.Common.Authorizations
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, CustomAuthorizationRequirement requirement, MetadataParentRequestDto resource)
         {
             var loginUserId = int.Parse(context.User.FindFirstValue(ClaimTypes.Sid)!);
-            var loginUser = await _userService.Get(loginUserId);
+            var loginUser = await _userService.GetById(loginUserId);
             if (loginUser == null)
             {
                 throw new UnauthorizedException();

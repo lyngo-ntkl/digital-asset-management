@@ -58,7 +58,7 @@ namespace DigitalAssetManagement.Infrastructure.Common
                 Subject = claimsIdentity,
                 SigningCredentials = credential,
                 IssuedAt = DateTime.UtcNow,
-                Expires = DateTime.UtcNow.AddMonths(1),
+                Expires = DateTime.UtcNow.AddDays(int.Parse(_configuration["jwt:expirationDays"]!)),
                 Issuer = _configuration["jwt:issuer"]
             };
 

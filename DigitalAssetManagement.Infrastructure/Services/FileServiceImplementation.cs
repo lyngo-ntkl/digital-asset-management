@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using DigitalAssetManagement.Application.Common;
 using DigitalAssetManagement.Application.Dtos.Requests;
+using DigitalAssetManagement.Application.Exceptions;
 using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Infrastructure.Common;
@@ -14,19 +16,22 @@ namespace DigitalAssetManagement.Infrastructure.Services
         private readonly SystemFileHelper _systemFileHelper;
         private readonly MetadataService _metadataService;
         private readonly PermissionService _permissionService;
+        private readonly UserService _userService;
 
         public FileServiceImplementation(
             IMapper mapper,
             JwtHelper jwtHelper,
             SystemFileHelper systemFileHelper,
             MetadataService metadataService,
-            PermissionService permissionService)
+            PermissionService permissionService,
+            UserService userService)
         {
             _mapper = mapper;
             _jwtHelper = jwtHelper;
             _systemFileHelper = systemFileHelper;
             _metadataService = metadataService;
             _permissionService = permissionService;
+            _userService = userService;
         }
 
         public async Task AddFile(IFormFile file, Metadata parentMetadata, int ownerId)
@@ -75,6 +80,24 @@ namespace DigitalAssetManagement.Infrastructure.Services
             {
                 await AddFile(file, parentMetadata, loginUserId);
             }
+        }
+
+        public async Task AddFilePermission(int fileId, PermissionRequestDto request)
+        {
+            if (! await _metadataService.IsFileExist(fileId))
+            {
+                throw new NotFoundException(ExceptionMessage.FileNotFound);
+            }
+
+            var user = await _userService.GetByEmail(request.Email);
+
+            var permission = new Permission
+            {
+                MetadataId = fileId,
+                UserId = user.Id!.Value,
+                Role = request.Role,
+            };
+            await _permissionService.Add(permission);
         }
 
         public async Task DeleteFile(int fileId)
