@@ -117,5 +117,17 @@ namespace DigitalAssetManagement.Infrastructure.Services
             _systemFileHelper.DeleteFile(deletedFileMetadata.AbsolutePath);
             await _metadataService.DeleteMetadata(deletedFileMetadata);
         }
+        
+        public async Task MoveFile(int fileId, int newParentId)
+        {
+            var fileMetadata = await _metadataService.GetFileMetadataById(fileId);
+            var parentMetadata = await _metadataService.GetFolderOrDriveMetadataById(newParentId);
+
+            var newFileAbsolutePath = _systemFileHelper.MoveFile(fileMetadata.AbsolutePath, parentMetadata.AbsolutePath);
+
+            fileMetadata.ParentMetadataId = newParentId;
+            fileMetadata.AbsolutePath = newFileAbsolutePath;
+            await _metadataService.Update(fileMetadata);
+        }
     }
 }

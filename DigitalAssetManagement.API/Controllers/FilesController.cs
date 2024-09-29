@@ -3,6 +3,7 @@ using DigitalAssetManagement.Application.Dtos.Requests;
 using DigitalAssetManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Net.Mime;
 
 namespace DigitalAssetManagement.API.Controllers
@@ -50,6 +51,14 @@ namespace DigitalAssetManagement.API.Controllers
                 "Contributor"
             );
             await _fileService.DeleteFile(id);
+        }
+
+        [HttpPatch("move/{fileId}")]
+        public async Task MoveFile([FromRoute] int fileId, [FromQuery] [Required] int newParentId)
+        {
+            await _authorizationService.AuthorizeAsync(User, new MetadataParentRequestDto { ParentId = fileId }, "Admin");
+            await _authorizationService.AuthorizeAsync(User, new MetadataParentRequestDto { ParentId = newParentId }, "Admin");
+            await _fileService.MoveFile(fileId, newParentId);
         }
     }
 }

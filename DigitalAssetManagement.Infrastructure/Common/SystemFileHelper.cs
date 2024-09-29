@@ -6,6 +6,7 @@ namespace DigitalAssetManagement.Infrastructure.Common
     {
         string AddFile(Stream fileStream, string fileName, string parentPath);
         void DeleteFile(string absolutePath);
+        string MoveFile(string oldAbsolutePath, string newParentAbsolutePath);
     }
 
     public class SystemFileHelperImplementation: SystemFileHelper
@@ -13,7 +14,7 @@ namespace DigitalAssetManagement.Infrastructure.Common
         private const string BaseFolder = "Files";
         private readonly string BasePath;
         private readonly int FileBufferSize = 2048;
-        private const string FolderSeparator = "/";
+        public const string FolderSeparator = "/";
 
         public SystemFileHelperImplementation(IHostEnvironment environment)
         {
@@ -48,6 +49,16 @@ namespace DigitalAssetManagement.Infrastructure.Common
         {
             var path = $"{BasePath}{absolutePath}";
             File.Delete(path);
+        }
+
+        public string MoveFile(string oldAbsolutePath, string newParentAbsolutePath)
+        {
+            var fileName = oldAbsolutePath.Split(FolderSeparator, StringSplitOptions.RemoveEmptyEntries).Last();
+            var newFileAbsolutePath = $"{newParentAbsolutePath}{FolderSeparator}{fileName}";
+            var srcPath = $"{BasePath}{oldAbsolutePath}";
+            var destPath = $"{BasePath}{newFileAbsolutePath}";
+            File.Move(srcPath, destPath);
+            return newFileAbsolutePath;
         }
     }
 }

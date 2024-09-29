@@ -17,6 +17,7 @@ namespace DigitalAssetManagement.Application.Services
         Task<Metadata?> GetLoginUserDriveMetadata();
         Task<bool> IsFileExist(int id);
         Task<bool> IsFolderExist(int id);
+        Task Update(Metadata metadata);
         //Task<DriveDetailsResponseDto> Create(DriveRequestDto request);
         //Task<List<DriveResponseDto>> GetDriveOwnedByLoginUser(string? name);
         //Task MoveToTrash(int id);
