@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
+using DigitalAssetManagement.Application.Common;
+using DigitalAssetManagement.Application.Dtos.Requests;
 using DigitalAssetManagement.Application.Dtos.Requests.Folders;
 using DigitalAssetManagement.Application.Dtos.Responses.Folders;
+using DigitalAssetManagement.Application.Exceptions;
 using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Domain.Enums;
@@ -16,25 +19,28 @@ namespace DigitalAssetManagement.Infrastructure.Services
         private readonly SystemFolderHelper _systemFolderHelper;
         private readonly MetadataService _metadataService;
         private readonly PermissionService _permissionService;
+        private readonly UserService _userService;
 
         public FolderServiceImplementation(
             IMapper mapper, 
             JwtHelper jwtHelper,
             SystemFolderHelper systemFolderHelper, 
             MetadataService metadataService, 
-            PermissionService permissionService)
+            PermissionService permissionService,
+            UserService userService)
         {
             _mapper = mapper;
             _jwtHelper = jwtHelper;
             _systemFolderHelper = systemFolderHelper;
             _metadataService = metadataService;
             _permissionService = permissionService;
+            _userService = userService;
         }
 
         public async Task<FolderDetailResponseDto> AddNewFolder(FolderCreationRequestDto request)
         {
             var loginUserId = int.Parse(_jwtHelper.ExtractSidFromAuthorizationHeader()!);
-            Metadata parentMetadata = await _metadataService.GetById(request.ParentId);
+            Metadata parentMetadata = await _metadataService.GetFolderOrDriveMetadataById(request.ParentId);
 
             _systemFolderHelper.AddFolder(request.Name, parentMetadata.AbsolutePath, out string newFolderAbsolutePath);
 
@@ -48,9 +54,17 @@ namespace DigitalAssetManagement.Infrastructure.Services
             };
             newFolderMetadata = await _metadataService.Add(newFolderMetadata);
 
-            await _permissionService.DuplicatePermissions(newFolderMetadata.Id!.Value, parentMetadata.Id!.Value);
-
+            await _permissionService.DuplicatePermissions(newFolderMetadata.Id, parentMetadata.Id);
             return _mapper.Map<FolderDetailResponseDto>(newFolderMetadata);
+        }
+
+        public async Task AddFolderPermission(int folderId, PermissionRequestDto request)
+        {
+            var folderMetadata = await _metadataService.GetFolderMetadataById(folderId);
+
+            var user = await _userService.GetByEmail(request.Email);
+
+            await _permissionService.AddFolderPermission(folderMetadata.AbsolutePath, user.Id, request.Role);
         }
 
         public async Task DeleteFolder(int id)

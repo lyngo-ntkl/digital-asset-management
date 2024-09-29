@@ -1,7 +1,10 @@
-﻿using DigitalAssetManagement.Application.Repositories;
+﻿using DigitalAssetManagement.Application.Common;
+using DigitalAssetManagement.Application.Exceptions;
+using DigitalAssetManagement.Application.Repositories;
 using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Domain.Enums;
+using System.IO;
 
 namespace DigitalAssetManagement.Infrastructure.Services
 {
@@ -21,101 +24,50 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return permission;
         }
 
-        //private async Task CreateChildPermissions(int userId, Role role, LTree parentLtree)
-        //{
-        //    var folders = await _unitOfWork.FolderRepository.GetAllAsync(filter: folder => folder.HierarchicalPath!.Value.IsDescendantOf(parentLtree) && folder.HierarchicalPath != parentLtree);
-        //    var files = await _unitOfWork.FileRepository.GetAllAsync(filter: file => file.HierarchicalPath!.Value.IsDescendantOf(parentLtree));
-         
-        //    List<Permission> permissions = new List<Permission>(folders.Count + files.Count);
-        //    foreach (var folder in folders)
-        //    {
-        //        permissions.Add(new Permission { UserId = userId, FolderId = folder.Id, Role = role });
-        //    }
-        //    foreach (var file in files)
-        //    {
-        //        permissions.Add(new Permission { UserId = userId, FileId = file.Id, Role = role });
-        //    }
+        public async Task AddFolderPermission(string folderAbsolutePath, int userId, Role role)
+        {
+            var folderAndChildrenMetadata = await _unitOfWork.MetadataRepository.GetAllAsync(
+                m => m.AbsolutePath.StartsWith(folderAbsolutePath)
+            );
 
-        //    await _unitOfWork.PermissionRepository.BatchAddAsync(permissions);
-        //    await _unitOfWork.SaveAsync();
-        //}
+            // update existed permissions
+            var folderAndChildrenMetadataIds = folderAndChildrenMetadata.Select(m => m.Id);
+            var existedPermissions = await _unitOfWork.PermissionRepository.GetAllAsync(
+                p => p.UserId == userId && folderAndChildrenMetadataIds.Contains(p.MetadataId)
+            );
+            var existedPermissionIds = existedPermissions.Select(m => m.Id);
+            var updatedRow = await _unitOfWork.PermissionRepository.BatchUpdateAsync(
+                p => p.SetProperty(entity => entity.Role, value => role), 
+                filter: p => existedPermissionIds.Contains(p.Id)
+            );
+            await _unitOfWork.SaveAsync();
+            var existedPermissionMetadataIds = existedPermissions.Select(p => p.MetadataId).ToList();
 
-        //private async Task CreateDrivePermission(int userId, int driveId, Role role)
-        //{
-        //    var permission = new Permission { UserId = userId, DriveId = driveId, Role = role };
-        //    await _unitOfWork.PermissionRepository.AddAsync(permission);
-        //    await _unitOfWork.SaveAsync();
-        //}
+            var newPermissionMetadataIds = folderAndChildrenMetadataIds.Except(existedPermissionMetadataIds);
+            
+            List<Permission> newPermissions = new List<Permission>(folderAndChildrenMetadata.Count - updatedRow);
+            foreach (var metadataId in newPermissionMetadataIds)
+            {
+                newPermissions.Add(
+                    new Permission
+                    {
+                        MetadataId = metadataId,
+                        UserId = userId,
+                        Role = role
+                    }
+                );
+            }
 
-        //private async Task CreateFilePermission(int userId, int fileId, Role role)
-        //{
-        //    var permission = new Permission { UserId = userId, FileId = fileId, Role = role };
-        //    await _unitOfWork.PermissionRepository.AddAsync(permission);
-        //    await _unitOfWork.SaveAsync();
-        //}
-
-        //public async Task CreateFolderPermission(int folderId, PermissionRequestDto request)
-        //{
-        //    User loginUser = await _userService.GetLoginUserAsync();
-
-        //    if (!await HasPermission(role: Role.Admin, userId: loginUser.Id!.Value, assetId: folderId, typeof(Folder)))
-        //    {
-        //        throw new ForbiddenException(ExceptionMessage.UnallowedModification);
-        //    }
-
-        //    var permissionUser = _unitOfWork.UserRepository.GetByEmail(request.Email);
-        //    if (permissionUser == null)
-        //    {
-        //        throw new NotFoundException(ExceptionMessage.UserNotFound);
-        //    }
-
-        //    var folder = await _unitOfWork.FolderRepository.GetByIdAsync(folderId);
-        //    if (folder == null)
-        //    {
-        //        throw new NotFoundException(ExceptionMessage.FolderNotFound);
-        //    }
-
-        //    await CreatePermission(permissionUser.Id!.Value, folderId, request.Role, typeof(Folder), true, folder.HierarchicalPath);
-        //}
-
-        //private async Task CreateFolderPermission(int userId, int folderId, Role role)
-        //{
-        //    var permission = new Permission { UserId = userId, FolderId = folderId, Role = role };
-        //    await _unitOfWork.PermissionRepository.AddAsync(permission);
-        //    await _unitOfWork.SaveAsync();
-        //}
-
-        //public async Task CreatePermission(int userId, int assetId, Role role, Type assetType, bool hasChild = false, LTree? parentLTree = null)
-        //{
-        //    if (assetType == typeof(Drive))
-        //    {
-        //        await CreateDrivePermission(userId, assetId, role);
-        //    }
-        //    else if (assetType == typeof(Folder))
-        //    {
-        //        await CreateFolderPermission(userId, assetId, role);
-        //    }
-        //    else if (assetType == typeof(Domain.Entities.File))
-        //    {
-        //        await CreateFilePermission(userId, assetId, role);
-        //    }
-        //    else
-        //    {
-        //        throw new Exception(ExceptionMessage.UnsupportedAssetType);
-        //    }
-
-        //    if (hasChild && parentLTree != null)
-        //    {
-        //        await CreateChildPermissions(userId, role, parentLTree.Value);
-        //    }
-        //}
+            await _unitOfWork.PermissionRepository.BatchAddAsync(newPermissions);
+            await _unitOfWork.SaveAsync();
+        }
 
         public async Task DuplicatePermissions(int childMetadataId, int parentMetadataId)
         {
             var parentPermissions = await GetPermissions(parentMetadataId, false);
             foreach (var permission in parentPermissions)
             {
-                permission.Id = null;
+                permission.Id = 0;
                 permission.MetadataId = childMetadataId;
             }
 
@@ -123,7 +75,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
             await _unitOfWork.SaveAsync();
         }
 
-        private async Task<Permission?> GetPermission(int userId, int metadataId)
+        public async Task<Permission?> GetPermissionByUserIdAndMetadataId(int userId, int metadataId)
         {
             var permission = await _unitOfWork.PermissionRepository.GetFirstOnConditionAsync(p => p.MetadataId == metadataId && p.UserId == userId && !p.IsDeleted);
             return permission;
@@ -137,7 +89,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
         public async Task<bool> HasPermission(Role role, int userId, int metadataId)
         {
-            var permission = await GetPermission(userId, metadataId);
+            var permission = await GetPermissionByUserIdAndMetadataId(userId, metadataId);
             switch (role)
             {
                 case Role.Reader:
@@ -149,6 +101,12 @@ namespace DigitalAssetManagement.Infrastructure.Services
                 default:
                     return false;
             }
+        }
+
+        public async Task UpdatePermission(Permission permission)
+        {
+            _unitOfWork.PermissionRepository.Update(permission);
+            await _unitOfWork.SaveAsync();
         }
     }
 }

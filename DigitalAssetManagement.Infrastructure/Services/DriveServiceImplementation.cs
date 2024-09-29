@@ -32,7 +32,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
             await _permissionService.Add(new Permission
             {
                 UserId = ownerId,
-                MetadataId = metadata.Id!.Value,
+                MetadataId = metadata.Id,
                 Role = Domain.Enums.Role.Admin
             });
         }

@@ -96,6 +96,16 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return metadata;
         }
 
+        public async Task<Metadata> GetFolderOrDriveMetadataById(int id)
+        {
+            var metadata = await _unitOfWork.MetadataRepository.GetByIdAsync(id);
+            if (metadata == null || (metadata.MetadataType != MetadataType.Folder && metadata.MetadataType != MetadataType.UserDrive))
+            {
+                throw new NotFoundException(ExceptionMessage.FolderNotFound);
+            }
+            return metadata;
+        }
+
         public async Task<Metadata?> GetLoginUserDriveMetadata()
         {
             var loginUserId = int.Parse(_jwtHelper.ExtractSidFromAuthorizationHeader()!);
@@ -109,6 +119,11 @@ namespace DigitalAssetManagement.Infrastructure.Services
         public async Task<bool> IsFileExist(int id)
         {
             return await _unitOfWork.MetadataRepository.ExistByConditionAsync(m => m.Id == id && m.MetadataType == MetadataType.File);
+        }
+
+        public async Task<bool> IsFolderExist(int id)
+        {
+            return await _unitOfWork.MetadataRepository.ExistByConditionAsync(m => m.Id == id && m.MetadataType == MetadataType.Folder);
         }
     }
 }

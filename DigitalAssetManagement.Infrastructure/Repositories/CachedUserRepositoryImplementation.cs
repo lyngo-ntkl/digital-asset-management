@@ -13,8 +13,7 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
     {
         private static JsonSerializerSettings serializerSettings = new JsonSerializerSettings
         {
-            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-            MaxDepth = 0
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
         };
         private readonly UserRepositoryImplementation _userDecorator;
         private readonly IDistributedCache _distributedCache;

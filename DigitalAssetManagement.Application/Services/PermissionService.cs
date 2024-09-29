@@ -8,9 +8,10 @@ namespace DigitalAssetManagement.Application.Services
     public interface PermissionService
     {
         Task<Permission> Add(Permission permission);
-        //Task CreateFolderPermission(int fileIdOrFolderId, PermissionRequestDto request);
-        //Task CreatePermission(int userId, int assetId, Role role, Type assetType, bool hasChild = false, LTree? parentLTree = null);
+        Task AddFolderPermission(string folderAbsolutePath, int userId, Role role);
         Task DuplicatePermissions(int childId, int parentId);
+        Task<Permission?> GetPermissionByUserIdAndMetadataId(int userId, int metadataId);
         Task<bool> HasPermission(Role role, int userId, int metadataId);
+        Task UpdatePermission(Permission permission);
     }
 }

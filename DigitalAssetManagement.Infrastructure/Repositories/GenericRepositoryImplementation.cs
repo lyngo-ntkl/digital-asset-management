@@ -7,30 +7,30 @@ using DigitalAssetManagement.Domain.Common;
 
 namespace DigitalAssetManagement.Infrastructure.Repositories
 {
-    public class GenericRepositoryImplementation<T> : GenericRepository<T> where T : BaseEntity
+    public class GenericRepositoryImplementation<TEntity> : GenericRepository<TEntity> where TEntity : BaseEntity
     {
         protected readonly ApplicationDbContext _context;
-        protected readonly DbSet<T> _dbSet;
+        protected readonly DbSet<TEntity> _dbSet;
 
         public GenericRepositoryImplementation(ApplicationDbContext context)
         {
             _context = context;
-            _dbSet = _context.Set<T>();
+            _dbSet = _context.Set<TEntity>();
         }
 
-        public void BatchAdd(IEnumerable<T> entities)
+        public void BatchAdd(IEnumerable<TEntity> entities)
         {
             _dbSet.AddRange(entities);
         }
 
-        public async Task BatchAddAsync(IEnumerable<T> entities)
+        public async Task BatchAddAsync(IEnumerable<TEntity> entities)
         {
             await _dbSet.AddRangeAsync(entities);
         }
 
-        public int BatchUpdate(Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> setPropertyCalls, Expression<Func<T, bool>>? filter = null)
+        public int BatchUpdate(Expression<Func<SetPropertyCalls<TEntity>, SetPropertyCalls<TEntity>>> setPropertyCalls, Expression<Func<TEntity, bool>>? filter = null)
         {
-            IQueryable<T> data = _dbSet.AsQueryable();
+            IQueryable<TEntity> data = _dbSet.AsQueryable();
             
             if (filter != null)
             {
@@ -41,9 +41,9 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
 
         }
 
-        public async Task<int> BatchUpdateAsync(Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> setPropertyCalls, CancellationToken cancellationToken = default, Expression<Func<T, bool>>? filter = null)
+        public async Task<int> BatchUpdateAsync(Expression<Func<SetPropertyCalls<TEntity>, SetPropertyCalls<TEntity>>> setPropertyCalls, CancellationToken cancellationToken = default, Expression<Func<TEntity, bool>>? filter = null)
         {
-            IQueryable<T> data = _dbSet.AsQueryable();
+            IQueryable<TEntity> data = _dbSet.AsQueryable();
 
             if (filter != null)
             {
@@ -53,7 +53,7 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             return await data.ExecuteUpdateAsync(setPropertyCalls);
         }
 
-        public T Delete(T entity)
+        public TEntity Delete(TEntity entity)
         {
             if (_context.Entry(entity).State == EntityState.Detached)
             {
@@ -62,9 +62,9 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             return _dbSet.Remove(entity).Entity;
         }
 
-        public async Task<T?> DeleteAsync(int id)
+        public async Task<TEntity?> DeleteAsync(int id)
         {
-            T? entity = await _dbSet.FindAsync(id);
+            TEntity? entity = await _dbSet.FindAsync(id);
             if (entity != null)
             {
                 _dbSet.Remove(entity);
@@ -72,19 +72,19 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             return entity;
         }
 
-        public bool ExistByCondition(Expression<Func<T, bool>> condition)
+        public bool ExistByCondition(Expression<Func<TEntity, bool>> condition)
         {
             return _dbSet.Any(condition);
         }
 
-        public async Task<bool> ExistByConditionAsync(Expression<Func<T, bool>> condition)
+        public async Task<bool> ExistByConditionAsync(Expression<Func<TEntity, bool>> condition)
         {
             return await _dbSet.AnyAsync(condition);
         }
 
-        public ICollection<T> GetAll(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderedQuery = null, string includedProperties = "", bool isTracked = true, bool isPaging = false, int pageSize = 10, int page = 1)
+        public ICollection<TEntity> GetAll(Expression<Func<TEntity, bool>>? filter = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderedQuery = null, string includedProperties = "", bool isTracked = true, bool isPaging = false, int pageSize = 10, int page = 1)
         {
-            IQueryable<T> data = _dbSet.AsQueryable();
+            IQueryable<TEntity> data = _dbSet.AsQueryable();
 
             if (filter != null)
             {
@@ -114,9 +114,9 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             return data.ToList();
         }
 
-        public async Task<ICollection<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderedQuery = null, string includedProperties = "", bool isTracked = true, bool isPaging = false, int pageSize = 10, int page = 1)
+        public async Task<ICollection<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? filter = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderedQuery = null, string includedProperties = "", bool isTracked = true, bool isPaging = false, int pageSize = 10, int page = 1)
         {
-            IQueryable<T> data = _dbSet.AsQueryable();
+            IQueryable<TEntity> data = _dbSet.AsQueryable();
 
             if (filter != null)
             {
@@ -146,19 +146,19 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             return await data.ToListAsync();
         }
 
-        public T? GetById(int id)
+        public TEntity? GetById(int id)
         {
             return _dbSet.Find(id);
         }
 
-        public async Task<T?> GetByIdAsync(int id)
+        public async Task<TEntity?> GetByIdAsync(int id)
         {
             return await _dbSet.FindAsync(id);
         }
 
-        public async Task<T?> GetByIdAsync(int id, string includedProperties)
+        public async Task<TEntity?> GetByIdAsync(int id, string includedProperties)
         {
-            IQueryable<T> data = _dbSet;
+            IQueryable<TEntity> data = _dbSet;
             foreach (var includedProperty in includedProperties.Split(',', StringSplitOptions.RemoveEmptyEntries))
             {
                 data = data.Include(includedProperty);
@@ -166,30 +166,30 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             return await _dbSet.FindAsync(id);
         }
 
-        public T? GetFirstOnCondition(Func<T, bool> condition)
+        public TEntity? GetFirstOnCondition(Func<TEntity, bool> condition)
         {
             return _dbSet.FirstOrDefault(condition);
         }
 
-        public async Task<T?> GetFirstOnConditionAsync(Expression<Func<T, bool>> condition)
+        public async Task<TEntity?> GetFirstOnConditionAsync(Expression<Func<TEntity, bool>> condition)
         {
             return await _dbSet.FirstOrDefaultAsync(condition);
         }
 
-        public T Add(T entity)
+        public TEntity Add(TEntity entity)
         {
             return _dbSet.Add(entity).Entity;
         }
 
-        public async Task<T> AddAsync(T entity)
+        public async Task<TEntity> AddAsync(TEntity entity)
         {
             var entityEntry = await _dbSet.AddAsync(entity);
             return entityEntry.Entity;
         }
 
-        public T Update(T entity)
+        public TEntity Update(TEntity entity)
         {
-            if (_context.Entry<T>(entity).State == EntityState.Detached)
+            if (_context.Entry<TEntity>(entity).State == EntityState.Detached)
             {
                 _dbSet.Attach(entity);
             }

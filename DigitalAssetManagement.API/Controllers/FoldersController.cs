@@ -1,4 +1,5 @@
 ﻿using DigitalAssetManagement.Application.Common.Requests;
+using DigitalAssetManagement.Application.Dtos.Requests;
 using DigitalAssetManagement.Application.Dtos.Requests.Folders;
 using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 using DigitalAssetManagement.Application.Services;
@@ -31,10 +32,21 @@ namespace DigitalAssetManagement.API.Controllers
         [HttpPost]
         [ProducesResponseType<FolderDetailResponseDto>(StatusCodes.Status201Created)]
         [Authorize]
-        public async Task<ActionResult<FolderDetailResponseDto>> CreateFolder([FromBody] FolderCreationRequestDto request)
+        public async Task<ActionResult<FolderDetailResponseDto>> AddFolder([FromBody] FolderCreationRequestDto request)
         {
             await _authorizationService.AuthorizeAsync(User, request, "Contributor");
             return await _folderService.AddNewFolder(request);
+        }
+
+        [HttpPost("{id}/permissions")]
+        public async Task AddFolderPermission([FromRoute] int id, [FromBody] PermissionRequestDto request)
+        {
+            await _authorizationService.AuthorizeAsync(
+                User,
+                new MetadataParentRequestDto { ParentId = id },
+                "Admin"
+            );
+            await _folderService.AddFolderPermission(id, request);
         }
 
         //[HttpPatch("{id}")]

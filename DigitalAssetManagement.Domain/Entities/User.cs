@@ -1,5 +1,6 @@
 ﻿using DigitalAssetManagement.Domain.Common;
 using DigitalAssetManagement.Domain.Enums;
+using System.Text.Json.Serialization;
 
 namespace DigitalAssetManagement.Domain.Entities
 {
@@ -13,7 +14,9 @@ namespace DigitalAssetManagement.Domain.Entities
         // TODO: send verification phone number
         public string? PhoneNumber { get; set; }
         public byte[]? Avatar { get; set; }
+        [JsonIgnore]
         public virtual ICollection<Metadata> Metadata { get; set; } = null!;
+        [JsonIgnore]
         public virtual ICollection<Permission> Permissions { get; set; } = null!;
     }
 }

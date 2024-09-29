@@ -50,14 +50,15 @@ namespace DigitalAssetManagement.Infrastructure.Services
                 ParentMetadataId = parentMetadata.Id
             };
             fileMetadata = await _metadataService.Add(fileMetadata);
-            await _permissionService.DuplicatePermissions(fileMetadata.Id!.Value, parentMetadata.Id!.Value);
+            //await _permissionService.DuplicatePermissions(fileMetadata.Id!.Value, parentMetadata.Id!.Value);
+            await _permissionService.DuplicatePermissions(fileMetadata.Id, parentMetadata.Id);
         }
 
         public async Task AddFiles(MultipleFilesUploadRequestDto request)
         {
             var loginUserId = int.Parse(_jwtHelper.ExtractSidFromAuthorizationHeader()!);
             //List<Metadata> createdfileMetadataList = new List<Metadata>(request.Files.Count);
-            var parentMetadata = await _metadataService.GetById(request.ParentId);
+            var parentMetadata = await _metadataService.GetFolderOrDriveMetadataById(request.ParentId);
             //foreach (var file in request.Files)
             //{
             //    var fileAbsolutePath = _systemFileHelper.AddFile(
@@ -91,13 +92,23 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
             var user = await _userService.GetByEmail(request.Email);
 
-            var permission = new Permission
+            var permission = await _permissionService.GetPermissionByUserIdAndMetadataId(user.Id, fileId);
+            //var permission = await _permissionService.GetPermissionByUserIdAndMetadataId(user.Id!.Value, fileId);
+            if (permission != null)
             {
-                MetadataId = fileId,
-                UserId = user.Id!.Value,
-                Role = request.Role,
-            };
-            await _permissionService.Add(permission);
+                permission.Role = request.Role;
+                await _permissionService.UpdatePermission(permission);
+            }
+            else
+            {
+                permission = new Permission
+                {
+                    MetadataId = fileId,
+                    UserId = user.Id,
+                    Role = request.Role,
+                };
+                await _permissionService.Add(permission);
+            }
         }
 
         public async Task DeleteFile(int fileId)
