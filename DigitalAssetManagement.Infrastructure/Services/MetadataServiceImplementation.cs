@@ -76,6 +76,13 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return metadata;
         }
 
+        public async Task<ICollection<Metadata>> GetByAbsolutePathStartsWith(string absolutePath)
+        {
+            return await _unitOfWork.MetadataRepository.GetAllAsync(
+                m => m.AbsolutePath.StartsWith(absolutePath)
+            );
+        }
+
         public async Task<Metadata> GetFileMetadataById(int id)
         {
             var metadata = await _unitOfWork.MetadataRepository.GetByIdAsync(id);
@@ -130,6 +137,17 @@ namespace DigitalAssetManagement.Infrastructure.Services
         {
             _unitOfWork.MetadataRepository.Update(metadata);
             await _unitOfWork.SaveAsync();
+        }
+
+        public async Task<int> UpdateFolderAbsolutePathAsync(string oldFolderAbsolutePath, string newFolderAbsolutePath)
+        {
+            return await _unitOfWork.MetadataRepository.BatchUpdateAsync(
+                m => m.SetProperty(
+                    x => x.AbsolutePath,
+                    x => $"{newFolderAbsolutePath}/{x.Name}"
+                ),
+                filter: m => m.AbsolutePath.StartsWith(oldFolderAbsolutePath)
+            );
         }
     }
 }

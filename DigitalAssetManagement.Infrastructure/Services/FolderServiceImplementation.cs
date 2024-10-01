@@ -4,6 +4,7 @@ using DigitalAssetManagement.Application.Dtos.Requests;
 using DigitalAssetManagement.Application.Dtos.Requests.Folders;
 using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 using DigitalAssetManagement.Application.Exceptions;
+using DigitalAssetManagement.Application.Repositories;
 using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Domain.Enums;
@@ -20,6 +21,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
         private readonly MetadataService _metadataService;
         private readonly PermissionService _permissionService;
         private readonly UserService _userService;
+        private readonly UnitOfWork _unitOfWork;
 
         public FolderServiceImplementation(
             IMapper mapper, 
@@ -27,7 +29,8 @@ namespace DigitalAssetManagement.Infrastructure.Services
             SystemFolderHelper systemFolderHelper, 
             MetadataService metadataService, 
             PermissionService permissionService,
-            UserService userService)
+            UserService userService,
+            UnitOfWork unitOfWork)
         {
             _mapper = mapper;
             _jwtHelper = jwtHelper;
@@ -35,6 +38,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
             _metadataService = metadataService;
             _permissionService = permissionService;
             _userService = userService;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<FolderDetailResponseDto> AddNewFolder(FolderCreationRequestDto request)
@@ -64,6 +68,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
             var user = await _userService.GetByEmail(request.Email);
 
+            // TODO: refactor
             await _permissionService.AddFolderPermission(folderMetadata.AbsolutePath, user.Id, request.Role);
         }
 
@@ -72,6 +77,25 @@ namespace DigitalAssetManagement.Infrastructure.Services
             Metadata metadata = await _metadataService.GetFolderMetadataById(id);
             _systemFolderHelper.DeleteFolder(metadata.AbsolutePath);
             await _metadataService.DeleteMetadata(metadata);
+        }
+
+        public async Task MoveFolder(int folderId, int newParentId)
+        {
+            var folder = await _metadataService.GetFolderMetadataById(folderId);
+            var newParent = await _metadataService.GetFolderOrDriveMetadataById(newParentId);
+            
+            var newAbsolutePath = _systemFolderHelper.MoveFolder(folder.AbsolutePath, newParent.AbsolutePath);
+
+            folder.ParentMetadataId = newParentId;
+            await _metadataService.Update(folder);
+
+            await _metadataService.UpdateFolderAbsolutePathAsync(folder.AbsolutePath, newAbsolutePath);
+
+            var folderAndChildrenMetadataIds = new List<int> { folderId };
+            folderAndChildrenMetadataIds.AddRange(_unitOfWork.MetadataRepository.GetPropertyValue(m => m.Id, m => m.ParentMetadataId == folderId));
+            
+            await _permissionService.DeletePermissonsByMetadataIds(folderAndChildrenMetadataIds);
+            await _permissionService.DuplicatePermissions(folderAndChildrenMetadataIds, newParentId);
         }
     }
 }

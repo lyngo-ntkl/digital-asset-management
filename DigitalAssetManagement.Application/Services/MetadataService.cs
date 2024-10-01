@@ -11,6 +11,7 @@ namespace DigitalAssetManagement.Application.Services
         Task AddRange(ICollection<Metadata> metadata);
         Task DeleteMetadata(Metadata metadata);
         Task<Metadata> GetById(int id);
+        Task<ICollection<Metadata>> GetByAbsolutePathStartsWith(string absolutePath);
         Task<Metadata> GetFileMetadataById(int id);
         Task<Metadata> GetFolderMetadataById(int id);
         Task<Metadata> GetFolderOrDriveMetadataById(int id);
@@ -18,9 +19,8 @@ namespace DigitalAssetManagement.Application.Services
         Task<bool> IsFileExist(int id);
         Task<bool> IsFolderExist(int id);
         Task Update(Metadata metadata);
+        Task<int> UpdateFolderAbsolutePathAsync(string oldFolderAbsolutePath, string newFolderAbsolutePath);
         //Task<DriveDetailsResponseDto> Create(DriveRequestDto request);
-        //Task<List<DriveResponseDto>> GetDriveOwnedByLoginUser(string? name);
         //Task MoveToTrash(int id);
-        //Task<DriveDetailsResponseDto> Update(int id, DriveRequestDto request);
     }
 }

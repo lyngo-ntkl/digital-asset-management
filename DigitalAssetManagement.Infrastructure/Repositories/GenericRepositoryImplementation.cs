@@ -28,6 +28,26 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             await _dbSet.AddRangeAsync(entities);
         }
 
+        public void BatchDelete(Expression<Func<TEntity, bool>>? filter = null)
+        {
+            IQueryable<TEntity> data = _dbSet;
+            if (filter != null)
+            {
+                data = data.Where(filter);
+            }
+            data.ExecuteDelete();
+        }
+
+        public async Task BatchDeleteAsync(Expression<Func<TEntity, bool>>? filter = null)
+        {
+            IQueryable<TEntity> data = _dbSet;
+            if (filter != null)
+            {
+                data = data.Where(filter);
+            }
+            await data.ExecuteDeleteAsync();
+        }
+
         public int BatchUpdate(Expression<Func<SetPropertyCalls<TEntity>, SetPropertyCalls<TEntity>>> setPropertyCalls, Expression<Func<TEntity, bool>>? filter = null)
         {
             IQueryable<TEntity> data = _dbSet.AsQueryable();
@@ -41,7 +61,7 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
 
         }
 
-        public async Task<int> BatchUpdateAsync(Expression<Func<SetPropertyCalls<TEntity>, SetPropertyCalls<TEntity>>> setPropertyCalls, CancellationToken cancellationToken = default, Expression<Func<TEntity, bool>>? filter = null)
+        public async Task<int> BatchUpdateAsync(Expression<Func<SetPropertyCalls<TEntity>, SetPropertyCalls<TEntity>>> setPropertyCalls, Expression<Func<TEntity, bool>>? filter = null, CancellationToken cancellationToken = default)
         {
             IQueryable<TEntity> data = _dbSet.AsQueryable();
 
@@ -144,6 +164,18 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             }
 
             return await data.ToListAsync();
+        }
+
+        public IEnumerable<TProperty> GetPropertyValue<TProperty>(Expression<Func<TEntity, TProperty>> propertySelector, Expression<Func<TEntity, bool>>? filter = null)
+        {
+            IQueryable<TEntity> data = _dbSet.AsQueryable();
+
+            if (filter != null)
+            {
+                data = data.Where(filter);
+            }
+
+            return data.Select(propertySelector);
         }
 
         public TEntity? GetById(int id)

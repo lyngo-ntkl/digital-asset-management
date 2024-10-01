@@ -8,24 +8,23 @@ using System.Linq.Expressions;
 
 namespace DigitalAssetManagement.Infrastructure.Repositories
 {
-    // TODO: should I use CQRS? cuz just cache query, not cache command
-    public class CachedUserRepositoryImplementation : UserRepository
+    public class CachedUserRepositoryDecorator : UserRepository
     {
-        private static JsonSerializerSettings serializerSettings = new JsonSerializerSettings
+        private static JsonSerializerSettings serializerSettings = new()
         {
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore
         };
-        private readonly UserRepositoryImplementation _userDecorator;
+        private readonly UserRepositoryImplementation _userRepository;
         private readonly IDistributedCache _distributedCache;
         private readonly IConfiguration _configuration;
         private readonly DistributedCacheEntryOptions _options;
 
-        public CachedUserRepositoryImplementation(
+        public CachedUserRepositoryDecorator(
             UserRepositoryImplementation implementation,
             IDistributedCache distributedCache,
             IConfiguration configuration)
         {
-            _userDecorator = implementation;
+            _userRepository = implementation;
             _distributedCache = distributedCache;
             _configuration = configuration;
             _options = new DistributedCacheEntryOptions
@@ -36,62 +35,77 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
 
         public User Add(User entity)
         {
-            return _userDecorator.Add(entity);
+            return _userRepository.Add(entity);
         }
 
         public Task<User> AddAsync(User entity)
         {
-            return _userDecorator.AddAsync(entity);
+            return _userRepository.AddAsync(entity);
         }
 
         public void BatchAdd(IEnumerable<User> entities)
         {
-            _userDecorator.BatchAdd(entities);
+            _userRepository.BatchAdd(entities);
         }
 
         public async Task BatchAddAsync(IEnumerable<User> entities)
         {
-            await _userDecorator.BatchAddAsync(entities);
+            await _userRepository.BatchAddAsync(entities);
+        }
+
+        public void BatchDelete(Expression<Func<User, bool>>? filter = null)
+        {
+            _userRepository.BatchDelete(filter);
+        }
+
+        public async Task BatchDeleteAsync(Expression<Func<User, bool>>? filter = null)
+        {
+            await _userRepository.BatchDeleteAsync(filter);
         }
 
         public int BatchUpdate(Expression<Func<SetPropertyCalls<User>, SetPropertyCalls<User>>> setPropertyCalls, Expression<Func<User, bool>>? filter = null)
         {
-            return _userDecorator.BatchUpdate(setPropertyCalls, filter);
+            return _userRepository.BatchUpdate(setPropertyCalls, filter);
         }
 
-        public async Task<int> BatchUpdateAsync(Expression<Func<SetPropertyCalls<User>, SetPropertyCalls<User>>> setPropertyCalls, CancellationToken cancellationToken = default, Expression<Func<User, bool>>? filter = null)
+        public async Task<int> BatchUpdateAsync(Expression<Func<SetPropertyCalls<User>, SetPropertyCalls<User>>> setPropertyCalls, Expression<Func<User, bool>>? filter = null, CancellationToken cancellationToken = default)
         {
-            return await _userDecorator.BatchUpdateAsync(setPropertyCalls, cancellationToken, filter);
+            return await _userRepository.BatchUpdateAsync(setPropertyCalls, filter, cancellationToken);
         }
 
         public User Delete(User entity)
         {
-            return _userDecorator.Delete(entity);
+            return _userRepository.Delete(entity);
         }
 
         public async Task<User?> DeleteAsync(int id)
         {
-            return await _userDecorator.DeleteAsync(id);
+            return await _userRepository.DeleteAsync(id);
         }
 
         public bool ExistByCondition(Expression<Func<User, bool>> condition)
         {
-            return _userDecorator.ExistByCondition(condition);
+            return _userRepository.ExistByCondition(condition);
         }
 
         public async Task<bool> ExistByConditionAsync(Expression<Func<User, bool>> condition)
         {
-            return await _userDecorator.ExistByConditionAsync(condition);
+            return await _userRepository.ExistByConditionAsync(condition);
         }
 
         public ICollection<User> GetAll(Expression<Func<User, bool>>? filter = null, Func<IQueryable<User>, IOrderedQueryable<User>>? orderedQuery = null, string includedProperties = "", bool isTracked = true, bool isPaging = false, int pageSize = 10, int page = 1)
         {
-            return _userDecorator.GetAll(filter, orderedQuery, includedProperties, isTracked, isPaging, pageSize, page);
+            return _userRepository.GetAll(filter, orderedQuery, includedProperties, isTracked, isPaging, pageSize, page);
+        }
+
+        public IEnumerable<TProperty> GetPropertyValue<TProperty>(Expression<Func<User, TProperty>> propertySelector, Expression<Func<User, bool>>? filter = null)
+        {
+            return _userRepository.GetPropertyValue(propertySelector, filter);
         }
 
         public async Task<ICollection<User>> GetAllAsync(Expression<Func<User, bool>>? filter = null, Func<IQueryable<User>, IOrderedQueryable<User>>? orderedQuery = null, string includedProperties = "", bool isTracked = true, bool isPaging = false, int pageSize = 10, int page = 1)
         {
-            return await _userDecorator.GetAllAsync(filter, orderedQuery, includedProperties, isTracked, isPaging, pageSize, page);
+            return await _userRepository.GetAllAsync(filter, orderedQuery, includedProperties, isTracked, isPaging, pageSize, page);
         }
 
         public User? GetById(int id)
@@ -102,12 +116,12 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             User? user;
             if (cachedUser == null)
             {
-                user = _userDecorator.GetById(id);
-                if (user == null)
+                user = _userRepository.GetById(id);
+                if (user != null)
                 {
-                    return user;
+                    _distributedCache.SetString(key, JsonConvert.SerializeObject(user), _options);
                 }
-                _distributedCache.SetString(key, JsonConvert.SerializeObject(user), _options);
+                return user;
             }
 
             user = JsonConvert.DeserializeObject<User>(cachedUser);
@@ -122,7 +136,7 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             User? user;
             if (cachedUser == null)
             {
-                user = await _userDecorator.GetByIdAsync(id);
+                user = await _userRepository.GetByIdAsync(id);
                 if (user != null)
                 {
                     await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(user, serializerSettings), _options);
@@ -142,12 +156,12 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             User? user;
             if (cachedUser == null)
             {
-                user = await _userDecorator.GetByIdAsync(id, includedProperties);
-                if (user == null)
+                user = await _userRepository.GetByIdAsync(id, includedProperties);
+                if (user != null)
                 {
-                    return user;
+                    await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(user, serializerSettings), _options);
                 }
-                await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(user, serializerSettings), _options);
+                return user;
             }
 
             user = JsonConvert.DeserializeObject<User>(cachedUser, serializerSettings);
@@ -156,17 +170,17 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
 
         public User? GetFirstOnCondition(Func<User, bool> condition)
         {
-            return _userDecorator.GetFirstOnCondition(condition);
+            return _userRepository.GetFirstOnCondition(condition);
         }
 
         public async Task<User?> GetFirstOnConditionAsync(Expression<Func<User, bool>> condition)
         {
-            return await _userDecorator.GetFirstOnConditionAsync(condition);
+            return await _userRepository.GetFirstOnConditionAsync(condition);
         }
 
         public User Update(User entity)
         {
-            return _userDecorator.Update(entity);
+            return _userRepository.Update(entity);
         }
     }
 }

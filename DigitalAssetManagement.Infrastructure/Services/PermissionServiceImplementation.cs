@@ -40,12 +40,11 @@ namespace DigitalAssetManagement.Infrastructure.Services
                 p => p.SetProperty(entity => entity.Role, value => role), 
                 filter: p => existedPermissionIds.Contains(p.Id)
             );
-            await _unitOfWork.SaveAsync();
             var existedPermissionMetadataIds = existedPermissions.Select(p => p.MetadataId).ToList();
 
             var newPermissionMetadataIds = folderAndChildrenMetadataIds.Except(existedPermissionMetadataIds);
             
-            List<Permission> newPermissions = new List<Permission>(folderAndChildrenMetadata.Count - updatedRow);
+            List<Permission> newPermissions = new(folderAndChildrenMetadata.Count - updatedRow);
             foreach (var metadataId in newPermissionMetadataIds)
             {
                 newPermissions.Add(
@@ -62,6 +61,29 @@ namespace DigitalAssetManagement.Infrastructure.Services
             await _unitOfWork.SaveAsync();
         }
 
+        public async Task AddPermissionsWithDifferentUsers(int fileMetadataId, int newParentMetadataId)
+        {
+            var newParentPermissions = await _unitOfWork.PermissionRepository.GetAllAsync(p => p.MetadataId == newParentMetadataId, isTracked: false);
+            var newParentPermissionUserIds = newParentPermissions.Select(p => p.UserId);
+            var filePermissionUserIds = _unitOfWork.PermissionRepository.GetPropertyValue(p => p.UserId, p => p.MetadataId == fileMetadataId);
+            var differenceUserIds = newParentPermissionUserIds.Except(filePermissionUserIds);
+
+            var permissions = newParentPermissions.Where(p => differenceUserIds.Contains(p.UserId));
+            foreach (var permission in permissions)
+            {
+                permission.Id = 0;
+                permission.MetadataId = fileMetadataId;
+            }
+
+            await _unitOfWork.PermissionRepository.BatchAddAsync(permissions);
+            await _unitOfWork.SaveAsync();
+        }
+
+        public async Task DeletePermissonsByMetadataIds(ICollection<int> metadataIds)
+        {
+            await _unitOfWork.PermissionRepository.BatchDeleteAsync(p => metadataIds.Contains(p.MetadataId));
+        }
+
         public async Task DuplicatePermissions(int childMetadataId, int parentMetadataId)
         {
             var parentPermissions = await GetPermissions(parentMetadataId, false);
@@ -72,6 +94,25 @@ namespace DigitalAssetManagement.Infrastructure.Services
             }
 
             await _unitOfWork.PermissionRepository.BatchAddAsync(parentPermissions);
+            await _unitOfWork.SaveAsync();
+        }
+
+        public async Task DuplicatePermissions(ICollection<int> childrenIds, int parentId)
+        {
+            var parentPermissions = await GetPermissions(parentId, false);
+
+            List<Permission> childrenPermissions = new List<Permission>();
+            foreach (int childId in childrenIds)
+            {
+                foreach (var permission in parentPermissions)
+                {
+                    permission.Id = 0;
+                    permission.MetadataId = childId;
+                    childrenPermissions.Add(permission);
+                }
+            }
+
+            await _unitOfWork.PermissionRepository.BatchAddAsync(childrenPermissions);
             await _unitOfWork.SaveAsync();
         }
 

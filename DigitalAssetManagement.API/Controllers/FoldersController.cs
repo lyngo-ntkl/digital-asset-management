@@ -5,6 +5,7 @@ using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 using DigitalAssetManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Net.Mime;
 
@@ -85,5 +86,14 @@ namespace DigitalAssetManagement.API.Controllers
             );
             await _folderService.DeleteFolder(id);
         }
+
+        [HttpPatch("move/{folderId}")]
+        public async Task MoveFolder([FromRoute] int folderId, [FromQuery][Required] int newParentId)
+        {
+            await _authorizationService.AuthorizeAsync(User, new MetadataParentRequestDto { ParentId = folderId }, "Admin");
+            await _authorizationService.AuthorizeAsync(User, new MetadataParentRequestDto { ParentId = newParentId }, "Admin");
+            await _folderService.MoveFolder(folderId, newParentId);
+        }
+
     }
 }

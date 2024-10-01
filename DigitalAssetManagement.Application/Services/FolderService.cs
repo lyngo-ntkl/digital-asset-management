@@ -10,9 +10,8 @@ namespace DigitalAssetManagement.Application.Services
         Task AddFolderPermission(int folderId, PermissionRequestDto request);
         //Task<FolderDetailResponseDto> Update(int id, FolderModificationRequestDto request);
         //Task<FolderDetailResponseDto> Get(int id);
-        //Task<FolderDetailResponseDto> MoveFolder(int id, FolderMovementRequestDto request);
         //Task MoveToTrash(int id);
-        //Task Delete(int id);
         Task DeleteFolder(int id);
+        Task MoveFolder(int folderId, int newParentId);
     }
 }

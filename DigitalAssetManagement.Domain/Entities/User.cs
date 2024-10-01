@@ -1,6 +1,5 @@
 ﻿using DigitalAssetManagement.Domain.Common;
-using DigitalAssetManagement.Domain.Enums;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace DigitalAssetManagement.Domain.Entities
 {

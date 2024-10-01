@@ -45,7 +45,7 @@ namespace DigitalAssetManagement.Infrastructure
             services.AddScoped<MetadataRepository, MetadataRepositoryImplementation>();
             services.AddScoped<PermissionRepository, PermissionRepositoryImplementation>();
             //services.AddScoped<UserRepository, UserRepositoryImplementation>();
-            services.AddScoped<UserRepository, CachedUserRepositoryImplementation>();
+            services.AddScoped<UserRepository, CachedUserRepositoryDecorator>();
             services.AddScoped<UserRepositoryImplementation>();
 
             // services

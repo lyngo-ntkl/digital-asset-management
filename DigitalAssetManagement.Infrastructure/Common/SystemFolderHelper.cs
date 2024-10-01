@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Hosting;
-using System.Text.RegularExpressions;
 
 namespace DigitalAssetManagement.Infrastructure.Common
 {
@@ -8,6 +7,7 @@ namespace DigitalAssetManagement.Infrastructure.Common
         DirectoryInfo AddFolder(string folderName, out string folderAbsolutePath);
         DirectoryInfo AddFolder(string folderName, string parentAbsolutePath, out string folderAbsolutePath);
         void DeleteFolder(string absolutePath);
+        string MoveFolder(string oldFolderAbsolutePath, string newParentAbsolutePath);
     }
 
     public class SystemFolderHelperImplementation: SystemFolderHelper
@@ -41,6 +41,16 @@ namespace DigitalAssetManagement.Infrastructure.Common
         {
             var path = $"{BasePath}{absolutePath}";
             Directory.Delete(path, recursive: true);
+        }
+
+        public string MoveFolder(string oldFolderAbsolutePath, string newParentAbsolutePath)
+        {
+            var srcRelativePath = $"{BasePath}{oldFolderAbsolutePath}";
+            var folderName = oldFolderAbsolutePath.Split(FolderSeparator).Last();
+            var newFolderAbsolutePath = $"{newParentAbsolutePath}{FolderSeparator}{folderName}";
+            var destRelativePath = $"{BasePath}{newFolderAbsolutePath}";
+            Directory.Move(srcRelativePath, destRelativePath);
+            return newFolderAbsolutePath;
         }
     }
 }
