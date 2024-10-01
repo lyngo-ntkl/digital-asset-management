@@ -24,11 +24,12 @@ namespace DigitalAssetManagement.API.Controllers
             _authorizationService = authorizationService;
         }
 
-        //[HttpGet("{id}")]
-        //public async Task<FolderDetailResponseDto> Get([FromRoute] int id)
-        //{
-        //    return await _folderService.Get(id);
-        //}
+        [HttpGet("{id}")]
+        public async Task<FolderDetailResponseDto> Get([FromRoute] int id)
+        {
+            await _authorizationService.AuthorizeAsync(User, new MetadataParentRequestDto { ParentId = id }, "Reader");
+            return await _folderService.Get(id);
+        }
 
         [HttpPost]
         [ProducesResponseType<FolderDetailResponseDto>(StatusCodes.Status201Created)]
@@ -54,19 +55,6 @@ namespace DigitalAssetManagement.API.Controllers
         //public async Task<FolderDetailResponseDto> Update([FromRoute] int id, [FromBody] FolderModificationRequestDto request)
         //{
         //    return await _folderService.Update(id, request);
-        //}
-
-        //[HttpPatch("{id}/movement")]
-        //public async Task<FolderDetailResponseDto> MoveFolder([FromRoute] int id, [FromBody] FolderMovementRequestDto request)
-        //{
-        //    return await _folderService.MoveFolder(id, request);
-        //}
-
-        //[HttpPost("{id}/permissions")]
-        //public async Task<ActionResult> AddPermission([FromRoute] int id, [FromBody] PermissionRequestDto request)
-        //{
-        //    await _permissionService.CreateFolderPermission(id, request);
-        //    return new CreatedResult();
         //}
 
         //[HttpPatch("{id}/trash")]

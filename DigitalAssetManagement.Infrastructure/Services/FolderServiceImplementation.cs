@@ -79,6 +79,17 @@ namespace DigitalAssetManagement.Infrastructure.Services
             await _metadataService.DeleteMetadata(metadata);
         }
 
+        public async Task<FolderDetailResponseDto> Get(int id)
+        {
+            var folder = await _unitOfWork.MetadataRepository.GetByIdAsync(id, $"{nameof(Metadata.ChildrenMetadata)},{nameof(Metadata.Permissions)}");
+            if (folder == null || folder.MetadataType != MetadataType.Folder)
+            {
+                throw new NotFoundException(ExceptionMessage.MetadataNotFound);
+            }
+            return _mapper.Map<FolderDetailResponseDto>(folder);
+        }
+
+
         public async Task MoveFolder(int folderId, int newParentId)
         {
             var folder = await _metadataService.GetFolderMetadataById(folderId);
