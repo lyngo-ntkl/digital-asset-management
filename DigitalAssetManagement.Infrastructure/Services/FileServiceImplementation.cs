@@ -5,7 +5,9 @@ using DigitalAssetManagement.Application.Exceptions;
 using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Infrastructure.Common;
+using Hangfire;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 
 namespace DigitalAssetManagement.Infrastructure.Services
 {
@@ -17,6 +19,8 @@ namespace DigitalAssetManagement.Infrastructure.Services
         private readonly MetadataService _metadataService;
         private readonly PermissionService _permissionService;
         private readonly UserService _userService;
+        private readonly IBackgroundJobClient _backgroundJobClient;
+        private readonly IConfiguration _configuration;
 
         public FileServiceImplementation(
             IMapper mapper,
@@ -24,7 +28,9 @@ namespace DigitalAssetManagement.Infrastructure.Services
             SystemFileHelper systemFileHelper,
             MetadataService metadataService,
             PermissionService permissionService,
-            UserService userService)
+            UserService userService,
+            IBackgroundJobClient backgroundJobClient,
+            IConfiguration configuration)
         {
             _mapper = mapper;
             _jwtHelper = jwtHelper;
@@ -32,6 +38,8 @@ namespace DigitalAssetManagement.Infrastructure.Services
             _metadataService = metadataService;
             _permissionService = permissionService;
             _userService = userService;
+            _backgroundJobClient = backgroundJobClient;
+            _configuration = configuration;
         }
 
         public async Task AddFile(IFormFile file, Metadata parentMetadata, int ownerId)
@@ -57,25 +65,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
         public async Task AddFiles(MultipleFilesUploadRequestDto request)
         {
             var loginUserId = int.Parse(_jwtHelper.ExtractSidFromAuthorizationHeader()!);
-            //List<Metadata> createdfileMetadataList = new List<Metadata>(request.Files.Count);
             var parentMetadata = await _metadataService.GetFolderOrDriveMetadataById(request.ParentId);
-            //foreach (var file in request.Files)
-            //{
-            //    var fileAbsolutePath = _systemFileHelper.AddFile(
-            //        file.OpenReadStream(), 
-            //        file.FileName, 
-            //        parentMetadata.AbsolutePath
-            //    );
-            //    var fileMetadata = new Metadata { 
-            //        Name = file.FileName, 
-            //        AbsolutePath = fileAbsolutePath, 
-            //        MetadataType = Domain.Enums.MetadataType.File,
-            //        OwnerId = loginUserId,
-            //        ParentMetadataId = request.ParentId
-            //    };
-            //    createdfileMetadataList.Add(fileMetadata);
-            //}
-            //await _metadataService.AddRange(createdfileMetadataList);
 
             foreach ( var file in request.Files )
             {
@@ -93,7 +83,6 @@ namespace DigitalAssetManagement.Infrastructure.Services
             var user = await _userService.GetByEmail(request.Email);
 
             var permission = await _permissionService.GetPermissionByUserIdAndMetadataId(user.Id, fileId);
-            //var permission = await _permissionService.GetPermissionByUserIdAndMetadataId(user.Id!.Value, fileId);
             if (permission != null)
             {
                 permission.Role = request.Role;
@@ -117,7 +106,16 @@ namespace DigitalAssetManagement.Infrastructure.Services
             _systemFileHelper.DeleteFile(deletedFileMetadata.AbsolutePath);
             await _metadataService.DeleteMetadata(deletedFileMetadata);
         }
-        
+
+        public async Task DeleteFileSoftly(int fileId)
+        {
+            var file = await _metadataService.GetFileMetadataById(fileId);
+            file.IsDeleted = true;
+            await _metadataService.Update(file);
+
+            _backgroundJobClient.Schedule(() => DeleteFile(fileId), TimeSpan.FromDays(int.Parse(_configuration["schedule:deletedWaitDays"]!)));
+        }
+
         public async Task MoveFile(int fileId, int newParentId)
         {
             var fileMetadata = await _metadataService.GetFileMetadataById(fileId);

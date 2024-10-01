@@ -53,6 +53,17 @@ namespace DigitalAssetManagement.API.Controllers
             await _fileService.DeleteFile(id);
         }
 
+        [HttpDelete("soft-deletion/{id}")]
+        public async Task DeleteFileSoftly([FromRoute] int id)
+        {
+            await _authorizationService.AuthorizeAsync(
+                User,
+                new MetadataParentRequestDto { ParentId = id },
+                "Contributor"
+            );
+            await _fileService.DeleteFileSoftly(id);
+        }
+
         [HttpPatch("move/{fileId}")]
         public async Task MoveFile([FromRoute] int fileId, [FromQuery] [Required] int newParentId)
         {

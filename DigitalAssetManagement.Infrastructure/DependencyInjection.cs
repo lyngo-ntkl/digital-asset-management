@@ -34,11 +34,11 @@ namespace DigitalAssetManagement.Infrastructure
             services.AddAutoMapper(typeof(MetadataMappingProfile));
 
             // hangfire
-            //services.AddHangfire(options =>
-            //{
-            //    options.UsePostgreSqlStorage(opts => opts.UseNpgsqlConnection(configuration.GetConnectionString("defaultConnection")));
-            //});
-            //services.AddHangfireServer();
+            services.AddHangfire(options =>
+            {
+                options.UsePostgreSqlStorage(opts => opts.UseNpgsqlConnection(configuration.GetConnectionString("defaultConnection")));
+            });
+            services.AddHangfireServer();
 
             // repositories
             services.AddScoped<UnitOfWork, UnitOfWorkImplementation>();
