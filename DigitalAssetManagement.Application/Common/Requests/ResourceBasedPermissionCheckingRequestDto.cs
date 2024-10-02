@@ -1,6 +1,6 @@
 ﻿namespace DigitalAssetManagement.Application.Common.Requests
 {
-    public class MetadataParentRequestDto
+    public class ResourceBasedPermissionCheckingRequestDto
     {
         public required int ParentId { get; set; }
     }

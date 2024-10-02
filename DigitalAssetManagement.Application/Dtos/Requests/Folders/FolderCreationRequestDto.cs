@@ -2,7 +2,7 @@
 
 namespace DigitalAssetManagement.Application.Dtos.Requests.Folders
 {
-    public class FolderCreationRequestDto: MetadataParentRequestDto
+    public class FolderCreationRequestDto: ResourceBasedPermissionCheckingRequestDto
     {
         public required string Name { get; set; }
     }

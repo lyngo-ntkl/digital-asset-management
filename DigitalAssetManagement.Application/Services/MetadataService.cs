@@ -20,7 +20,5 @@ namespace DigitalAssetManagement.Application.Services
         Task<bool> IsFolderExist(int id);
         Task Update(Metadata metadata);
         Task<int> UpdateFolderAbsolutePathAsync(string oldFolderAbsolutePath, string newFolderAbsolutePath);
-        //Task<DriveDetailsResponseDto> Create(DriveRequestDto request);
-        //Task MoveToTrash(int id);
     }
 }

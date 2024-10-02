@@ -28,7 +28,7 @@ namespace DigitalAssetManagement.API.Controllers
             var myDrive = await _driveService.GetLoginUserDrive();
             await _authorizationService.AuthorizeAsync(
                 User,
-                new MetadataParentRequestDto { ParentId = myDrive.Id },
+                new ResourceBasedPermissionCheckingRequestDto { ParentId = myDrive.Id },
                 "Admin"
             );
             return myDrive;

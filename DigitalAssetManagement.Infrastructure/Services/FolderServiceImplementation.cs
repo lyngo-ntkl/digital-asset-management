@@ -9,7 +9,8 @@ using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Domain.Enums;
 using DigitalAssetManagement.Infrastructure.Common;
-using Microsoft.AspNetCore.Authorization;
+using Hangfire;
+using Microsoft.Extensions.Configuration;
 
 namespace DigitalAssetManagement.Infrastructure.Services
 {
@@ -22,6 +23,8 @@ namespace DigitalAssetManagement.Infrastructure.Services
         private readonly PermissionService _permissionService;
         private readonly UserService _userService;
         private readonly UnitOfWork _unitOfWork;
+        private readonly IBackgroundJobClient _backgroundJobClient;
+        private readonly IConfiguration _configuration;
 
         public FolderServiceImplementation(
             IMapper mapper, 
@@ -30,7 +33,9 @@ namespace DigitalAssetManagement.Infrastructure.Services
             MetadataService metadataService, 
             PermissionService permissionService,
             UserService userService,
-            UnitOfWork unitOfWork)
+            UnitOfWork unitOfWork,
+            IBackgroundJobClient backgroundJobClient,
+            IConfiguration configuration)
         {
             _mapper = mapper;
             _jwtHelper = jwtHelper;
@@ -39,6 +44,8 @@ namespace DigitalAssetManagement.Infrastructure.Services
             _permissionService = permissionService;
             _userService = userService;
             _unitOfWork = unitOfWork;
+            _backgroundJobClient = backgroundJobClient;
+            _configuration = configuration;
         }
 
         public async Task<FolderDetailResponseDto> AddNewFolder(FolderCreationRequestDto request)
@@ -77,6 +84,24 @@ namespace DigitalAssetManagement.Infrastructure.Services
             Metadata metadata = await _metadataService.GetFolderMetadataById(id);
             _systemFolderHelper.DeleteFolder(metadata.AbsolutePath);
             await _metadataService.DeleteMetadata(metadata);
+        }
+
+        public async Task DeleteFolderSoftly(int id)
+        {
+            if (! await _metadataService.IsFolderExist(id))
+            {
+                throw new NotFoundException(ExceptionMessage.FileNotFound);
+            }
+
+            await _unitOfWork.MetadataRepository.BatchUpdateAsync(
+                m => m.SetProperty(x => x.IsDeleted, true), 
+                m => m.ParentMetadataId == id || m.Id == id
+            );
+
+            _backgroundJobClient.Schedule(
+                () => DeleteFolder(id), 
+                TimeSpan.FromDays(int.Parse(_configuration["schedule:deletedWaitDays"]!))
+            );
         }
 
         public async Task<FolderDetailResponseDto> Get(int id)

@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace DigitalAssetManagement.API.Common.Authorizations
 {
-    public class CustomAuthorizationHandler : AuthorizationHandler<CustomAuthorizationRequirement, MetadataParentRequestDto>
+    public class CustomAuthorizationHandler : AuthorizationHandler<CustomAuthorizationRequirement, ResourceBasedPermissionCheckingRequestDto>
     {
         private readonly UserService _userService;
         private readonly PermissionService _permissionService;
@@ -18,7 +18,7 @@ namespace DigitalAssetManagement.API.Common.Authorizations
             _permissionService = permissionService;
         }
 
-        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, CustomAuthorizationRequirement requirement, MetadataParentRequestDto resource)
+        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, CustomAuthorizationRequirement requirement, ResourceBasedPermissionCheckingRequestDto resource)
         {
             var loginUserId = int.Parse(context.User.FindFirstValue(ClaimTypes.Sid)!);
             var loginUser = await _userService.GetById(loginUserId);

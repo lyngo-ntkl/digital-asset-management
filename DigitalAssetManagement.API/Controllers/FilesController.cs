@@ -36,7 +36,7 @@ namespace DigitalAssetManagement.API.Controllers
         {
             await _authorizationService.AuthorizeAsync(
                 User,
-                new MetadataParentRequestDto { ParentId = id },
+                new ResourceBasedPermissionCheckingRequestDto { ParentId = id },
                 "Admin"
             );
             await _fileService.AddFilePermission(id, request);
@@ -47,7 +47,7 @@ namespace DigitalAssetManagement.API.Controllers
         {
             await _authorizationService.AuthorizeAsync(
                 User,
-                new MetadataParentRequestDto { ParentId = id },
+                new ResourceBasedPermissionCheckingRequestDto { ParentId = id },
                 "Contributor"
             );
             await _fileService.DeleteFile(id);
@@ -58,7 +58,7 @@ namespace DigitalAssetManagement.API.Controllers
         {
             await _authorizationService.AuthorizeAsync(
                 User,
-                new MetadataParentRequestDto { ParentId = id },
+                new ResourceBasedPermissionCheckingRequestDto { ParentId = id },
                 "Contributor"
             );
             await _fileService.DeleteFileSoftly(id);
@@ -67,8 +67,8 @@ namespace DigitalAssetManagement.API.Controllers
         [HttpPatch("move/{fileId}")]
         public async Task MoveFile([FromRoute] int fileId, [FromQuery] [Required] int newParentId)
         {
-            await _authorizationService.AuthorizeAsync(User, new MetadataParentRequestDto { ParentId = fileId }, "Admin");
-            await _authorizationService.AuthorizeAsync(User, new MetadataParentRequestDto { ParentId = newParentId }, "Admin");
+            await _authorizationService.AuthorizeAsync(User, new ResourceBasedPermissionCheckingRequestDto { ParentId = fileId }, "Admin");
+            await _authorizationService.AuthorizeAsync(User, new ResourceBasedPermissionCheckingRequestDto { ParentId = newParentId }, "Admin");
             await _fileService.MoveFile(fileId, newParentId);
         }
     }

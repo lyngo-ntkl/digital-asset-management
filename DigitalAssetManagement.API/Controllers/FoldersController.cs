@@ -24,13 +24,6 @@ namespace DigitalAssetManagement.API.Controllers
             _authorizationService = authorizationService;
         }
 
-        [HttpGet("{id}")]
-        public async Task<FolderDetailResponseDto> Get([FromRoute] int id)
-        {
-            await _authorizationService.AuthorizeAsync(User, new MetadataParentRequestDto { ParentId = id }, "Reader");
-            return await _folderService.Get(id);
-        }
-
         [HttpPost]
         [ProducesResponseType<FolderDetailResponseDto>(StatusCodes.Status201Created)]
         [Authorize]
@@ -45,7 +38,7 @@ namespace DigitalAssetManagement.API.Controllers
         {
             await _authorizationService.AuthorizeAsync(
                 User,
-                new MetadataParentRequestDto { ParentId = id },
+                new ResourceBasedPermissionCheckingRequestDto { ParentId = id },
                 "Admin"
             );
             await _folderService.AddFolderPermission(id, request);
@@ -57,29 +50,42 @@ namespace DigitalAssetManagement.API.Controllers
         //    return await _folderService.Update(id, request);
         //}
 
-        //[HttpPatch("{id}/trash")]
-        //public async Task MoveToTrash([FromRoute] int id)
-        //{
-        //    await _folderService.MoveToTrash(id);
-        //}
-
         [HttpDelete("{id}")]
         [Authorize]
         public async Task DeleteFolder([FromRoute] int id)
         {
             await _authorizationService.AuthorizeAsync(
                 User, 
-                new MetadataParentRequestDto { ParentId = id}, 
+                new ResourceBasedPermissionCheckingRequestDto { ParentId = id}, 
                 "Contributor"
             );
             await _folderService.DeleteFolder(id);
         }
 
+        [HttpDelete("soft-deletion/{id}")]
+        [Authorize]
+        public async Task DeleteFolderSoftly([FromRoute] int id)
+        {
+            await _authorizationService.AuthorizeAsync(
+                User,
+                new ResourceBasedPermissionCheckingRequestDto { ParentId = id },
+                "Contributor"
+            );
+            await _folderService.DeleteFolderSoftly(id);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<FolderDetailResponseDto> Get([FromRoute] int id)
+        {
+            await _authorizationService.AuthorizeAsync(User, new ResourceBasedPermissionCheckingRequestDto { ParentId = id }, "Reader");
+            return await _folderService.Get(id);
+        }
+
         [HttpPatch("move/{folderId}")]
         public async Task MoveFolder([FromRoute] int folderId, [FromQuery][Required] int newParentId)
         {
-            await _authorizationService.AuthorizeAsync(User, new MetadataParentRequestDto { ParentId = folderId }, "Admin");
-            await _authorizationService.AuthorizeAsync(User, new MetadataParentRequestDto { ParentId = newParentId }, "Admin");
+            await _authorizationService.AuthorizeAsync(User, new ResourceBasedPermissionCheckingRequestDto { ParentId = folderId }, "Admin");
+            await _authorizationService.AuthorizeAsync(User, new ResourceBasedPermissionCheckingRequestDto { ParentId = newParentId }, "Admin");
             await _folderService.MoveFolder(folderId, newParentId);
         }
 
