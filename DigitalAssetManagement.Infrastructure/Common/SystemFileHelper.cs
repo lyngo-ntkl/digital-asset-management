@@ -6,6 +6,7 @@ namespace DigitalAssetManagement.Infrastructure.Common
     {
         string AddFile(Stream fileStream, string fileName, string parentPath);
         void DeleteFile(string absolutePath);
+        Task<byte[]> GetFile(string absolutePath);
         string MoveFile(string oldAbsolutePath, string newParentAbsolutePath);
     }
 
@@ -49,6 +50,12 @@ namespace DigitalAssetManagement.Infrastructure.Common
         {
             var path = $"{BasePath}{absolutePath}";
             File.Delete(path);
+        }
+
+        public async Task<byte[]> GetFile(string absolutePath)
+        {
+            var path = $"{BasePath}{absolutePath}";
+            return await File.ReadAllBytesAsync(path);
         }
 
         public string MoveFile(string oldAbsolutePath, string newParentAbsolutePath)

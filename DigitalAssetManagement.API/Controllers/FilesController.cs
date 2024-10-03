@@ -3,6 +3,7 @@ using DigitalAssetManagement.Application.Dtos.Requests;
 using DigitalAssetManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Mime;
 
@@ -62,6 +63,18 @@ namespace DigitalAssetManagement.API.Controllers
                 "Contributor"
             );
             await _fileService.DeleteFileSoftly(id);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetFile([FromRoute] int id)
+        {
+            await _authorizationService.AuthorizeAsync(User,
+                new ResourceBasedPermissionCheckingRequestDto { ParentId = id },
+                "Reader"
+            );
+            var fileResponse = await _fileService.GetFile(id);
+            new FileExtensionContentTypeProvider().TryGetContentType(fileResponse.FileName, out var contentType);
+            return File(fileResponse.FileContent, contentType!, fileResponse.FileName);
         }
 
         [HttpPatch("move/{fileId}")]

@@ -1,6 +1,4 @@
 ﻿using DigitalAssetManagement.Application.Common.Requests;
-using DigitalAssetManagement.Application.Dtos.Requests.Drives;
-using DigitalAssetManagement.Application.Dtos.Responses.Drives;
 using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 using DigitalAssetManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;

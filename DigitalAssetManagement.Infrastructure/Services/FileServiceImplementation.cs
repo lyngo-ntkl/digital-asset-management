@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DigitalAssetManagement.Application.Common;
 using DigitalAssetManagement.Application.Dtos.Requests;
+using DigitalAssetManagement.Application.Dtos.Responses;
 using DigitalAssetManagement.Application.Exceptions;
 using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
@@ -114,6 +115,17 @@ namespace DigitalAssetManagement.Infrastructure.Services
             await _metadataService.Update(file);
 
             _backgroundJobClient.Schedule(() => DeleteFile(fileId), TimeSpan.FromDays(int.Parse(_configuration["schedule:deletedWaitDays"]!)));
+        }
+
+        public async Task<FileResponseDto> GetFile(int fileId)
+        {
+            var file = await _metadataService.GetFileMetadataById(fileId);
+            var fileBytes = await _systemFileHelper.GetFile(file.AbsolutePath);
+            return new FileResponseDto
+            {
+                FileContent = fileBytes,
+                FileName = file.Name
+            };
         }
 
         public async Task MoveFile(int fileId, int newParentId)
