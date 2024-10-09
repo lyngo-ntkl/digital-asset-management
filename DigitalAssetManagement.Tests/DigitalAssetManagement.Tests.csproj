@@ -22,7 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="UnitTests\Drives\" />
     <Folder Include="UnitTests\Users\" />
   </ItemGroup>
 

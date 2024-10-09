@@ -1,8 +1,13 @@
-﻿using DigitalAssetManagement.Application.Dtos.Requests;
+﻿using DigitalAssetManagement.Application.Common.Requests;
+using DigitalAssetManagement.Application.Dtos.Requests;
 using DigitalAssetManagement.Application.Dtos.Requests.Folders;
 using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 using DigitalAssetManagement.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
+using System.Net;
+using System.Net.Mime;
 
 namespace DigitalAssetManagement.API.Controllers
 {
@@ -11,56 +16,78 @@ namespace DigitalAssetManagement.API.Controllers
     public class FoldersController : ControllerBase
     {
         private readonly FolderService _folderService;
-        private readonly PermissionService _permissionService;
+        private readonly IAuthorizationService _authorizationService;
 
-        public FoldersController(FolderService folderService, PermissionService permissionService)
+        public FoldersController(FolderService folderService, IAuthorizationService authorizationService)
         {
             _folderService = folderService;
-            _permissionService = permissionService;
+            _authorizationService = authorizationService;
+        }
+
+        [HttpPost]
+        [ProducesResponseType<FolderDetailResponseDto>(StatusCodes.Status201Created)]
+        [Authorize]
+        public async Task<ActionResult<FolderDetailResponseDto>> AddFolder([FromBody] FolderCreationRequestDto request)
+        {
+            await _authorizationService.AuthorizeAsync(User, request, "Contributor");
+            return await _folderService.AddNewFolder(request);
+        }
+
+        [HttpPost("{id}/permissions")]
+        public async Task AddFolderPermission([FromRoute] int id, [FromBody] PermissionRequestDto request)
+        {
+            await _authorizationService.AuthorizeAsync(
+                User,
+                new ResourceBasedPermissionCheckingRequestDto { ParentId = id },
+                "Admin"
+            );
+            await _folderService.AddFolderPermission(id, request);
+        }
+
+        //[HttpPatch("{id}")]
+        //public async Task<FolderDetailResponseDto> Update([FromRoute] int id, [FromBody] FolderModificationRequestDto request)
+        //{
+        //    return await _folderService.Update(id, request);
+        //}
+
+        [HttpDelete("{id}")]
+        [Authorize]
+        public async Task DeleteFolder([FromRoute] int id)
+        {
+            await _authorizationService.AuthorizeAsync(
+                User, 
+                new ResourceBasedPermissionCheckingRequestDto { ParentId = id}, 
+                "Contributor"
+            );
+            await _folderService.DeleteFolder(id);
+        }
+
+        [HttpDelete("soft-deletion/{id}")]
+        [Authorize]
+        public async Task DeleteFolderSoftly([FromRoute] int id)
+        {
+            await _authorizationService.AuthorizeAsync(
+                User,
+                new ResourceBasedPermissionCheckingRequestDto { ParentId = id },
+                "Contributor"
+            );
+            await _folderService.DeleteFolderSoftly(id);
         }
 
         [HttpGet("{id}")]
         public async Task<FolderDetailResponseDto> Get([FromRoute] int id)
         {
+            await _authorizationService.AuthorizeAsync(User, new ResourceBasedPermissionCheckingRequestDto { ParentId = id }, "Reader");
             return await _folderService.Get(id);
         }
 
-        [HttpPost]
-        [ProducesResponseType<FolderDetailResponseDto>(StatusCodes.Status201Created)]
-        public async Task<ActionResult<FolderDetailResponseDto>> Create([FromBody] FolderCreationRequestDto request)
+        [HttpPatch("move/{folderId}")]
+        public async Task MoveFolder([FromRoute] int folderId, [FromQuery][Required] int newParentId)
         {
-            return await _folderService.Create(request);
+            await _authorizationService.AuthorizeAsync(User, new ResourceBasedPermissionCheckingRequestDto { ParentId = folderId }, "Admin");
+            await _authorizationService.AuthorizeAsync(User, new ResourceBasedPermissionCheckingRequestDto { ParentId = newParentId }, "Admin");
+            await _folderService.MoveFolder(folderId, newParentId);
         }
 
-        [HttpPatch("{id}")]
-        public async Task<FolderDetailResponseDto> Update([FromRoute] int id, [FromBody] FolderModificationRequestDto request)
-        {
-            return await _folderService.Update(id, request);
-        }
-
-        [HttpPatch("{id}/movement")]
-        public async Task<FolderDetailResponseDto> MoveFolder([FromRoute] int id, [FromBody] FolderMovementRequestDto request)
-        {
-            return await _folderService.MoveFolder(id, request);
-        }
-
-        [HttpPost("{id}/permissions")]
-        public async Task<ActionResult> AddPermission([FromRoute] int id, [FromBody] PermissionRequestDto request)
-        {
-            await _permissionService.CreateFolderPermission(id, request);
-            return new CreatedResult();
-        }
-
-        [HttpPatch("{id}/trash")]
-        public async Task MoveToTrash([FromRoute] int id)
-        {
-            await _folderService.MoveToTrash(id);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task DeleteFolderPermanently([FromRoute] int id)
-        {
-            await _folderService.Delete(id);
-        }
     }
 }

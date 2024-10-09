@@ -1,7 +1,9 @@
 ﻿using DigitalAssetManagement.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 
@@ -9,6 +11,8 @@ namespace DigitalAssetManagement.Infrastructure.Common
 {
     public interface JwtHelper
     {
+        string? ExtractJwtFromAuthorizationHeader();
+        string? ExtractSidFromAuthorizationHeader();
         string GenerateAccessToken(User user);
         IEnumerable<Claim> GetClaims(string jwt);
         string? GetSid(string jwt);
@@ -17,10 +21,26 @@ namespace DigitalAssetManagement.Infrastructure.Common
     public class JwtHelperImplementation : JwtHelper
     {
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public JwtHelperImplementation(IConfiguration configuration)
+        public JwtHelperImplementation(
+            IConfiguration configuration,
+            IHttpContextAccessor httpContextAccessor)
         {
             _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        public string? ExtractJwtFromAuthorizationHeader()
+        {
+            var authorizationHeader = _httpContextAccessor.HttpContext!.Request.Headers.FirstOrDefault(header => header.Key == "Authorization").Value;
+            return authorizationHeader.ToString()!.Split("Bearer ", StringSplitOptions.RemoveEmptyEntries)[0];
+        }
+
+        public string? ExtractSidFromAuthorizationHeader()
+        {
+            var jwt = ExtractJwtFromAuthorizationHeader();
+            return GetSid(jwt!);
         }
 
         public string GenerateAccessToken(User user)
@@ -38,7 +58,7 @@ namespace DigitalAssetManagement.Infrastructure.Common
                 Subject = claimsIdentity,
                 SigningCredentials = credential,
                 IssuedAt = DateTime.UtcNow,
-                Expires = DateTime.UtcNow.AddMonths(1),
+                Expires = DateTime.UtcNow.AddDays(int.Parse(_configuration["jwt:expirationDays"]!)),
                 Issuer = _configuration["jwt:issuer"]
             };
 

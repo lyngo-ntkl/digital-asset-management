@@ -17,20 +17,31 @@ namespace DigitalAssetManagement.Infrastructure.Services
         private readonly IMapper _mapper;
         private readonly HashingHelper _hashingHelper;
         private readonly JwtHelper _jwtHelper;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly DriveService _driveService;
 
-        public UserServiceImplementation(UnitOfWork unitOfWork, IMapper mapper, HashingHelper hashingHelper, JwtHelper jwtHelper, IHttpContextAccessor httpContextAccessor)
+        public UserServiceImplementation(UnitOfWork unitOfWork, 
+            IMapper mapper, 
+            HashingHelper hashingHelper, 
+            JwtHelper jwtHelper, 
+            DriveService driveService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _hashingHelper = hashingHelper;
             _jwtHelper = jwtHelper;
-            _httpContextAccessor = httpContextAccessor;
+            _driveService = driveService;
+        }
+
+        private async Task<User> Add(User user)
+        {
+            user = await _unitOfWork.UserRepository.AddAsync(user);
+            await _unitOfWork.SaveAsync();
+            return user;
         }
 
         public async Task<AuthResponse> LoginWithEmailPassword(EmailPasswordAuthRequest request)
         {
-            var user = await _unitOfWork.UserRepository.GetByEmailAsync(request.Email);
+            var user = await _unitOfWork.UserRepository.GetFirstOnConditionAsync(u => u.Email == request.Email);
             if (user == null)
             {
                 throw new BadRequestException(ExceptionMessage.UnregisteredEmail);
@@ -50,29 +61,28 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
         public async Task Register(EmailPasswordRegistrationRequest request)
         {
-            if (_unitOfWork.UserRepository.ExistByEmail(request.Email))
+            if (_unitOfWork.UserRepository.ExistByCondition(u => u.Email == request.Email))
             {
                 throw new BadRequestException(ExceptionMessage.RegisteredEmail);
             }
 
-            var user = _mapper.Map<User>(request);
-
-            await _unitOfWork.UserRepository.InsertAsync(user);
-            await _unitOfWork.SaveAsync();
+            var user = await Add(_mapper.Map<User>(request));
+            //await _driveService.AddNewDrive(user.Id!.Value, user.Name);
+            await _driveService.AddNewDrive(user.Id, user.Name);
         }
 
-        public async Task<User> GetLoginUserAsync()
+        public async Task<User?> GetById(int id)
         {
-            var authorizationHeader = _httpContextAccessor.HttpContext?.Request.Headers.FirstOrDefault(header => header.Key == "Authorization").Value;
-            var jwt = authorizationHeader.ToString()!.Split("Bearer ", StringSplitOptions.RemoveEmptyEntries)[0];
+            return await _unitOfWork.UserRepository.GetByIdAsync(id);
+        }
 
-            int id = int.Parse(_jwtHelper.GetSid(jwt)!);
-            var user = await _unitOfWork.UserRepository.GetByIdAsync(id);
+        public async Task<User> GetByEmail(string email)
+        {
+            var user = await _unitOfWork.UserRepository.GetFirstOnConditionAsync(u => u.Email == email);
             if (user == null)
             {
-                throw new UnauthorizedException();
+                throw new NotFoundException(ExceptionMessage.UserNotFound);
             }
-
             return user;
         }
     }

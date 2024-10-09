@@ -1,251 +1,136 @@
 ﻿using DigitalAssetManagement.Application.Common;
-using DigitalAssetManagement.Application.Dtos.Requests;
 using DigitalAssetManagement.Application.Exceptions;
 using DigitalAssetManagement.Application.Repositories;
 using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Domain.Enums;
-using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
-using System.Reflection;
+using System.IO;
 
 namespace DigitalAssetManagement.Infrastructure.Services
 {
     public class PermissionServiceImplementation : PermissionService
     {
         private readonly UnitOfWork _unitOfWork;
-        private readonly UserService _userService;
 
-        public PermissionServiceImplementation(UnitOfWork unitOfWork, UserService userService)
+        public PermissionServiceImplementation(UnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _userService = userService;
         }
 
-        private async Task CreateChildPermissions(int userId, Role role, LTree parentLtree)
+        public async Task<Permission> Add(Permission permission)
         {
-            var folders = await _unitOfWork.FolderRepository.GetAllAsync(filter: folder => folder.HierarchicalPath!.Value.IsDescendantOf(parentLtree) && folder.HierarchicalPath != parentLtree);
-            var files = await _unitOfWork.FileRepository.GetAllAsync(filter: file => file.HierarchicalPath!.Value.IsDescendantOf(parentLtree));
-
-            List<Permission> permissions = new List<Permission>(folders.Count + files.Count);
-            foreach (var folder in folders)
-            {
-                permissions.Add(new Permission { UserId = userId, FolderId = folder.Id, Role = role });
-            }
-            foreach (var file in files)
-            {
-                permissions.Add(new Permission { UserId = userId, FileId = file.Id, Role = role });
-            }
-
-            await _unitOfWork.PermissionRepository.BatchInsertAsync(permissions);
+            permission = await _unitOfWork.PermissionRepository.AddAsync(permission);
             await _unitOfWork.SaveAsync();
-        }
-
-        private async Task CreateDrivePermission(int userId, int driveId, Role role)
-        {
-            var permission = new Permission { UserId = userId, DriveId = driveId, Role = role };
-            await _unitOfWork.PermissionRepository.InsertAsync(permission);
-            await _unitOfWork.SaveAsync();
-        }
-
-        private async Task CreateFilePermission(int userId, int fileId, Role role)
-        {
-            var permission = new Permission { UserId = userId, FileId = fileId, Role = role };
-            await _unitOfWork.PermissionRepository.InsertAsync(permission);
-            await _unitOfWork.SaveAsync();
-        }
-
-        public async Task CreateFolderPermission(int folderId, PermissionRequestDto request)
-        {
-            User loginUser = await _userService.GetLoginUserAsync();
-
-            if (!await HasPermission(role: Role.Admin, userId: loginUser.Id!.Value, assetId: folderId, typeof(Folder)))
-            {
-                throw new ForbiddenException(ExceptionMessage.UnallowedModification);
-            }
-
-            var permissionUser = _unitOfWork.UserRepository.GetByEmail(request.Email);
-            if (permissionUser == null)
-            {
-                throw new NotFoundException(ExceptionMessage.UserNotFound);
-            }
-
-            var folder = await _unitOfWork.FolderRepository.GetByIdAsync(folderId);
-            if (folder == null)
-            {
-                throw new NotFoundException(ExceptionMessage.FolderNotFound);
-            }
-
-            await CreatePermission(permissionUser.Id!.Value, folderId, request.Role, typeof(Folder), true, folder.HierarchicalPath);
-        }
-
-        private async Task CreateFolderPermission(int userId, int folderId, Role role)
-        {
-            var permission = new Permission { UserId = userId, FolderId = folderId, Role = role };
-            await _unitOfWork.PermissionRepository.InsertAsync(permission);
-            await _unitOfWork.SaveAsync();
-        }
-
-        public async Task CreatePermission(int userId, int assetId, Role role, Type assetType, bool hasChild = false, LTree? parentLTree = null)
-        {
-            if (assetType == typeof(Drive))
-            {
-                await CreateDrivePermission(userId, assetId, role);
-            }
-            else if (assetType == typeof(Folder))
-            {
-                await CreateFolderPermission(userId, assetId, role);
-            }
-            else if (assetType == typeof(Domain.Entities.File))
-            {
-                await CreateFilePermission(userId, assetId, role);
-            }
-            else
-            {
-                throw new Exception(ExceptionMessage.UnsupportedAssetType);
-            }
-
-            if (hasChild && parentLTree != null)
-            {
-                await CreateChildPermissions(userId, role, parentLTree.Value);
-            }
-        }
-
-        public async Task DuplicatePermissions(int childId, int parentId, Type parentType, Type childType)
-        {
-            var childPropertyInfo = GetPermissionAssetProperty(childType);
-            var parentPropertyInfo = GetPermissionAssetProperty(parentType);
-
-            var permissions = await GetPermissions(assetId: parentId, assetType: parentType, false);
-            foreach (var permission in permissions)
-            {
-                permission.Id = null;
-                parentPropertyInfo!.SetValue(permission, null);
-                childPropertyInfo!.SetValue(permission, childId);
-            }
-
-            await _unitOfWork.PermissionRepository.BatchInsertAsync(permissions);
-            await _unitOfWork.SaveAsync();
-        }
-
-        private async Task<Permission?> GetPermission(int userId, int assetId, Type assetType)
-        {
-            var parameter = Expression.Parameter(typeof(Permission));
-            Expression expression = Expression.Equal(
-                Expression.Constant(userId),
-                Expression.Property(parameter, nameof(Permission.UserId))
-            );
-
-            var id = Expression.Convert(Expression.Constant(assetId), typeof(int?));
-            if (assetType == typeof(Domain.Entities.File))
-            {
-                expression = Expression.And(
-                    expression,
-                    Expression.Equal(
-                        Expression.Property(parameter, nameof(Permission.FileId)),
-                        id
-                    )
-                );
-            }
-            else if (assetType == typeof(Folder))
-            {
-                expression = Expression.And(
-                    expression,
-                    Expression.Equal(
-                        Expression.Property(parameter, nameof(Permission.FolderId)),
-                        id
-                    )
-                );
-            }
-            else if (assetType == typeof(Drive))
-            {
-                expression = Expression.And(
-                    expression,
-                    Expression.Equal(
-                        Expression.Property(parameter, nameof(Permission.DriveId)),
-                        id
-                    )
-                );
-            }
-            else
-            {
-                throw new Exception(ExceptionMessage.UnsupportedAssetType);
-            }
-
-            var permission = await _unitOfWork.PermissionRepository.GetFirstOnConditionAsync(Expression.Lambda<Func<Permission, bool>>(expression, parameter));
             return permission;
         }
 
-        private PropertyInfo? GetPermissionAssetProperty(Type assetType)
+        public async Task AddFolderPermission(string folderAbsolutePath, int userId, Role role)
         {
-            PropertyInfo? propertyInfo;
-            if (assetType == typeof(Drive))
+            var folderAndChildrenMetadata = await _unitOfWork.MetadataRepository.GetAllAsync(
+                m => m.AbsolutePath.StartsWith(folderAbsolutePath)
+            );
+
+            // update existed permissions
+            var folderAndChildrenMetadataIds = folderAndChildrenMetadata.Select(m => m.Id);
+            var existedPermissions = await _unitOfWork.PermissionRepository.GetAllAsync(
+                p => p.UserId == userId && folderAndChildrenMetadataIds.Contains(p.MetadataId)
+            );
+            var existedPermissionIds = existedPermissions.Select(m => m.Id);
+            var updatedRow = await _unitOfWork.PermissionRepository.BatchUpdateAsync(
+                p => p.SetProperty(entity => entity.Role, value => role), 
+                filter: p => existedPermissionIds.Contains(p.Id)
+            );
+            var existedPermissionMetadataIds = existedPermissions.Select(p => p.MetadataId).ToList();
+
+            var newPermissionMetadataIds = folderAndChildrenMetadataIds.Except(existedPermissionMetadataIds);
+            
+            List<Permission> newPermissions = new(folderAndChildrenMetadata.Count - updatedRow);
+            foreach (var metadataId in newPermissionMetadataIds)
             {
-                propertyInfo = typeof(Permission).GetProperty(nameof(Permission.DriveId));
+                newPermissions.Add(
+                    new Permission
+                    {
+                        MetadataId = metadataId,
+                        UserId = userId,
+                        Role = role
+                    }
+                );
             }
-            else if (assetType == typeof(Folder))
-            {
-                propertyInfo = typeof(Permission).GetProperty(nameof(Permission.FolderId));
-            }
-            else if (assetType == typeof(Domain.Entities.File))
-            {
-                propertyInfo = typeof(Permission).GetProperty(nameof(Permission.FileId));
-            }
-            else
-            {
-                throw new Exception(ExceptionMessage.UnsupportedAssetType);
-            }
-            return propertyInfo;
+
+            await _unitOfWork.PermissionRepository.BatchAddAsync(newPermissions);
+            await _unitOfWork.SaveAsync();
         }
 
-        private async Task<ICollection<Permission>> GetPermissions(int assetId, Type assetType, bool isTracked = true)
+        public async Task AddPermissionsWithDifferentUsers(int fileMetadataId, int newParentMetadataId)
         {
-            var parameter = Expression.Parameter(typeof(Permission));
-            Expression expression = Expression.Constant(true);
+            var newParentPermissions = await _unitOfWork.PermissionRepository.GetAllAsync(p => p.MetadataId == newParentMetadataId, isTracked: false);
+            var newParentPermissionUserIds = newParentPermissions.Select(p => p.UserId);
+            var filePermissionUserIds = _unitOfWork.PermissionRepository.GetPropertyValue(p => p.UserId, p => p.MetadataId == fileMetadataId);
+            var differenceUserIds = newParentPermissionUserIds.Except(filePermissionUserIds);
 
-            var id = Expression.Convert(Expression.Constant(assetId), typeof(int?));
-            if (assetType == typeof(Domain.Entities.File))
+            var permissions = newParentPermissions.Where(p => differenceUserIds.Contains(p.UserId));
+            foreach (var permission in permissions)
             {
-                expression = Expression.And(
-                    expression,
-                    Expression.Equal(
-                        Expression.Property(parameter, nameof(Permission.FileId)),
-                        id
-                    )
-                );
-            }
-            else if (assetType == typeof(Folder))
-            {
-                expression = Expression.And(
-                    expression,
-                    Expression.Equal(
-                        Expression.Property(parameter, nameof(Permission.FolderId)),
-                        id
-                    )
-                );
-            }
-            else if (assetType == typeof(Drive))
-            {
-                expression = Expression.And(
-                    expression,
-                    Expression.Equal(
-                        Expression.Property(parameter, nameof(Permission.DriveId)),
-                        id
-                    )
-                );
-            }
-            else
-            {
-                throw new Exception(ExceptionMessage.UnsupportedAssetType);
+                permission.Id = 0;
+                permission.MetadataId = fileMetadataId;
             }
 
-            var permissions = await _unitOfWork.PermissionRepository.GetAllAsync(filter: Expression.Lambda<Func<Permission, bool>>(expression, parameter), isTracked: isTracked);
+            await _unitOfWork.PermissionRepository.BatchAddAsync(permissions);
+            await _unitOfWork.SaveAsync();
+        }
+
+        public async Task DeletePermissonsByMetadataIds(ICollection<int> metadataIds)
+        {
+            await _unitOfWork.PermissionRepository.BatchDeleteAsync(p => metadataIds.Contains(p.MetadataId));
+        }
+
+        public async Task DuplicatePermissions(int childMetadataId, int parentMetadataId)
+        {
+            var parentPermissions = await GetPermissions(parentMetadataId, false);
+            foreach (var permission in parentPermissions)
+            {
+                permission.Id = 0;
+                permission.MetadataId = childMetadataId;
+            }
+
+            await _unitOfWork.PermissionRepository.BatchAddAsync(parentPermissions);
+            await _unitOfWork.SaveAsync();
+        }
+
+        public async Task DuplicatePermissions(ICollection<int> childrenIds, int parentId)
+        {
+            var parentPermissions = await GetPermissions(parentId, false);
+
+            List<Permission> childrenPermissions = new List<Permission>();
+            foreach (int childId in childrenIds)
+            {
+                foreach (var permission in parentPermissions)
+                {
+                    permission.Id = 0;
+                    permission.MetadataId = childId;
+                    childrenPermissions.Add(permission);
+                }
+            }
+
+            await _unitOfWork.PermissionRepository.BatchAddAsync(childrenPermissions);
+            await _unitOfWork.SaveAsync();
+        }
+
+        public async Task<Permission?> GetPermissionByUserIdAndMetadataId(int userId, int metadataId)
+        {
+            var permission = await _unitOfWork.PermissionRepository.GetFirstOnConditionAsync(p => p.MetadataId == metadataId && p.UserId == userId && !p.IsDeleted);
+            return permission;
+        }
+
+        private async Task<ICollection<Permission>> GetPermissions(int metadataId, bool isTracked = true)
+        {
+            var permissions = await _unitOfWork.PermissionRepository.GetAllAsync(filter: p => p.MetadataId == metadataId && !p.IsDeleted, isTracked: isTracked);
             return permissions;
         }
 
-        public async Task<bool> HasPermission(Role role, int userId, int assetId, Type assetType)
+        public async Task<bool> HasPermission(Role role, int userId, int metadataId)
         {
-            var permission = await GetPermission(userId, assetId, assetType);
+            var permission = await GetPermissionByUserIdAndMetadataId(userId, metadataId);
             switch (role)
             {
                 case Role.Reader:
@@ -259,11 +144,10 @@ namespace DigitalAssetManagement.Infrastructure.Services
             }
         }
 
-        public async Task<bool> HasPermissionLoginUser(Role role, int assetId, Type assetType)
+        public async Task UpdatePermission(Permission permission)
         {
-            User user = await _userService.GetLoginUserAsync();
-            return await HasPermission(role, user.Id!.Value, assetId, assetType);
+            _unitOfWork.PermissionRepository.Update(permission);
+            await _unitOfWork.SaveAsync();
         }
-
     }
 }

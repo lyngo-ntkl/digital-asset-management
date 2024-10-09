@@ -23,13 +23,15 @@ namespace DigitalAssetManagement.Infrastructure
                 options.UseNpgsql(configuration.GetConnectionString("defaultConnection"));
                 options.UseLazyLoadingProxies();
             });
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = configuration.GetConnectionString("redis");
+            });
 
             // mapper
             services.AddAutoMapper(typeof(UserMappingProfile));
-            services.AddAutoMapper(typeof(DriveMappingProfile));
-            services.AddAutoMapper(typeof(FolderMappingProfile));
-            services.AddAutoMapper(typeof(FileMappingProfile));
             services.AddAutoMapper(typeof(PermissionMappingProfile));
+            services.AddAutoMapper(typeof(MetadataMappingProfile));
 
             // hangfire
             services.AddHangfire(options =>
@@ -40,21 +42,25 @@ namespace DigitalAssetManagement.Infrastructure
 
             // repositories
             services.AddScoped<UnitOfWork, UnitOfWorkImplementation>();
-            services.AddScoped<UserRepository, UserRepositoryImplementation>();
-            services.AddScoped<DriveRepository, DriveRepositoryImplementation>();
-            services.AddScoped<FolderRepository, FolderRepositoryImplementation>();
-            services.AddScoped<FileRepository, FileRepositoryImplementation>();
+            services.AddScoped<MetadataRepository, MetadataRepositoryImplementation>();
             services.AddScoped<PermissionRepository, PermissionRepositoryImplementation>();
+            //services.AddScoped<UserRepository, UserRepositoryImplementation>();
+            services.AddScoped<UserRepository, CachedUserRepositoryDecorator>();
+            services.AddScoped<UserRepositoryImplementation>();
 
             // services
-            services.AddScoped<UserService, UserServiceImplementation>();
             services.AddScoped<DriveService, DriveServiceImplementation>();
+            services.AddScoped<FileService,  FileServiceImplementation>();
             services.AddScoped<FolderService, FolderServiceImplementation>();
+            services.AddScoped<MetadataService, MetadataServiceImplementation>();
             services.AddScoped<PermissionService, PermissionServiceImplementation>();
+            services.AddScoped<UserService, UserServiceImplementation>();
 
             // helper
             services.AddSingleton<HashingHelper, HashingHelperImplementation>();
             services.AddSingleton<JwtHelper, JwtHelperImplementation>();
+            services.AddScoped<SystemFileHelper, SystemFileHelperImplementation>();
+            services.AddScoped<SystemFolderHelper, SystemFolderHelperImplementation>();
 
             return services;
         }

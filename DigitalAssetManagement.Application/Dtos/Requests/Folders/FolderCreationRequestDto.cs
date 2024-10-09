@@ -1,12 +1,9 @@
-﻿using DigitalAssetManagement.Application.Common.Attributes;
+﻿using DigitalAssetManagement.Application.Common.Requests;
 
 namespace DigitalAssetManagement.Application.Dtos.Requests.Folders
 {
-    [Xor(nameof(ParentDriveId), nameof(ParentFolderId))]
-    public class FolderCreationRequestDto
+    public class FolderCreationRequestDto: ResourceBasedPermissionCheckingRequestDto
     {
-        public required string FolderName { get; set; }
-        public int? ParentFolderId { get; set; }
-        public int? ParentDriveId { get; set; }
+        public required string Name { get; set; }
     }
 }

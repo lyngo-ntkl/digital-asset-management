@@ -1,6 +1,7 @@
-﻿using DigitalAssetManagement.Application.Dtos.Requests.Drives;
-using DigitalAssetManagement.Application.Dtos.Responses.Drives;
+﻿using DigitalAssetManagement.Application.Common.Requests;
+using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 using DigitalAssetManagement.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DigitalAssetManagement.API.Controllers
@@ -10,46 +11,61 @@ namespace DigitalAssetManagement.API.Controllers
     public class DrivesController : ControllerBase
     {
         private readonly DriveService _driveService;
+        private readonly IAuthorizationService _authorizationService;
 
-        public DrivesController(DriveService driveService)
+        public DrivesController(DriveService driveService, IAuthorizationService authorizationService)
         {
             _driveService = driveService;
+            _authorizationService = authorizationService;
         }
 
-        [HttpGet]
-        public async Task<List<DriveResponseDto>> GetDriveOwnedByLoginUser([FromQuery] string? name)
+        [HttpGet("my-drive")]
+        [Authorize]
+        public async Task<FolderDetailResponseDto> GetLoginUserDrive()
         {
-            return await _driveService.GetDriveOwnedByLoginUser(name);
+            var myDrive = await _driveService.GetLoginUserDrive();
+            await _authorizationService.AuthorizeAsync(
+                User,
+                new ResourceBasedPermissionCheckingRequestDto { ParentId = myDrive.Id },
+                "Admin"
+            );
+            return myDrive;
         }
 
-        [HttpGet("{id}")]
-        public async Task<DriveDetailsResponseDto> GetById([FromRoute] int id)
-        {
-            return await _driveService.GetById(id);
-        }
+        //[HttpGet]
+        //public async Task<FolderResponseDto> GetDriveOwnedByLoginUser()
+        //{
+        //    return await _driveService.GetLoginUserDrive();
+        //}
 
-        [HttpPost]
-        public async Task<DriveDetailsResponseDto> Create([FromBody] DriveRequestDto request)
-        {
-            return await _driveService.Create(request);
-        }
+        //[HttpGet("{id}")]
+        //public async Task<DriveDetailsResponseDto> GetById([FromRoute] int id)
+        //{
+        //    return await _driveService.GetById(id);
+        //}
 
-        [HttpPatch("{id}")]
-        public async Task<DriveDetailsResponseDto> Update([FromRoute] int id, [FromBody] DriveRequestDto request)
-        {
-            return await _driveService.Update(id, request);
-        }
+        //[HttpPost]
+        //public async Task<DriveDetailsResponseDto> Create([FromBody] DriveRequestDto request)
+        //{
+        //    return await _driveService.Create(request);
+        //}
 
-        [HttpPatch("{id}/trash")]
-        public async Task MoveToTrash([FromRoute] int id)
-        {
-            await _driveService.MoveToTrash(id);
-        }
+        //[HttpPatch("{id}")]
+        //public async Task<DriveDetailsResponseDto> Update([FromRoute] int id, [FromBody] DriveRequestDto request)
+        //{
+        //    return await _driveService.Update(id, request);
+        //}
 
-        [HttpDelete("{id}")]
-        public async Task Delete([FromRoute] int id)
-        {
-            await _driveService.Delete(id);
-        }
+        //[HttpPatch("{id}/trash")]
+        //public async Task MoveToTrash([FromRoute] int id)
+        //{
+        //    await _driveService.MoveToTrash(id);
+        //}
+
+        //[HttpDelete("{id}")]
+        //public async Task Delete([FromRoute] int id)
+        //{
+        //    await _driveService.Delete(id);
+        //}
     }
 }
