@@ -1,5 +1,7 @@
 ﻿using DigitalAssetManagement.Application.Dtos.Requests.Users;
+using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 using DigitalAssetManagement.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,7 +19,8 @@ namespace DigitalAssetManagement.API.Controllers
         }
 
         [HttpPost("registration")]
-        public async Task Register(EmailPasswordRegistrationRequest request)
+        [AllowAnonymous]
+        public async Task Register([FromBody] EmailPasswordRegistrationRequest request)
         {
             await _userService.Register(request);
         }

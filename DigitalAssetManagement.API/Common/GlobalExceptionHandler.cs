@@ -30,6 +30,14 @@ namespace DigitalAssetManagement.API.Common
             {
                 problemDetails.Status = StatusCodes.Status400BadRequest;
             }
+            else if (exception is UnauthorizedException)
+            {
+                problemDetails.Status = StatusCodes.Status401Unauthorized;
+            }
+            else if (exception is ForbiddenException)
+            {
+                problemDetails.Status = StatusCodes.Status403Forbidden;
+            }
             else
             {
                 problemDetails.Status = StatusCodes.Status500InternalServerError;

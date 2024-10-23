@@ -11,52 +11,42 @@ namespace DigitalAssetManagement.Infrastructure.DatabaseContext
         }
 
         public virtual DbSet<User> Users { get; set; }
-        public virtual DbSet<Drive> Drives { get; set; }
-        public virtual DbSet<Folder> Folders { get; set; }
-        public virtual DbSet<Domain.Entities.File> Files { get; set; }
+        public virtual DbSet<Metadata> Metadata { get; set; }
         public virtual DbSet<Permission> Permissions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasPostgresEnum<Role>();
+            modelBuilder.HasPostgresEnum<MetadataType>();
 
             modelBuilder.Entity<User>(options =>
             {
                 options.HasIndex(user => user.Email)
                     .IsUnique(true);
+                options.HasMany(user => user.Metadata)
+                    .WithOne(metadata => metadata.Owner)
+                    .OnDelete(DeleteBehavior.Cascade);
+                options.HasMany(user => user.Permissions)
+                    .WithOne(permission => permission.User)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
-            modelBuilder.Entity<Drive>(options =>
+            modelBuilder.Entity<Metadata>(options =>
             {
-                options.HasIndex(drive => new { drive.DriverName, drive.UserId})
+                options.HasIndex(metadata => metadata.AbsolutePath)
                     .IsUnique(true);
-            });
-
-            modelBuilder.Entity<Folder>(options =>
-            {
-                options.ToTable(table => table
-                    .HasCheckConstraint("CK_Folders_Parent", $"(\"{nameof(Folder.ParentFolderId)}\" IS NOT NULL AND \"{nameof(Folder.DriveId)}\" IS NULL) OR (\"{nameof(Folder.ParentFolderId)}\" IS NULL AND \"{nameof(Folder.DriveId)}\" IS NOT NULL)"));
-                options.HasIndex(folder => new { folder.FolderName, folder.DriveId, folder.ParentFolderId })
-                    .IsUnique(true)
-                    .AreNullsDistinct(false);
-            });
-
-            modelBuilder.Entity<Domain.Entities.File>(options =>
-            {
-                options.ToTable(table => table
-                    .HasCheckConstraint("CK_Files_Parent", $"(\"{nameof(Domain.Entities.File.ParentFolderId)}\" IS NOT NULL AND \"{nameof(Domain.Entities.File.DriveId)}\" IS NULL) OR (\"{nameof(Domain.Entities.File.ParentFolderId)}\" IS NULL AND \"{nameof(Domain.Entities.File.DriveId)}\" IS NOT NULL)"));
-                options.HasIndex(file => new {file.FileName, file.DriveId, file.ParentFolderId})
-                    .IsUnique(true)
-                    .AreNullsDistinct(false);
+                options.HasMany(metadata => metadata.Permissions)
+                    .WithOne(permission => permission.Metadata)
+                    .OnDelete(DeleteBehavior.Cascade);
+                options.HasMany(metadata => metadata.ChildrenMetadata)
+                    .WithOne(metadata => metadata.ParentMetadata)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Permission>(options =>
             {
-                options.HasIndex(permission => new { permission.UserId, permission.FileId, permission.FolderId })
-                    .IsUnique(true)
-                    .AreNullsDistinct(false);
-                options.ToTable(table => table
-                    .HasCheckConstraint("CK_Permissions_Asset", $"(\"{nameof(Permission.FolderId)}\" IS NOT NULL AND \"{nameof(Permission.FileId)}\" IS NULL) OR (\"{nameof(Permission.FolderId)}\" IS NULL AND \"{nameof(Permission.FileId)}\" IS NOT NULL)"));
+                options.HasIndex(permission => new { permission.UserId, permission.MetadataId })
+                    .IsUnique(true);
             });
         }
     }

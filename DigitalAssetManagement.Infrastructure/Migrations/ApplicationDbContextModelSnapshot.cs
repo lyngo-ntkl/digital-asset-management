@@ -23,141 +23,71 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
                 .HasAnnotation("Proxies:LazyLoading", true)
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "metadata_type", new[] { "file", "folder", "user_drive" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "role", new[] { "admin", "contributor", "reader" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.Drive", b =>
+            modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.Metadata", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int?>("Id"));
+
+                    b.Property<string>("AbsolutePath")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("DriverName")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("MetadataType")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("UserId")
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("OwnerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ParentMetadataId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("DriverName", "UserId")
+                    b.HasIndex("AbsolutePath")
                         .IsUnique();
 
-                    b.ToTable("Drives");
-                });
+                    b.HasIndex("OwnerId");
 
-            modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.File", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                    b.HasIndex("ParentMetadataId");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("DriveId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("FileContent")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("ParentFolderId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DriveId");
-
-                    b.HasIndex("ParentFolderId");
-
-                    b.HasIndex("FileName", "DriveId", "ParentFolderId")
-                        .IsUnique();
-
-                    NpgsqlIndexBuilderExtensions.AreNullsDistinct(b.HasIndex("FileName", "DriveId", "ParentFolderId"), false);
-
-                    b.ToTable("Files", t =>
-                        {
-                            t.HasCheckConstraint("CK_Files_Parent", "(\"ParentFolderId\" IS NOT NULL AND \"DriveId\" IS NULL) OR (\"ParentFolderId\" IS NULL AND \"DriveId\" IS NOT NULL)");
-                        });
-                });
-
-            modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.Folder", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("DriveId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("FolderName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int?>("ParentFolderId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DriveId");
-
-                    b.HasIndex("ParentFolderId");
-
-                    b.HasIndex("FolderName", "DriveId", "ParentFolderId")
-                        .IsUnique();
-
-                    NpgsqlIndexBuilderExtensions.AreNullsDistinct(b.HasIndex("FolderName", "DriveId", "ParentFolderId"), false);
-
-                    b.ToTable("Folders", t =>
-                        {
-                            t.HasCheckConstraint("CK_Folders_Parent", "(\"ParentFolderId\" IS NOT NULL AND \"DriveId\" IS NULL) OR (\"ParentFolderId\" IS NULL AND \"DriveId\" IS NOT NULL)");
-                        });
+                    b.ToTable("Metadata");
                 });
 
             modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.Permission", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int?>("Id"));
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("FileId")
-                        .HasColumnType("integer");
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
-                    b.Property<int?>("FolderId")
+                    b.Property<int>("MetadataId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
@@ -171,28 +101,24 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FileId");
+                    b.HasIndex("MetadataId");
 
-                    b.HasIndex("FolderId");
-
-                    b.HasIndex("UserId", "FileId", "FolderId")
+                    b.HasIndex("UserId", "MetadataId")
                         .IsUnique();
 
-                    NpgsqlIndexBuilderExtensions.AreNullsDistinct(b.HasIndex("UserId", "FileId", "FolderId"), false);
-
-                    b.ToTable("Permissions", t =>
-                        {
-                            t.HasCheckConstraint("CK_Permissions_Asset", "(\"FolderId\" IS NOT NULL AND \"FileId\" IS NULL) OR (\"FolderId\" IS NULL AND \"FileId\" IS NOT NULL)");
-                        });
+                    b.ToTable("Permissions");
                 });
 
             modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.User", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int?>("Id"));
+
+                    b.Property<byte[]>("Avatar")
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
@@ -200,6 +126,9 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
@@ -227,92 +156,55 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.Drive", b =>
+            modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.Metadata", b =>
                 {
                     b.HasOne("DigitalAssetManagement.Domain.Entities.User", "Owner")
-                        .WithMany("Drives")
-                        .HasForeignKey("UserId")
+                        .WithMany("Metadata")
+                        .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("DigitalAssetManagement.Domain.Entities.Metadata", "ParentMetadata")
+                        .WithMany("ChildrenMetadata")
+                        .HasForeignKey("ParentMetadataId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.Navigation("Owner");
-                });
 
-            modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.File", b =>
-                {
-                    b.HasOne("DigitalAssetManagement.Domain.Entities.Drive", "Drive")
-                        .WithMany("Files")
-                        .HasForeignKey("DriveId");
-
-                    b.HasOne("DigitalAssetManagement.Domain.Entities.Folder", "ParentFolder")
-                        .WithMany("Files")
-                        .HasForeignKey("ParentFolderId");
-
-                    b.Navigation("Drive");
-
-                    b.Navigation("ParentFolder");
-                });
-
-            modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.Folder", b =>
-                {
-                    b.HasOne("DigitalAssetManagement.Domain.Entities.Drive", "Drive")
-                        .WithMany("Folders")
-                        .HasForeignKey("DriveId");
-
-                    b.HasOne("DigitalAssetManagement.Domain.Entities.Folder", "ParentFolder")
-                        .WithMany()
-                        .HasForeignKey("ParentFolderId");
-
-                    b.Navigation("Drive");
-
-                    b.Navigation("ParentFolder");
+                    b.Navigation("ParentMetadata");
                 });
 
             modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.Permission", b =>
                 {
-                    b.HasOne("DigitalAssetManagement.Domain.Entities.File", "File")
+                    b.HasOne("DigitalAssetManagement.Domain.Entities.Metadata", "Metadata")
                         .WithMany("Permissions")
-                        .HasForeignKey("FileId");
-
-                    b.HasOne("DigitalAssetManagement.Domain.Entities.Folder", "Folder")
-                        .WithMany("Permissions")
-                        .HasForeignKey("FolderId");
+                        .HasForeignKey("MetadataId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("DigitalAssetManagement.Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("Permissions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("File");
-
-                    b.Navigation("Folder");
+                    b.Navigation("Metadata");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.Drive", b =>
+            modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.Metadata", b =>
                 {
-                    b.Navigation("Files");
-
-                    b.Navigation("Folders");
-                });
-
-            modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.File", b =>
-                {
-                    b.Navigation("Permissions");
-                });
-
-            modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.Folder", b =>
-                {
-                    b.Navigation("Files");
+                    b.Navigation("ChildrenMetadata");
 
                     b.Navigation("Permissions");
                 });
 
             modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.User", b =>
                 {
-                    b.Navigation("Drives");
+                    b.Navigation("Metadata");
+
+                    b.Navigation("Permissions");
                 });
 #pragma warning restore 612, 618
         }

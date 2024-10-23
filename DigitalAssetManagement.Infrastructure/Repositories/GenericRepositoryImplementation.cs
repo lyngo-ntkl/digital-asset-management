@@ -1,48 +1,79 @@
-﻿using DigitalAssetManagement.Domain.Entities;
-using DigitalAssetManagement.Application.Repositories;
+﻿using DigitalAssetManagement.Application.Repositories;
 using DigitalAssetManagement.Infrastructure.DatabaseContext;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query;
+using DigitalAssetManagement.Domain.Common;
 
 namespace DigitalAssetManagement.Infrastructure.Repositories
 {
-    public class GenericRepositoryImplementation<T> : GenericRepository<T> where T : BaseEntity
+    public class GenericRepositoryImplementation<TEntity> : GenericRepository<TEntity> where TEntity : BaseEntity
     {
         protected readonly ApplicationDbContext _context;
-        protected readonly DbSet<T> _dbSet;
+        protected readonly DbSet<TEntity> _dbSet;
 
         public GenericRepositoryImplementation(ApplicationDbContext context)
         {
             _context = context;
-            _dbSet = _context.Set<T>();
+            _dbSet = _context.Set<TEntity>();
         }
 
-        public int BatchUpdate<TProperty>(Func<T, TProperty> property, Func<T, TProperty> value, Expression<Func<T, bool>>? filter = null)
+        public void BatchAdd(IEnumerable<TEntity> entities)
         {
-            IQueryable<T> data = _dbSet.AsQueryable();
+            _dbSet.AddRange(entities);
+        }
+
+        public async Task BatchAddAsync(IEnumerable<TEntity> entities)
+        {
+            await _dbSet.AddRangeAsync(entities);
+        }
+
+        public void BatchDelete(Expression<Func<TEntity, bool>>? filter = null)
+        {
+            IQueryable<TEntity> data = _dbSet;
+            if (filter != null)
+            {
+                data = data.Where(filter);
+            }
+            data.ExecuteDelete();
+        }
+
+        public async Task BatchDeleteAsync(Expression<Func<TEntity, bool>>? filter = null)
+        {
+            IQueryable<TEntity> data = _dbSet;
+            if (filter != null)
+            {
+                data = data.Where(filter);
+            }
+            await data.ExecuteDeleteAsync();
+        }
+
+        public int BatchUpdate(Expression<Func<SetPropertyCalls<TEntity>, SetPropertyCalls<TEntity>>> setPropertyCalls, Expression<Func<TEntity, bool>>? filter = null)
+        {
+            IQueryable<TEntity> data = _dbSet.AsQueryable();
             
             if (filter != null)
             {
                 data = data.Where(filter);
             }
 
-            return data.ExecuteUpdate(data => data.SetProperty(property, value));
+            return data.ExecuteUpdate(setPropertyCalls);
 
         }
 
-        public async Task<int> BatchUpdateAsync<TProperty>(Func<T, TProperty> property, Func<T, TProperty> value, CancellationToken cancellationToken = default, Expression<Func<T, bool>>? filter = null)
+        public async Task<int> BatchUpdateAsync(Expression<Func<SetPropertyCalls<TEntity>, SetPropertyCalls<TEntity>>> setPropertyCalls, Expression<Func<TEntity, bool>>? filter = null, CancellationToken cancellationToken = default)
         {
-            IQueryable<T> data = _dbSet.AsQueryable();
+            IQueryable<TEntity> data = _dbSet.AsQueryable();
 
             if (filter != null)
             {
                 data = data.Where(filter);
             }
 
-            return await data.ExecuteUpdateAsync(data => data.SetProperty(property, value));
+            return await data.ExecuteUpdateAsync(setPropertyCalls);
         }
 
-        public T Delete(T entity)
+        public TEntity Delete(TEntity entity)
         {
             if (_context.Entry(entity).State == EntityState.Detached)
             {
@@ -51,9 +82,9 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             return _dbSet.Remove(entity).Entity;
         }
 
-        public async Task<T?> DeleteAsync(int id)
+        public async Task<TEntity?> DeleteAsync(int id)
         {
-            T? entity = await _dbSet.FindAsync(id);
+            TEntity? entity = await _dbSet.FindAsync(id);
             if (entity != null)
             {
                 _dbSet.Remove(entity);
@@ -61,9 +92,19 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             return entity;
         }
 
-        public ICollection<T> GetAll(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderedQuery = null, string includedProperties = "")
+        public bool ExistByCondition(Expression<Func<TEntity, bool>> condition)
         {
-            IQueryable<T> data = _dbSet.AsQueryable();
+            return _dbSet.Any(condition);
+        }
+
+        public async Task<bool> ExistByConditionAsync(Expression<Func<TEntity, bool>> condition)
+        {
+            return await _dbSet.AnyAsync(condition);
+        }
+
+        public ICollection<TEntity> GetAll(Expression<Func<TEntity, bool>>? filter = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderedQuery = null, string includedProperties = "", bool isTracked = true, bool isPaging = false, int pageSize = 10, int page = 1)
+        {
+            IQueryable<TEntity> data = _dbSet.AsQueryable();
 
             if (filter != null)
             {
@@ -74,18 +115,28 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             {
                 data = data.Include(includeProperty);
             }
-
+            
             if (orderedQuery != null)
             {
-                return orderedQuery(data).ToList();
+                data = orderedQuery(data);
+            }
+
+            if (isPaging)
+            {
+                data = data.Skip((page - 1) * pageSize).Take(pageSize);
+            }
+
+            if (!isTracked)
+            {
+                data = data.AsNoTracking();
             }
 
             return data.ToList();
         }
 
-        public async Task<ICollection<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderedQuery = null, string includedProperties = "")
+        public async Task<ICollection<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? filter = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderedQuery = null, string includedProperties = "", bool isTracked = true, bool isPaging = false, int pageSize = 10, int page = 1)
         {
-            IQueryable<T> data = _dbSet.AsQueryable();
+            IQueryable<TEntity> data = _dbSet.AsQueryable();
 
             if (filter != null)
             {
@@ -99,36 +150,78 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
 
             if (orderedQuery != null)
             {
-                return await orderedQuery(data).ToListAsync();
+                data = orderedQuery(data);
+            }
+
+            if (isPaging)
+            {
+                data = data.Skip((page - 1) * pageSize).Take(pageSize);
+            }
+
+            if (!isTracked)
+            {
+                data = data.AsNoTracking();
             }
 
             return await data.ToListAsync();
         }
 
-        public T? GetById(int id)
+        public IEnumerable<TProperty> GetPropertyValue<TProperty>(Expression<Func<TEntity, TProperty>> propertySelector, Expression<Func<TEntity, bool>>? filter = null)
+        {
+            IQueryable<TEntity> data = _dbSet.AsQueryable();
+
+            if (filter != null)
+            {
+                data = data.Where(filter);
+            }
+
+            return data.Select(propertySelector);
+        }
+
+        public TEntity? GetById(int id)
         {
             return _dbSet.Find(id);
         }
 
-        public async Task<T?> GetByIdAsync(int id)
+        public async Task<TEntity?> GetByIdAsync(int id)
         {
             return await _dbSet.FindAsync(id);
         }
 
-        public T Insert(T entity)
+        public async Task<TEntity?> GetByIdAsync(int id, string includedProperties)
+        {
+            IQueryable<TEntity> data = _dbSet;
+            foreach (var includedProperty in includedProperties.Split(',', StringSplitOptions.RemoveEmptyEntries))
+            {
+                data = data.Include(includedProperty);
+            }
+            return await _dbSet.FindAsync(id);
+        }
+
+        public TEntity? GetFirstOnCondition(Func<TEntity, bool> condition)
+        {
+            return _dbSet.FirstOrDefault(condition);
+        }
+
+        public async Task<TEntity?> GetFirstOnConditionAsync(Expression<Func<TEntity, bool>> condition)
+        {
+            return await _dbSet.FirstOrDefaultAsync(condition);
+        }
+
+        public TEntity Add(TEntity entity)
         {
             return _dbSet.Add(entity).Entity;
         }
 
-        public async Task<T> InsertAsync(T entity)
+        public async Task<TEntity> AddAsync(TEntity entity)
         {
             var entityEntry = await _dbSet.AddAsync(entity);
             return entityEntry.Entity;
         }
 
-        public T Update(T entity)
+        public TEntity Update(TEntity entity)
         {
-            if (_context.Entry<T>(entity).State == EntityState.Detached)
+            if (_context.Entry<TEntity>(entity).State == EntityState.Detached)
             {
                 _dbSet.Attach(entity);
             }
