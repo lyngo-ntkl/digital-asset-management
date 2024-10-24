@@ -15,8 +15,7 @@ namespace DigitalAssetManagement.Infrastructure.Common
     public class SystemFileHelperImplementation: SystemFileHelper
     {
         private readonly string BasePath;
-        private readonly int FileBufferSize = 2048;
-        private const int MaximumRequestFileSize = 5 * 1024 * 1024;
+        private readonly int FileBufferSize = 1024 * 1024;
 
         public SystemFileHelperImplementation(IHostEnvironment environment)
         {
@@ -74,7 +73,7 @@ namespace DigitalAssetManagement.Infrastructure.Common
 
         public void MergeFile(string destinationAbsolutePath, List<string> fileChunkAbsolutePaths)
         {
-            byte[] buffer = new byte[MaximumRequestFileSize];
+            byte[] buffer = new byte[FileBufferSize];
             int readByteCount;
 
             var destPath = $"{BasePath}{destinationAbsolutePath}";
@@ -90,7 +89,7 @@ namespace DigitalAssetManagement.Infrastructure.Common
                 readByteCount = reader.Read(buffer, 0, buffer.Length);
                 while (readByteCount > 0)
                 {
-                    writer.Write(buffer);
+                    writer.Write(buffer, 0, readByteCount);
                     readByteCount = reader.Read(buffer, 0, buffer.Length);
                 }
 

@@ -68,6 +68,7 @@ namespace DigitalAssetManagement.Infrastructure.Common
                 {
                     if (fileChunkTracking?.ArrivedChunks.Count == fileChunk.TotalChunk - 1)
                     {
+                        fileChunkTracking.ArrivedChunks.Add(fileChunk.ChunkNumber, path);
                         await MergeFileChunk(fileChunk.FileId, fileChunkTracking.ArrivedChunks);
                         _fileChunkTracker.Remove(fileChunk.FileId);
                     }
@@ -95,8 +96,6 @@ namespace DigitalAssetManagement.Infrastructure.Common
             {
                 await AddFile(fileChunk.ChunkData, fileChunk.FileId);
             }
-
-            _logger.LogInformation("message arrive here");
         }
 
         public async Task MergeFileChunk(int fileId, Dictionary<int, string> arrivedChunk)
