@@ -1,7 +1,9 @@
 # Digital Asset Management
-
+## Introduction
+Digital asset management is a project to manage files, folders structure and their permission using C# ASP.NET Core API, PostgreSQL, Redis, RabbitMQ, decorator design pattern, and clean architecture.
+## Installation
+Add the following part to user secrets or appsettings.json file
 ```
-{
   "hashing": {
     "saltByteSize": 10,
     "hashByteSize": 10,
@@ -13,23 +15,17 @@
   "schedule": {
     "deletedWaitDays": 30
   }
-}
 ```
-
-POST /v1/api/users/registration
-POST /v1/api/auth/authentication
-
-GET /v1/api/folders
-GET /v1/api/folders/{id}
-POST /v1/api/folders
-PATCH /v1/api/folders/{id}/movement
-PATCH /v1/api/folders/{id}
-PATCH /v1/api/folders/{id}/trash
-DELETE /v1/api/folders/{id}
-
-POST /v1/api/folders/{id}/permissions
-GET /v1/api/folders/{id}/permissions
-DELETE /v1/api/folders/{id}/permissions
-POST /v1/api/files/{id}/permissions
-GET /v1/api/files/{id}/permissions
-DELETE /v1/api/files/{id}/permissions
+### Manually
+Prerequisite:
+- ASP.NET Core 8
+- PostgreSQL
+- RabbitMQ
+- Redis
+### Docker
+Prerequisite: Docker
+Run the command:
+```
+docker compose build
+docker compose up
+```
