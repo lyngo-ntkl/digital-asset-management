@@ -31,41 +31,5 @@ namespace DigitalAssetManagement.API.Controllers
             );
             return myDrive;
         }
-
-        //[HttpGet]
-        //public async Task<FolderResponseDto> GetDriveOwnedByLoginUser()
-        //{
-        //    return await _driveService.GetLoginUserDrive();
-        //}
-
-        //[HttpGet("{id}")]
-        //public async Task<DriveDetailsResponseDto> GetById([FromRoute] int id)
-        //{
-        //    return await _driveService.GetById(id);
-        //}
-
-        //[HttpPost]
-        //public async Task<DriveDetailsResponseDto> Create([FromBody] DriveRequestDto request)
-        //{
-        //    return await _driveService.Create(request);
-        //}
-
-        //[HttpPatch("{id}")]
-        //public async Task<DriveDetailsResponseDto> Update([FromRoute] int id, [FromBody] DriveRequestDto request)
-        //{
-        //    return await _driveService.Update(id, request);
-        //}
-
-        //[HttpPatch("{id}/trash")]
-        //public async Task MoveToTrash([FromRoute] int id)
-        //{
-        //    await _driveService.MoveToTrash(id);
-        //}
-
-        //[HttpDelete("{id}")]
-        //public async Task Delete([FromRoute] int id)
-        //{
-        //    await _driveService.Delete(id);
-        //}
     }
 }

@@ -46,11 +46,19 @@ namespace DigitalAssetManagement.API
             services.AddControllers();
 
             // cors
-            services.AddCors();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("cors", opts =>
+                {
+                    opts.AllowAnyOrigin()
+                        .AllowAnyMethod();
+                });
+            });
 
             // exception handler
             services.AddExceptionHandler<GlobalExceptionHandler>();
             services.AddProblemDetails();
+            services.AddMemoryCache();
 
             // auth
             services.AddAuthentication(options =>

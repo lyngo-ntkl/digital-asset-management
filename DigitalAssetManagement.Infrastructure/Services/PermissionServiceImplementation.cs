@@ -84,7 +84,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
             await _unitOfWork.PermissionRepository.BatchDeleteAsync(p => metadataIds.Contains(p.MetadataId));
         }
 
-        public async Task DuplicatePermissions(int childMetadataId, int parentMetadataId)
+        public async Task DuplicatePermissionsAsync(int childMetadataId, int parentMetadataId)
         {
             var parentPermissions = await GetPermissions(parentMetadataId, false);
             foreach (var permission in parentPermissions)
