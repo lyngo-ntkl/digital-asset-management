@@ -4,28 +4,42 @@ namespace DigitalAssetManagement.Infrastructure.Common
 {
     public interface SystemFileHelper
     {
-        string AddFile(Stream fileStream, string fileName, string parentPath);
+        string AddFile(byte[] bytes, string absolutePath);
+        string AddFile(Stream fileStream, string absolutePath);
         void DeleteFile(string absolutePath);
         Task<byte[]> GetFile(string absolutePath);
+        void MergeFile(string destinationAbsolutePath, List<string> fileChunkAbsolutePath);
         string MoveFile(string oldAbsolutePath, string newParentAbsolutePath);
     }
 
     public class SystemFileHelperImplementation: SystemFileHelper
     {
-        private const string BaseFolder = "Files";
         private readonly string BasePath;
         private readonly int FileBufferSize = 2048;
-        public const string FolderSeparator = "/";
+        private const int MaximumRequestFileSize = 5 * 1024 * 1024;
 
         public SystemFileHelperImplementation(IHostEnvironment environment)
         {
-            this.BasePath = $"{environment.ContentRootPath}{FolderSeparator}{BaseFolder}{FolderSeparator}";
+            this.BasePath = $"{environment.ContentRootPath}";
         }
 
-        public string AddFile(Stream fileStream, string fileName, string parentPath)
+        public string AddFile(byte[] bytes, string absolutePath)
         {
-            string fileAbsolutePath = $"{parentPath}{FolderSeparator}{fileName}";
-            string fileRelativePath = $"{BasePath}{fileAbsolutePath}";
+            string fileRelativePath = $"{BasePath}{absolutePath}";
+            var writtenStream = new FileStream(fileRelativePath, FileMode.CreateNew, FileAccess.Write);
+            var streamWriter = new BinaryWriter(writtenStream);
+
+            streamWriter.Write(bytes);
+
+            streamWriter.Close();
+            writtenStream.Close();
+
+            return absolutePath;
+        }
+
+        public string AddFile(Stream fileStream, string absolutePath)
+        {
+            string fileRelativePath = $"{BasePath}{absolutePath}";
             var writtenStream = new FileStream(fileRelativePath, FileMode.CreateNew, FileAccess.Write);
             var streamReader = new BinaryReader(fileStream);
             var streamWriter = new BinaryWriter(writtenStream);
@@ -43,7 +57,7 @@ namespace DigitalAssetManagement.Infrastructure.Common
             writtenStream.Close();
             fileStream.Close();
 
-            return fileAbsolutePath;
+            return absolutePath;
         }
 
         public void DeleteFile(string absolutePath)
@@ -58,10 +72,41 @@ namespace DigitalAssetManagement.Infrastructure.Common
             return await File.ReadAllBytesAsync(path);
         }
 
+        public void MergeFile(string destinationAbsolutePath, List<string> fileChunkAbsolutePaths)
+        {
+            byte[] buffer = new byte[MaximumRequestFileSize];
+            int readByteCount;
+
+            var destPath = $"{BasePath}{destinationAbsolutePath}";
+            var writtenStream = new FileStream(destPath, FileMode.CreateNew, FileAccess.Write);
+            var writer = new BinaryWriter(writtenStream);
+
+            foreach (string srcAbsolutePath in fileChunkAbsolutePaths)
+            {
+                var srcPath = $"{BasePath}{srcAbsolutePath}";
+                var chunkStream = new FileStream(srcPath, FileMode.Open, FileAccess.Read);
+                var reader = new BinaryReader(chunkStream);
+
+                readByteCount = reader.Read(buffer, 0, buffer.Length);
+                while (readByteCount > 0)
+                {
+                    writer.Write(buffer);
+                    readByteCount = reader.Read(buffer, 0, buffer.Length);
+                }
+
+                chunkStream.Close();
+                reader.Close();
+
+                DeleteFile(srcAbsolutePath);
+            }
+
+            writtenStream.Close();
+            writer.Close();
+        }
+
         public string MoveFile(string oldAbsolutePath, string newParentAbsolutePath)
         {
-            var fileName = oldAbsolutePath.Split(FolderSeparator, StringSplitOptions.RemoveEmptyEntries).Last();
-            var newFileAbsolutePath = $"{newParentAbsolutePath}{FolderSeparator}{fileName}";
+            var newFileAbsolutePath = AbsolutePathCreationHelper.GetNewAbsolutePath(oldAbsolutePath, newParentAbsolutePath);
             var srcPath = $"{BasePath}{oldAbsolutePath}";
             var destPath = $"{BasePath}{newFileAbsolutePath}";
             File.Move(srcPath, destPath);

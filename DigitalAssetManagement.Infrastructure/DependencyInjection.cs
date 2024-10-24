@@ -40,6 +40,9 @@ namespace DigitalAssetManagement.Infrastructure
             });
             services.AddHangfireServer();
 
+            // rabbitmq
+            services.AddHostedService<RabbitMQBackgroundService>();
+
             // repositories
             services.AddScoped<UnitOfWork, UnitOfWorkImplementation>();
             services.AddScoped<MetadataRepository, MetadataRepositoryImplementation>();
@@ -59,7 +62,7 @@ namespace DigitalAssetManagement.Infrastructure
             // helper
             services.AddSingleton<HashingHelper, HashingHelperImplementation>();
             services.AddSingleton<JwtHelper, JwtHelperImplementation>();
-            services.AddScoped<SystemFileHelper, SystemFileHelperImplementation>();
+            services.AddSingleton<SystemFileHelper, SystemFileHelperImplementation>();
             services.AddScoped<SystemFolderHelper, SystemFolderHelperImplementation>();
 
             return services;

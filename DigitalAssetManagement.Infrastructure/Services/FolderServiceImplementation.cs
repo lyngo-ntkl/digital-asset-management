@@ -51,7 +51,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
         public async Task<FolderDetailResponseDto> AddNewFolder(FolderCreationRequestDto request)
         {
             var loginUserId = int.Parse(_jwtHelper.ExtractSidFromAuthorizationHeader()!);
-            Metadata parentMetadata = await _metadataService.GetFolderOrDriveMetadataById(request.ParentId);
+            Metadata parentMetadata = await _metadataService.GetFolderOrDriveMetadataByIdAsync(request.ParentId);
 
             _systemFolderHelper.AddFolder(request.Name, parentMetadata.AbsolutePath, out string newFolderAbsolutePath);
 
@@ -65,13 +65,13 @@ namespace DigitalAssetManagement.Infrastructure.Services
             };
             newFolderMetadata = await _metadataService.Add(newFolderMetadata);
 
-            await _permissionService.DuplicatePermissions(newFolderMetadata.Id, parentMetadata.Id);
+            await _permissionService.DuplicatePermissionsAsync(newFolderMetadata.Id, parentMetadata.Id);
             return _mapper.Map<FolderDetailResponseDto>(newFolderMetadata);
         }
 
         public async Task AddFolderPermission(int folderId, PermissionRequestDto request)
         {
-            var folderMetadata = await _metadataService.GetFolderMetadataById(folderId);
+            var folderMetadata = await _metadataService.GetFolderMetadataByIdAsync(folderId);
 
             var user = await _userService.GetByEmail(request.Email);
 
@@ -81,7 +81,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
         public async Task DeleteFolder(int id)
         {
-            Metadata metadata = await _metadataService.GetFolderMetadataById(id);
+            Metadata metadata = await _metadataService.GetFolderMetadataByIdAsync(id);
             _systemFolderHelper.DeleteFolder(metadata.AbsolutePath);
             await _metadataService.DeleteMetadata(metadata);
         }
@@ -117,8 +117,8 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
         public async Task MoveFolder(int folderId, int newParentId)
         {
-            var folder = await _metadataService.GetFolderMetadataById(folderId);
-            var newParent = await _metadataService.GetFolderOrDriveMetadataById(newParentId);
+            var folder = await _metadataService.GetFolderMetadataByIdAsync(folderId);
+            var newParent = await _metadataService.GetFolderOrDriveMetadataByIdAsync(newParentId);
             
             var newAbsolutePath = _systemFolderHelper.MoveFolder(folder.AbsolutePath, newParent.AbsolutePath);
 

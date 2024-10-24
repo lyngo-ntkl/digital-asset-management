@@ -11,15 +11,17 @@ namespace DigitalAssetManagement.API.Controllers
 {
     [Route("/v1/api/files")]
     [ApiController]
-    public class FilesController : ControllerBase
+    public class FilesController(IAuthorizationService authorizationService, FileService fileService) : ControllerBase
     {
-        private readonly IAuthorizationService _authorizationService;
-        private readonly FileService _fileService;
+        private readonly IAuthorizationService _authorizationService = authorizationService;
+        private readonly FileService _fileService = fileService;
 
-        public FilesController(IAuthorizationService authorizationService, FileService fileService)
+        [HttpPost("metadata")]
+        [Authorize]
+        public async Task<int> AddFileMetadata(FileMetadataCreationRequestDto request)
         {
-            _authorizationService = authorizationService;
-            _fileService = fileService;
+            await _authorizationService.AuthorizeAsync(User, request, "Contributor");
+            return await _fileService.AddFileMetadataAsync(request);
         }
 
         [HttpPost]

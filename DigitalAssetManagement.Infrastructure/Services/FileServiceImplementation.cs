@@ -9,6 +9,7 @@ using DigitalAssetManagement.Infrastructure.Common;
 using Hangfire;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using RabbitMQ.Client;
 
 namespace DigitalAssetManagement.Infrastructure.Services
 {
@@ -43,12 +44,11 @@ namespace DigitalAssetManagement.Infrastructure.Services
             _configuration = configuration;
         }
 
-        public async Task AddFile(IFormFile file, Metadata parentMetadata, int ownerId)
+        public async Task AddFile(IFormFile file, Metadata parent, int ownerId)
         {
             var fileAbsolutePath = _systemFileHelper.AddFile(
                 file.OpenReadStream(),
-                file.FileName,
-                parentMetadata.AbsolutePath
+                AbsolutePathCreationHelper.CreateAbsolutePath(file.FileName, parent.AbsolutePath)
             );
             var fileMetadata = new Metadata
             {
@@ -56,22 +56,38 @@ namespace DigitalAssetManagement.Infrastructure.Services
                 AbsolutePath = fileAbsolutePath,
                 MetadataType = Domain.Enums.MetadataType.File,
                 OwnerId = ownerId,
-                ParentMetadataId = parentMetadata.Id
+                ParentMetadataId = parent.Id
             };
             fileMetadata = await _metadataService.Add(fileMetadata);
             //await _permissionService.DuplicatePermissions(fileMetadata.Id!.Value, parentMetadata.Id!.Value);
-            await _permissionService.DuplicatePermissions(fileMetadata.Id, parentMetadata.Id);
+            await _permissionService.DuplicatePermissionsAsync(fileMetadata.Id, parent.Id);
         }
 
         public async Task AddFiles(MultipleFilesUploadRequestDto request)
         {
             var loginUserId = int.Parse(_jwtHelper.ExtractSidFromAuthorizationHeader()!);
-            var parentMetadata = await _metadataService.GetFolderOrDriveMetadataById(request.ParentId);
+            var parentMetadata = await _metadataService.GetFolderOrDriveMetadataByIdAsync(request.ParentId);
 
             foreach ( var file in request.Files )
             {
                 await AddFile(file, parentMetadata, loginUserId);
             }
+        }
+
+        public async Task<int> AddFileMetadataAsync(FileMetadataCreationRequestDto request)
+        {
+            var parent = await _metadataService.GetFolderOrDriveMetadataByIdAsync(request.ParentId);
+            var loginUserId = int.Parse(_jwtHelper.ExtractSidFromAuthorizationHeader()!);
+            var metadata = _mapper.Map<Metadata>(request);
+            metadata.MetadataType = Domain.Enums.MetadataType.File;
+            metadata.AbsolutePath = AbsolutePathCreationHelper.CreateAbsolutePath(request.FileName, parent.AbsolutePath);
+            metadata.OwnerId = loginUserId;
+
+            metadata = await _metadataService.Add(metadata);
+
+            await _permissionService.DuplicatePermissionsAsync(metadata.Id, request.ParentId);
+            
+            return metadata.Id;
         }
 
         public async Task AddFilePermission(int fileId, PermissionRequestDto request)
@@ -131,7 +147,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
         public async Task MoveFile(int fileId, int newParentId)
         {
             var fileMetadata = await _metadataService.GetFileMetadataById(fileId);
-            var newParentMetadata = await _metadataService.GetFolderOrDriveMetadataById(newParentId);
+            var newParentMetadata = await _metadataService.GetFolderOrDriveMetadataByIdAsync(newParentId);
 
             var newFileAbsolutePath = _systemFileHelper.MoveFile(fileMetadata.AbsolutePath, newParentMetadata.AbsolutePath);
 

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DigitalAssetManagement.Application.Dtos.Requests;
 using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Domain.Enums;
@@ -14,6 +15,10 @@ namespace DigitalAssetManagement.Infrastructure.Common.Mappers
             CreateMap<Metadata, MetadataResponseDto>();
             CreateMap<Metadata, FolderDetailResponseDto>()
                 .ForMember(dto => dto.Children, opt => opt.MapFrom(entity => entity.ChildrenMetadata))
+                .ForAllMembers(opt => opt.Condition((src, dest, value) => value != null));
+            CreateMap<FileMetadataCreationRequestDto, Metadata>()
+                .ForMember(entity => entity.ParentMetadataId, opt => opt.MapFrom(dto => dto.ParentId))
+                .ForMember(entity => entity.Name, opt => opt.MapFrom(dto => dto.FileName))
                 .ForAllMembers(opt => opt.Condition((src, dest, value) => value != null));
         }
     }

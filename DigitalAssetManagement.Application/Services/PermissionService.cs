@@ -12,7 +12,7 @@ namespace DigitalAssetManagement.Application.Services
         // TODO: rename
         Task AddPermissionsWithDifferentUsers(int fileMetadataId, int newParentMetadataId);
         Task DeletePermissonsByMetadataIds(ICollection<int> metadataIds);
-        Task DuplicatePermissions(int childId, int parentId);
+        Task DuplicatePermissionsAsync(int childId, int parentId);
         Task DuplicatePermissions(ICollection<int> childrenIds, int parentId);
         Task<Permission?> GetPermissionByUserIdAndMetadataId(int userId, int metadataId);
         Task<bool> HasPermission(Role role, int userId, int metadataId);
