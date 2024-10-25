@@ -11,6 +11,7 @@ using DigitalAssetManagement.Domain.Enums;
 using DigitalAssetManagement.Infrastructure.Common;
 using Hangfire;
 using Microsoft.Extensions.Configuration;
+using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
 
 namespace DigitalAssetManagement.Infrastructure.Services
 {

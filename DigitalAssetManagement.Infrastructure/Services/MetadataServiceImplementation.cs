@@ -5,6 +5,7 @@ using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Domain.Enums;
 using DigitalAssetManagement.Infrastructure.Common;
+using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
 
 namespace DigitalAssetManagement.Infrastructure.Services
 {
@@ -40,19 +41,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return newMetadata;
         }
 
-        public async Task<Metadata> AddDrive(string name, string absolutePath, int ownerId)
-        {
-            var newDriveMetadata = new Metadata
-            {
-                Name = name,
-                AbsolutePath = absolutePath,
-                MetadataType = MetadataType.UserDrive,
-                OwnerId = ownerId
-            };
-            newDriveMetadata = await _unitOfWork.MetadataRepository.AddAsync(newDriveMetadata);
-            await _unitOfWork.SaveAsync();
-            return newDriveMetadata;
-        }
+
 
         public async Task AddRange(ICollection<Metadata> metadata)
         {

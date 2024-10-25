@@ -2,13 +2,7 @@
 
 namespace DigitalAssetManagement.Infrastructure.Common
 {
-    public interface SystemFolderHelper
-    {
-        DirectoryInfo AddFolder(string folderName, out string folderAbsolutePath);
-        DirectoryInfo AddFolder(string folderName, string parentAbsolutePath, out string folderAbsolutePath);
-        void DeleteFolder(string absolutePath);
-        string MoveFolder(string oldFolderAbsolutePath, string newParentAbsolutePath);
-    }
+    
 
     public class SystemFolderHelperImplementation: SystemFolderHelper
     {

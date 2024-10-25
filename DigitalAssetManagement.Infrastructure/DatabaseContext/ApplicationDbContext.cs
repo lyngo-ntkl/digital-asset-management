@@ -1,8 +1,7 @@
-﻿using DigitalAssetManagement.Domain.Entities;
-using DigitalAssetManagement.Domain.Enums;
+﻿using DigitalAssetManagement.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
-namespace DigitalAssetManagement.Infrastructure.DatabaseContext
+namespace DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext
 {
     public class ApplicationDbContext : DbContext
     {

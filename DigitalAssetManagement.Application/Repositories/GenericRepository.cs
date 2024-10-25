@@ -8,7 +8,6 @@ namespace DigitalAssetManagement.Application.Repositories
     {
         bool ExistByCondition(Expression<Func<TEntity, bool>> condition);
         Task<bool> ExistByConditionAsync(Expression<Func<TEntity, bool>> condition);
-        // TODO: rename
         IEnumerable<TProperty> GetPropertyValue<TProperty>(Expression<Func<TEntity, TProperty>> propertySelector, Expression<Func<TEntity, bool>>? filter = null);
         TEntity? GetById(int id);
         Task<TEntity?> GetByIdAsync(int id);

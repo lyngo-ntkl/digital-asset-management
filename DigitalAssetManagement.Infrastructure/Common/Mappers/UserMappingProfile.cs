@@ -4,6 +4,7 @@ using DigitalAssetManagement.Application.Dtos.Requests.Users;
 using DigitalAssetManagement.Application.Dtos.Responses;
 using DigitalAssetManagement.Application.Dtos.Responses.Users;
 using DigitalAssetManagement.Domain.Entities;
+using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
 
 namespace DigitalAssetManagement.Infrastructure.Common.Mappers
 {

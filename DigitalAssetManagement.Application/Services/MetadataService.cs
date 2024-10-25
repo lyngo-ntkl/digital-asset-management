@@ -7,7 +7,6 @@ namespace DigitalAssetManagement.Application.Services
     {
         Task<Metadata> Add(Metadata metadata);
         Task<Metadata> Add(string name, string absolutePath, int ownerId, MetadataType type);
-        Task<Metadata> AddDrive(string name, string absolutePath, int ownerId);
         Task AddRange(ICollection<Metadata> metadata);
         Task DeleteMetadata(Metadata metadata);
         Task<Metadata> GetById(int id);

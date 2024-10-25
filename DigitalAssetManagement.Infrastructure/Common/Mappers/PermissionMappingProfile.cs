@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DigitalAssetManagement.Application.Dtos.Responses;
 using DigitalAssetManagement.Domain.Entities;
+using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
 
 namespace DigitalAssetManagement.Infrastructure.Common.Mappers
 {

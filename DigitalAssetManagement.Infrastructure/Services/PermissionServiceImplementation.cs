@@ -2,6 +2,7 @@
 using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Domain.Enums;
+using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
 
 namespace DigitalAssetManagement.Infrastructure.Services
 {

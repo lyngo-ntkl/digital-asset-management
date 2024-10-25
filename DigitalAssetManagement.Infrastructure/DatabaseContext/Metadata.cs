@@ -2,7 +2,7 @@
 using DigitalAssetManagement.Domain.Enums;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace DigitalAssetManagement.Domain.Entities
+namespace DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext
 {
     public class Metadata : BaseEntity
     {

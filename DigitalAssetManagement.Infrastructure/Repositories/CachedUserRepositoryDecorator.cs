@@ -1,5 +1,6 @@
 ﻿using DigitalAssetManagement.Application.Repositories;
 using DigitalAssetManagement.Domain.Entities;
+using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;

@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using DigitalAssetManagement.Application.Dtos.Requests;
 using DigitalAssetManagement.Application.Dtos.Responses.Folders;
-using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Domain.Enums;
+using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
 
 namespace DigitalAssetManagement.Infrastructure.Common.Mappers
 {

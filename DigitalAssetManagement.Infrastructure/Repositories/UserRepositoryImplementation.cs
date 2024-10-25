@@ -1,28 +1,31 @@
-﻿using DigitalAssetManagement.Domain.Entities;
-using DigitalAssetManagement.Application.Repositories;
-using DigitalAssetManagement.Infrastructure.DatabaseContext;
+﻿using DigitalAssetManagement.UseCases.Repositories;
+using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace DigitalAssetManagement.Infrastructure.Repositories
 {
-    public class UserRepositoryImplementation(ApplicationDbContext context) : UserRepository
+    public class UserRepositoryImplementation(ApplicationDbContext context, IMapper mapper) : UserRepository
     {
         private readonly ApplicationDbContext _context = context;
+        private readonly IMapper _mapper = mapper;
 
-        public async Task<User> AddAsync(User user)
+        public async Task<Entities.DomainEntities.User> AddAsync(Entities.DomainEntities.User user)
         {
-            var dbUser = await _context.Users.AddAsync(user);
-            return dbUser.Entity;
+            var dbUser = await _context.Users.AddAsync(_mapper.Map<User>(user));
+            await _context.SaveChangesAsync();
+            return _mapper.Map<Entities.DomainEntities.User>(dbUser.Entity);
         }
 
-        public void Delete(User user)
+        public async Task DeleteAsync(Entities.DomainEntities.User user)
         {
-            if (_context.Users.Entry(user).State == EntityState.Detached)
-            {
-                _context.Users.Attach(user);
-            }
+            var dbUser = await _context.Users.FindAsync(user.Id);
 
-            _context.Users.Entry(user).State = EntityState.Deleted;
+            if (dbUser != null)
+            {
+                _context.Users.Remove(dbUser);
+            }
+            await _context.SaveChangesAsync();
         }
 
         public async Task<bool> ExistByEmailAsync(string email)
@@ -30,24 +33,28 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             return await _context.Users.AnyAsync(u => u.Email == email);
         }
 
-        public async Task<User?> GetByEmailAsync(string email)
+        public async Task<Entities.DomainEntities.User?> GetByEmailAsync(string email)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            var dbUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            return _mapper.Map<Entities.DomainEntities.User?>(dbUser);
         }
 
-        public async Task<User?> GetByIdAsync(int id)
+        public async Task<Entities.DomainEntities.User?> GetByIdAsync(int id)
         {
-            return await _context.Users.FindAsync(id);
+            var dbUser = await _context.Users.FindAsync(id);
+            return _mapper.Map<Entities.DomainEntities.User?>(dbUser);
         }
 
-        public void Update(User user)
+        public async Task UpdateAsync(Entities.DomainEntities.User user)
         {
-            if (_context.Users.Entry(user).State == EntityState.Detached)
+            var dbUser = await _context.Users.FindAsync(user.Id);
+
+            if (dbUser != null)
             {
-                _context.Users.Attach(user);
+                dbUser = _mapper.Map(user, dbUser);
+                _context.Users.Update(dbUser);
             }
-
-            _context.Users.Entry(user).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
         }
     }
 }

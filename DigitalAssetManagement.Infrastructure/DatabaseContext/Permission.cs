@@ -2,9 +2,9 @@
 using DigitalAssetManagement.Domain.Enums;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace DigitalAssetManagement.Domain.Entities
+namespace DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext
 {
-    public class Permission: BaseEntity
+    public class Permission : BaseEntity
     {
         public required Role Role { get; set; }
         public required int UserId { get; set; }

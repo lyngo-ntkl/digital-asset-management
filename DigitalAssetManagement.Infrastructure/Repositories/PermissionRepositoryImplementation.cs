@@ -1,26 +1,26 @@
-﻿using DigitalAssetManagement.Application.Repositories;
-using DigitalAssetManagement.Domain.Entities;
-using DigitalAssetManagement.Infrastructure.DatabaseContext;
-using Microsoft.EntityFrameworkCore;
-using static Dapper.SqlMapper;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
+using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
+using DigitalAssetManagement.UseCases.Repositories;
+using AutoMapper;
 
 namespace DigitalAssetManagement.Infrastructure.Repositories
 {
-    public class PermissionRepositoryImplementation(ApplicationDbContext context) : PermissionRepository
+    public class PermissionRepositoryImplementation(ApplicationDbContext context, IMapper mapper) : PermissionRepository
     {
         private readonly ApplicationDbContext _context = context;
+        private readonly IMapper _mapper = mapper;
 
-        public async Task<Permission> AddAsync(Permission permission)
+        public async Task<Entities.DomainEntities.Permission> AddAsync(Entities.DomainEntities.Permission permission)
         {
-            var dbPermission = await _context.Permissions.AddAsync(permission);
-            return dbPermission.Entity;
+            var dbPermission = await _context.Permissions.AddAsync(_mapper.Map<Permission>(permission));
+            return _mapper.Map<Entities.DomainEntities.Permission>(dbPermission.Entity);
         }
 
-        public async Task AddRangeAsync(IEnumerable<Permission> permissions) => await _context.Permissions.AddRangeAsync(permissions);
+        public async Task AddRangeAsync(IEnumerable<Entities.DomainEntities.Permission> permissions) => await _context.Permissions.AddRangeAsync(permissions);
 
-        public void Delete(Permission permission) => _context.Permissions.Remove(permission);
+        public void Delete(Entities.DomainEntities.Permission permission) => _context.Permissions.Remove(permission);
 
         public async Task DeleteRangeAsync(Expression<Func<Permission, bool>>? filter = null)
         {

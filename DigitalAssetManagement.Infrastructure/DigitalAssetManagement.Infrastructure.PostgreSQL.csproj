@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\DigitalAssetManagement.UseCases\DigitalAssetManagement.UseCases.csproj" />
     <ProjectReference Include="..\DigitalAssetManagement.Application\DigitalAssetManagement.Application.csproj" />
   </ItemGroup>
 
