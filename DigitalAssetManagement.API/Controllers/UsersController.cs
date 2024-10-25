@@ -9,14 +9,9 @@ namespace DigitalAssetManagement.API.Controllers
 {
     [Route("/v1/api/users")]
     [ApiController]
-    public class UsersController : ControllerBase
+    public class UsersController(UserService userService) : ControllerBase
     {
-        private readonly UserService _userService;
-
-        public UsersController(UserService userService)
-        {
-            _userService = userService;
-        }
+        private readonly UserService _userService = userService;
 
         [HttpPost("registration")]
         [AllowAnonymous]

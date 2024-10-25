@@ -1,4 +1,4 @@
-﻿namespace DigitalAssetManagement.Application.Exceptions
+﻿namespace DigitalAssetManagement.Application.Common.Exceptions
 {
     public class UnauthorizedException : Exception
     {

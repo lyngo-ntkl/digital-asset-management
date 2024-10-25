@@ -1,4 +1,4 @@
-﻿using DigitalAssetManagement.Application.Exceptions;
+﻿using DigitalAssetManagement.Application.Common.Exceptions;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 

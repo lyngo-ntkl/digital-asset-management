@@ -8,20 +8,15 @@ namespace DigitalAssetManagement.API.Controllers
 {
     [Route("/v1/api/auth")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class AuthController(UserService userService) : ControllerBase
     {
-        private readonly UserService _userService;
-
-        public AuthController(UserService userService)
-        {
-            _userService = userService;
-        }
+        private readonly UserService _userService = userService;
 
         [HttpPost("authentication")]
         [AllowAnonymous]
         public async Task<AuthResponse> LoginWithEmailPassword([FromBody] EmailPasswordAuthRequest request)
         {
-            return await _userService.LoginWithEmailPassword(request);
+            return await _userService.LoginByEmailAndPassword(request);
         }
     }
 }

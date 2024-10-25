@@ -8,7 +8,7 @@ namespace DigitalAssetManagement.Infrastructure.Common
         void Hash(string value, out string salt, out string hash);
         void Hash(string value, out byte[] salt, out byte[] hash);
         void Hash(string value, byte[] salt, out byte[] hash);
-        void Hash(string value, string salt, out string hash);
+        string Hash(string value, string salt);
     }
 
     public class HashingHelperImplementation: HashingHelper
@@ -42,10 +42,11 @@ namespace DigitalAssetManagement.Infrastructure.Common
             hash = hashing.GetBytes(int.Parse(_configuration.GetSection("hashing:hashByteSize").Value!));
         }
 
-        public void Hash(string value, string salt, out string hash)
+        public string Hash(string value, string salt)
         {
             var hashing = new Rfc2898DeriveBytes(value, Convert.FromBase64String(salt), int.Parse(_configuration.GetSection("hashing:iteration").Value!), _hashAlgorithm);
-            hash = Convert.ToBase64String(hashing.GetBytes(int.Parse(_configuration.GetSection("hashing:hashByteSize").Value!)));
+            var hash = Convert.ToBase64String(hashing.GetBytes(int.Parse(_configuration.GetSection("hashing:hashByteSize").Value!)));
+            return hash;
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using DigitalAssetManagement.Application.Common;
 using DigitalAssetManagement.Application.Common.Requests;
-using DigitalAssetManagement.Application.Exceptions;
+using DigitalAssetManagement.Application.Common.Exceptions;
 using DigitalAssetManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;

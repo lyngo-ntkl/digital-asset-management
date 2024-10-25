@@ -2,12 +2,11 @@
 using DigitalAssetManagement.Application.Common;
 using DigitalAssetManagement.Application.Dtos.Requests.Users;
 using DigitalAssetManagement.Application.Dtos.Responses.Users;
-using DigitalAssetManagement.Application.Exceptions;
+using DigitalAssetManagement.Application.Common.Exceptions;
 using DigitalAssetManagement.Application.Repositories;
 using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Infrastructure.Common;
-using Microsoft.AspNetCore.Http;
 
 namespace DigitalAssetManagement.Infrastructure.Services
 {
@@ -39,16 +38,16 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return user;
         }
 
-        public async Task<AuthResponse> LoginWithEmailPassword(EmailPasswordAuthRequest request)
+        public async Task<AuthResponse> LoginByEmailAndPassword(EmailPasswordAuthRequest request)
         {
-            var user = await _unitOfWork.UserRepository.GetFirstOnConditionAsync(u => u.Email == request.Email);
+            var user = await _unitOfWork.UserRepository.GetByEmailAsync(request.Email);
             if (user == null)
             {
                 throw new BadRequestException(ExceptionMessage.UnregisteredEmail);
             }
 
-            _hashingHelper.Hash(request.Password, user.PasswordSalt, out string hash);
-            if (hash != user.PasswordHash)
+            var passwordHash = _hashingHelper.Hash(request.Password, user.PasswordSalt);
+            if (passwordHash != user.PasswordHash)
             {
                 throw new BadRequestException(ExceptionMessage.UnmatchedPassword);
             }
@@ -61,13 +60,13 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
         public async Task Register(EmailPasswordRegistrationRequest request)
         {
-            if (_unitOfWork.UserRepository.ExistByCondition(u => u.Email == request.Email))
+            if (await _unitOfWork.UserRepository.ExistByEmailAsync(request.Email))
             {
                 throw new BadRequestException(ExceptionMessage.RegisteredEmail);
             }
 
             var user = await Add(_mapper.Map<User>(request));
-            //await _driveService.AddNewDrive(user.Id!.Value, user.Name);
+
             await _driveService.AddNewDrive(user.Id, user.Name);
         }
 
@@ -78,11 +77,8 @@ namespace DigitalAssetManagement.Infrastructure.Services
 
         public async Task<User> GetByEmail(string email)
         {
-            var user = await _unitOfWork.UserRepository.GetFirstOnConditionAsync(u => u.Email == email);
-            if (user == null)
-            {
-                throw new NotFoundException(ExceptionMessage.UserNotFound);
-            }
+            var user = await _unitOfWork.UserRepository.GetByEmailAsync(email)
+                ?? throw new NotFoundException(ExceptionMessage.UserNotFound);
             return user;
         }
     }

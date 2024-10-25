@@ -1,6 +1,6 @@
-﻿namespace DigitalAssetManagement.Application.Exceptions
+﻿namespace DigitalAssetManagement.Application.Common.Exceptions
 {
-    public class ForbiddenException: Exception
+    public class ForbiddenException : Exception
     {
         public ForbiddenException() { }
 

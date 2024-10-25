@@ -1,4 +1,4 @@
-﻿using DigitalAssetManagement.Application.Exceptions;
+﻿using DigitalAssetManagement.Application.Common.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 

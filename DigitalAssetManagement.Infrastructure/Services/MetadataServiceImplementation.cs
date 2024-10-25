@@ -1,5 +1,5 @@
 ﻿using DigitalAssetManagement.Application.Common;
-using DigitalAssetManagement.Application.Exceptions;
+using DigitalAssetManagement.Application.Common.Exceptions;
 using DigitalAssetManagement.Application.Repositories;
 using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.Domain.Entities;

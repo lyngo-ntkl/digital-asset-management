@@ -15,7 +15,7 @@ namespace DigitalAssetManagement.Infrastructure.Common
     public class SystemFileHelperImplementation: SystemFileHelper
     {
         private readonly string BasePath;
-        private readonly int FileBufferSize = 1024 * 1024;
+        private readonly int FileBufferSize = 5 * 1024 * 1024;
 
         public SystemFileHelperImplementation(IHostEnvironment environment)
         {

@@ -7,7 +7,7 @@ using Moq;
 using AutoMapper;
 using DigitalAssetManagement.Infrastructure.Common;
 using Microsoft.Extensions.Configuration;
-using DigitalAssetManagement.Application.Exceptions;
+using DigitalAssetManagement.Application.Common.Exceptions;
 using DigitalAssetManagement.Application.Dtos.Requests.Users;
 using DigitalAssetManagement.Application.Common;
 using DigitalAssetManagement.Domain.Entities;
