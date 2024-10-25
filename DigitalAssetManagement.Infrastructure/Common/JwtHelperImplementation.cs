@@ -1,24 +1,14 @@
-﻿using DigitalAssetManagement.Domain.Entities;
-using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
+﻿using DigitalAssetManagement.Entities.DomainEntities;
+using DigitalAssetManagement.UseCases.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 
 namespace DigitalAssetManagement.Infrastructure.Common
 {
-    public interface JwtHelper
-    {
-        string? ExtractJwtFromAuthorizationHeader();
-        string? ExtractSidFromAuthorizationHeader();
-        string GenerateAccessToken(User user);
-        IEnumerable<Claim> GetClaims(string jwt);
-        string? GetSid(string jwt);
-    }
-
     public class JwtHelperImplementation : JwtHelper
     {
         private readonly IConfiguration _configuration;

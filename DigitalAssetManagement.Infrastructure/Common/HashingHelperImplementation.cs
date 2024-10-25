@@ -1,16 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using DigitalAssetManagement.UseCases.Common;
+using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography;
 
 namespace DigitalAssetManagement.Infrastructure.Common
 {
-    public interface HashingHelper
-    {
-        void Hash(string value, out string salt, out string hash);
-        void Hash(string value, out byte[] salt, out byte[] hash);
-        void Hash(string value, byte[] salt, out byte[] hash);
-        string Hash(string value, string salt);
-    }
-
     public class HashingHelperImplementation: HashingHelper
     {
         private readonly IConfiguration _configuration;
