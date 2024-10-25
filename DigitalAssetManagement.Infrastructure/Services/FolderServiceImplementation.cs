@@ -49,27 +49,6 @@ namespace DigitalAssetManagement.Infrastructure.Services
             _configuration = configuration;
         }
 
-        public async Task<FolderDetailResponseDto> AddNewFolder(FolderCreationRequestDto request)
-        {
-            var loginUserId = int.Parse(_jwtHelper.ExtractSidFromAuthorizationHeader()!);
-            Metadata parentMetadata = await _metadataService.GetFolderOrDriveMetadataByIdAsync(request.ParentId);
-
-            _systemFolderHelper.AddFolder(request.Name, parentMetadata.AbsolutePath, out string newFolderAbsolutePath);
-
-            var newFolderMetadata = new Metadata
-            {
-                Name = request.Name,
-                AbsolutePath = newFolderAbsolutePath,
-                MetadataType = MetadataType.Folder,
-                OwnerId = loginUserId,
-                ParentMetadataId = request.ParentId
-            };
-            newFolderMetadata = await _metadataService.Add(newFolderMetadata);
-
-            await _permissionService.DuplicatePermissionsAsync(newFolderMetadata.Id, parentMetadata.Id);
-            return _mapper.Map<FolderDetailResponseDto>(newFolderMetadata);
-        }
-
         public async Task AddFolderPermission(int folderId, PermissionRequestDto request)
         {
             var folderMetadata = await _metadataService.GetFolderMetadataByIdAsync(folderId);

@@ -1,5 +1,5 @@
 ﻿using DigitalAssetManagement.Domain.Common;
-using DigitalAssetManagement.Domain.Enums;
+using DigitalAssetManagement.Entities.Enums;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext

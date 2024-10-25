@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
+using DigitalAssetManagement.Entities.Enums;
 using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
 using DigitalAssetManagement.UseCases.Repositories;
 using AutoMapper;
@@ -18,7 +19,11 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             return _mapper.Map<Entities.DomainEntities.Permission>(dbPermission.Entity);
         }
 
-        public async Task AddRangeAsync(IEnumerable<Entities.DomainEntities.Permission> permissions) => await _context.Permissions.AddRangeAsync(permissions);
+        public async Task AddRangeAsync(IEnumerable<Entities.DomainEntities.Permission> permissions)
+        {
+            var dbPermissions = _mapper.Map<IEnumerable<Permission>>(permissions);
+            await _context.Permissions.AddRangeAsync(dbPermissions);
+        }
 
         public void Delete(Entities.DomainEntities.Permission permission) => _context.Permissions.Remove(permission);
 
@@ -32,9 +37,9 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             await permissions.ExecuteDeleteAsync();
         }
 
-        public async Task<ICollection<Permission>> GetAllAsync(
-            Expression<Func<Permission, bool>>? filter = null,
-            Func<IQueryable<Permission>, IOrderedQueryable<Permission>>? orderedQuery = null,
+        public async Task<ICollection<Entities.DomainEntities.Permission>> GetAllAsync(
+            Expression<Func<Entities.DomainEntities.Permission, bool>>? filter = null,
+            Func<IQueryable<Entities.DomainEntities.Permission>, IOrderedQueryable<Entities.DomainEntities.Permission>>? orderedQuery = null,
             string includedProperties = "",
             bool isTracked = true,
             bool isPaging = false,
@@ -73,11 +78,24 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             return await permissions.ToListAsync();
         }
 
+        public ICollection<Entities.DomainEntities.Permission> GetByMetadataIdAndNotIsDeletedNoTrackingAsync(int metadataId)
+        {
+            var dbPermissions = _context.Permissions
+                .Where(p => p.MetadataId == metadataId && !p.IsDeleted)
+                .AsNoTracking();
+            return _mapper.Map<ICollection<Entities.DomainEntities.Permission>>(dbPermissions);
+        }
+
         public async Task<Permission?> GetByUserIdAndMetadataIdAsync(int userId, int metadataId)
         {
             return await _context.Permissions.FirstOrDefaultAsync(
                 p => p.UserId == userId && p.MetadataId == metadataId && !p.IsDeleted
             );
+        }
+        public async Task<Role?> GetRoleByUserIdAndMetadataId(int userId, int metadataId)
+        {
+            var permission = await _context.Permissions.FirstOrDefaultAsync(p => p.UserId == userId && p.MetadataId == metadataId && !p.IsDeleted);
+            return permission.Role;
         }
 
         public IEnumerable<int> GetUserIdByMetadataId(int metadataId)

@@ -1,23 +1,20 @@
-﻿using DigitalAssetManagement.Application.Dtos.Requests.Users;
-using DigitalAssetManagement.Application.Dtos.Responses.Folders;
-using DigitalAssetManagement.Application.Services;
+﻿using DigitalAssetManagement.UseCases.Users.Create;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DigitalAssetManagement.API.Controllers
 {
     [Route("/v1/api/users")]
     [ApiController]
-    public class UsersController(UserService userService) : ControllerBase
+    public class UsersController(UserRegistration userRegistration) : ControllerBase
     {
-        private readonly UserService _userService = userService;
+        private readonly UserRegistration _userRegistration= userRegistration;
 
         [HttpPost("registration")]
         [AllowAnonymous]
-        public async Task Register([FromBody] EmailPasswordRegistrationRequest request)
+        public async Task Register([FromBody] RegistrationRequest request)
         {
-            await _userService.Register(request);
+            await _userRegistration.Register(request);
         }
     }
 }

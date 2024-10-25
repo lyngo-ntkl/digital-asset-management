@@ -1,9 +1,8 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using DigitalAssetManagement.UseCases.Common;
+using Microsoft.Extensions.Hosting;
 
 namespace DigitalAssetManagement.Infrastructure.Common
 {
-    
-
     public class SystemFolderHelperImplementation: SystemFolderHelper
     {
         private const string BaseFolder = "Files";
@@ -15,20 +14,10 @@ namespace DigitalAssetManagement.Infrastructure.Common
             this.BasePath = $"{env.ContentRootPath}{FolderSeparator}{BaseFolder}{FolderSeparator}";
         }
 
-        public DirectoryInfo AddFolder(string folderName, out string folderAbsolutePath)
+        public void AddFolder(string absolutePath)
         {
-            folderAbsolutePath = folderName;
-            var path = $"{BasePath}{folderAbsolutePath}";
+            var path = $"{BasePath}{absolutePath}";
             var directoryInfo = Directory.CreateDirectory(path);
-            return directoryInfo;
-        }
-
-        public DirectoryInfo AddFolder(string folderName, string parentAbsolutePath, out string folderAbsolutePath)
-        {
-            folderAbsolutePath = $"{parentAbsolutePath}{FolderSeparator}{folderName}";
-            var path = $"{BasePath}{folderAbsolutePath}";
-            var directoryInfo = Directory.CreateDirectory(path);
-            return directoryInfo;
         }
 
         public void DeleteFolder(string absolutePath)

@@ -15,5 +15,11 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             await _context.SaveChangesAsync();
             return _mapper.Map<Entities.DomainEntities.Metadata>(dbMetadata);
         }
+
+        public async Task<Entities.DomainEntities.Metadata?> GetByIdAsync(int id)
+        {
+            var dbMetadata = await _context.Metadata.FindAsync(id);
+            return _mapper.Map<Entities.DomainEntities.Metadata?>(dbMetadata);
+        }
     }
 }
