@@ -5,14 +5,9 @@ using DigitalAssetManagement.Domain.Enums;
 
 namespace DigitalAssetManagement.Infrastructure.Services
 {
-    public class PermissionServiceImplementation : PermissionService
+    public class PermissionServiceImplementation(UnitOfWork unitOfWork) : PermissionService
     {
-        private readonly UnitOfWork _unitOfWork;
-
-        public PermissionServiceImplementation(UnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+        private readonly UnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Permission> Add(Permission permission)
         {
@@ -33,7 +28,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
                 p => p.UserId == userId && folderAndChildrenMetadataIds.Contains(p.MetadataId)
             );
             var existedPermissionIds = existedPermissions.Select(m => m.Id);
-            var updatedRow = await _unitOfWork.PermissionRepository.BatchUpdateAsync(
+            var updatedRow = await _unitOfWork.PermissionRepository.UpdateRangeAsync(
                 p => p.SetProperty(entity => entity.Role, value => role), 
                 filter: p => existedPermissionIds.Contains(p.Id)
             );
@@ -54,7 +49,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
                 );
             }
 
-            await _unitOfWork.PermissionRepository.BatchAddAsync(newPermissions);
+            await _unitOfWork.PermissionRepository.AddRangeAsync(newPermissions);
             await _unitOfWork.SaveAsync();
         }
 
@@ -62,7 +57,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
         {
             var newParentPermissions = await _unitOfWork.PermissionRepository.GetAllAsync(p => p.MetadataId == newParentMetadataId, isTracked: false);
             var newParentPermissionUserIds = newParentPermissions.Select(p => p.UserId);
-            var filePermissionUserIds = _unitOfWork.PermissionRepository.GetPropertyValue(p => p.UserId, p => p.MetadataId == fileMetadataId);
+            var filePermissionUserIds = _unitOfWork.PermissionRepository.GetUserIdByMetadataId(fileMetadataId);
             var differenceUserIds = newParentPermissionUserIds.Except(filePermissionUserIds);
 
             var permissions = newParentPermissions.Where(p => differenceUserIds.Contains(p.UserId));
@@ -72,13 +67,13 @@ namespace DigitalAssetManagement.Infrastructure.Services
                 permission.MetadataId = fileMetadataId;
             }
 
-            await _unitOfWork.PermissionRepository.BatchAddAsync(permissions);
+            await _unitOfWork.PermissionRepository.AddRangeAsync(permissions);
             await _unitOfWork.SaveAsync();
         }
 
         public async Task DeletePermissonsByMetadataIds(ICollection<int> metadataIds)
         {
-            await _unitOfWork.PermissionRepository.BatchDeleteAsync(p => metadataIds.Contains(p.MetadataId));
+            await _unitOfWork.PermissionRepository.DeleteRangeAsync(p => metadataIds.Contains(p.MetadataId));
         }
 
         public async Task DuplicatePermissionsAsync(int childMetadataId, int parentMetadataId)
@@ -90,7 +85,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
                 permission.MetadataId = childMetadataId;
             }
 
-            await _unitOfWork.PermissionRepository.BatchAddAsync(parentPermissions);
+            await _unitOfWork.PermissionRepository.AddRangeAsync(parentPermissions);
             await _unitOfWork.SaveAsync();
         }
 
@@ -98,7 +93,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
         {
             var parentPermissions = await GetPermissions(parentId, false);
 
-            List<Permission> childrenPermissions = new List<Permission>();
+            List<Permission> childrenPermissions = new();
             foreach (int childId in childrenIds)
             {
                 foreach (var permission in parentPermissions)
@@ -109,13 +104,13 @@ namespace DigitalAssetManagement.Infrastructure.Services
                 }
             }
 
-            await _unitOfWork.PermissionRepository.BatchAddAsync(childrenPermissions);
+            await _unitOfWork.PermissionRepository.AddRangeAsync(childrenPermissions);
             await _unitOfWork.SaveAsync();
         }
 
         public async Task<Permission?> GetPermissionByUserIdAndMetadataId(int userId, int metadataId)
         {
-            var permission = await _unitOfWork.PermissionRepository.GetFirstOnConditionAsync(p => p.MetadataId == metadataId && p.UserId == userId && !p.IsDeleted);
+            var permission = await _unitOfWork.PermissionRepository.GetByUserIdAndMetadataIdAsync(userId, metadataId);
             return permission;
         }
 

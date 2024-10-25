@@ -70,7 +70,7 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
                 data = data.Where(filter);
             }
 
-            return await data.ExecuteUpdateAsync(setPropertyCalls);
+            return await data.ExecuteUpdateAsync(setPropertyCalls, cancellationToken);
         }
 
         public TEntity Delete(TEntity entity)

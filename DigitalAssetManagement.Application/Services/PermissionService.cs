@@ -9,7 +9,6 @@ namespace DigitalAssetManagement.Application.Services
     {
         Task<Permission> Add(Permission permission);
         Task AddFolderPermission(string folderAbsolutePath, int userId, Role role);
-        // TODO: rename
         Task AddPermissionsWithDifferentUsers(int fileMetadataId, int newParentMetadataId);
         Task DeletePermissonsByMetadataIds(ICollection<int> metadataIds);
         Task DuplicatePermissionsAsync(int childId, int parentId);
