@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DigitalAssetManagement.Infrastructure\DigitalAssetManagement.Infrastructure.csproj" />
+    <ProjectReference Include="..\DigitalAssetManagement.Infrastructure\DigitalAssetManagement.Infrastructure.PostgreSQL.csproj" />
   </ItemGroup>
 
 </Project>

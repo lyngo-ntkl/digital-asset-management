@@ -92,6 +92,14 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
                 p => p.UserId == userId && p.MetadataId == metadataId && !p.IsDeleted
             );
         }
+
+        public async Task<ICollection<Permission>> GetByUserIdAndMetadataIdsAsync(int userId, IEnumerable<int> metadataIds)
+        {
+            var permissions = _context.Permissions
+                .Where(p => p.UserId == userId && metadataIds.Contains(p.MetadataId));
+            return await permissions.ToListAsync();
+        }
+
         public async Task<Role?> GetRoleByUserIdAndMetadataId(int userId, int metadataId)
         {
             var permission = await _context.Permissions.FirstOrDefaultAsync(p => p.UserId == userId && p.MetadataId == metadataId && !p.IsDeleted);

@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using RabbitMQ.Client;
 using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
+using DigitalAssetManagement.UseCases.Permissions.Create;
 
 namespace DigitalAssetManagement.Infrastructure.Services
 {
@@ -57,7 +58,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
                 AbsolutePath = fileAbsolutePath,
                 MetadataType = Domain.Enums.MetadataType.File,
                 OwnerId = ownerId,
-                ParentMetadataId = parent.Id
+                ParentId = parent.Id
             };
             fileMetadata = await _metadataService.Add(fileMetadata);
             //await _permissionService.DuplicatePermissions(fileMetadata.Id!.Value, parentMetadata.Id!.Value);
@@ -91,7 +92,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return metadata.Id;
         }
 
-        public async Task AddFilePermission(int fileId, PermissionRequestDto request)
+        public async Task AddFilePermission(int fileId, PermissionCreationRequest request)
         {
             if (! await _metadataService.IsFileExist(fileId))
             {

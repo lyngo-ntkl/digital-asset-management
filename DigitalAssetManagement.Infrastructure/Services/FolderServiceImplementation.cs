@@ -49,7 +49,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
             _configuration = configuration;
         }
 
-        public async Task AddFolderPermission(int folderId, PermissionRequestDto request)
+        public async Task AddFolderPermission(int folderId, PermissionRequest request)
         {
             var folderMetadata = await _metadataService.GetFolderMetadataByIdAsync(folderId);
 

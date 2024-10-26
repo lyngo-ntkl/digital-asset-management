@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
 using DigitalAssetManagement.UseCases.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace DigitalAssetManagement.Infrastructure.Repositories
 {
@@ -20,6 +21,14 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
         {
             var dbMetadata = await _context.Metadata.FindAsync(id);
             return _mapper.Map<Entities.DomainEntities.Metadata?>(dbMetadata);
+        }
+
+        public async Task<ICollection<int>> GetMetadataIdByParentIdAsync(int parentId)
+        {
+            var metadataIds = _context.Metadata
+                .Where(m => m.ParentId == parentId)
+                .Select(m => m.Id);
+            return await metadataIds.ToListAsync();
         }
     }
 }

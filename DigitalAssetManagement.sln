@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.API"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Domain", "DigitalAssetManagement.Domain\DigitalAssetManagement.Domain.csproj", "{31F9F452-CAE4-46A4-BA5E-18E635EA56B4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Infrastructure", "DigitalAssetManagement.Infrastructure\DigitalAssetManagement.Infrastructure.csproj", "{C1ECF8D6-D3E9-44B9-8141-720DA04DAC75}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Infrastructure.PostgreSQL", "DigitalAssetManagement.Infrastructure\DigitalAssetManagement.Infrastructure.PostgreSQL.csproj", "{C1ECF8D6-D3E9-44B9-8141-720DA04DAC75}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Application", "DigitalAssetManagement.Application\DigitalAssetManagement.Application.csproj", "{0571A29B-CE07-42F2-BCF1-F79083B9E6F6}"
 EndProject
@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Test
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{9E12B54E-FD39-417F-A004-BD6BA807157A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DigitalAssetManagement.Entities", "..\DigitalAssetManagement.Entities\DigitalAssetManagement.Entities.csproj", "{0EFBEFAE-130A-4C35-92F8-75A51A49EBD3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Entities", "..\DigitalAssetManagement.Entities\DigitalAssetManagement.Entities.csproj", "{0EFBEFAE-130A-4C35-92F8-75A51A49EBD3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DigitalAssetManagement.UseCases", "..\DigitalAssetManagement.UseCases\DigitalAssetManagement.UseCases.csproj", "{CC635A31-3714-4062-903A-BB5A1F879F5F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{0EFBEFAE-130A-4C35-92F8-75A51A49EBD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0EFBEFAE-130A-4C35-92F8-75A51A49EBD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0EFBEFAE-130A-4C35-92F8-75A51A49EBD3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC635A31-3714-4062-903A-BB5A1F879F5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC635A31-3714-4062-903A-BB5A1F879F5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC635A31-3714-4062-903A-BB5A1F879F5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC635A31-3714-4062-903A-BB5A1F879F5F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

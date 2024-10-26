@@ -7,7 +7,7 @@ namespace DigitalAssetManagement.Application.Services
     {
         Task AddFiles(MultipleFilesUploadRequestDto request);
         Task<int> AddFileMetadataAsync(FileMetadataCreationRequestDto request);
-        Task AddFilePermission(int fileId, PermissionRequestDto request);
+        Task AddFilePermission(int fileId, PermissionCreationRequest request);
         Task DeleteFile(int fileId);
         Task DeleteFileSoftly(int fileId);
         Task<FileResponseDto> GetFile(int fileId);

@@ -15,8 +15,8 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext
         public virtual User? Owner { get; set; }
         public virtual ICollection<Permission> Permissions { get; set; } = null!;
 
-        public int? ParentMetadataId { get; set; }
-        [ForeignKey(nameof(ParentMetadataId))]
+        public int? ParentId { get; set; }
+        [ForeignKey(nameof(ParentId))]
         public virtual Metadata? ParentMetadata { get; set; }
         public virtual ICollection<Metadata> ChildrenMetadata { get; set; } = null!;
     }

@@ -35,7 +35,7 @@ namespace DigitalAssetManagement.API.Controllers
         }
 
         [HttpPost("{id}/permissions")]
-        public async Task AddPermission([FromRoute] int id, PermissionRequestDto request)
+        public async Task AddPermission([FromRoute] int id, PermissionCreationRequest request)
         {
             await _authorizationService.AuthorizeAsync(
                 User,

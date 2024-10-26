@@ -17,43 +17,6 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return permission;
         }
 
-        public async Task AddFolderPermission(string folderAbsolutePath, int userId, Role role)
-        {
-            var folderAndChildrenMetadata = await _unitOfWork.MetadataRepository.GetAllAsync(
-                m => m.AbsolutePath.StartsWith(folderAbsolutePath)
-            );
-
-            // update existed permissions
-            var folderAndChildrenMetadataIds = folderAndChildrenMetadata.Select(m => m.Id);
-            var existedPermissions = await _unitOfWork.PermissionRepository.GetAllAsync(
-                p => p.UserId == userId && folderAndChildrenMetadataIds.Contains(p.MetadataId)
-            );
-            var existedPermissionIds = existedPermissions.Select(m => m.Id);
-            var updatedRow = await _unitOfWork.PermissionRepository.UpdateRangeAsync(
-                p => p.SetProperty(entity => entity.Role, value => role), 
-                filter: p => existedPermissionIds.Contains(p.Id)
-            );
-            var existedPermissionMetadataIds = existedPermissions.Select(p => p.MetadataId).ToList();
-
-            var newPermissionMetadataIds = folderAndChildrenMetadataIds.Except(existedPermissionMetadataIds);
-            
-            List<Permission> newPermissions = new(folderAndChildrenMetadata.Count - updatedRow);
-            foreach (var metadataId in newPermissionMetadataIds)
-            {
-                newPermissions.Add(
-                    new Permission
-                    {
-                        MetadataId = metadataId,
-                        UserId = userId,
-                        Role = role
-                    }
-                );
-            }
-
-            await _unitOfWork.PermissionRepository.AddRangeAsync(newPermissions);
-            await _unitOfWork.SaveAsync();
-        }
-
         public async Task AddPermissionsWithDifferentUsers(int fileMetadataId, int newParentMetadataId)
         {
             var newParentPermissions = await _unitOfWork.PermissionRepository.GetAllAsync(p => p.MetadataId == newParentMetadataId, isTracked: false);

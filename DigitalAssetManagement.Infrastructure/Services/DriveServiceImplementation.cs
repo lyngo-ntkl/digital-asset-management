@@ -25,17 +25,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
             _permissionService = permissionService;
             _mapper = mapper;
         }
-        public async Task AddNewDrive(int ownerId, string driveName)
-        {
-            _systemFolderHelper.AddFolder(ownerId.ToString(), out string absolutePath);
-            var metadata = await _metadataService.AddDrive(driveName, absolutePath, ownerId);
-            await _permissionService.Add(new Permission
-            {
-                UserId = ownerId,
-                MetadataId = metadata.Id,
-                Role = Domain.Enums.Role.Admin
-            });
-        }
+        
 
         public async Task<FolderDetailResponseDto> GetLoginUserDrive()
         {

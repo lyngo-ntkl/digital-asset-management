@@ -6,8 +6,8 @@ namespace DigitalAssetManagement.Application.Services
 {
     public interface FolderService
     {
-        Task<FolderDetailResponseDto> AddNewFolder(FolderCreationRequestDto request);
-        Task AddFolderPermission(int folderId, PermissionRequestDto request);
+        
+        Task AddFolderPermission(int folderId, PermissionRequest request);
         //Task<FolderDetailResponseDto> Update(int id, FolderModificationRequestDto request);
         Task<FolderDetailResponseDto> Get(int id);
         Task DeleteFolder(int id);
