@@ -37,7 +37,7 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext
                 options.HasMany(metadata => metadata.Permissions)
                     .WithOne(permission => permission.Metadata)
                     .OnDelete(DeleteBehavior.Cascade);
-                options.HasMany(metadata => metadata.ChildrenMetadata)
+                options.HasMany(metadata => metadata.Children)
                     .WithOne(metadata => metadata.ParentMetadata)
                     .OnDelete(DeleteBehavior.Cascade);
             });

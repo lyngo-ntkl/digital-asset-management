@@ -26,11 +26,6 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return await _unitOfWork.UserRepository.GetByIdAsync(id);
         }
 
-        public async Task<User> GetByEmail(string email)
-        {
-            var user = await _unitOfWork.UserRepository.GetByEmailAsync(email)
-                ?? throw new NotFoundException(ExceptionMessage.UserNotFound);
-            return user;
-        }
+        
     }
 }

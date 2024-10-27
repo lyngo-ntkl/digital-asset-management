@@ -1,15 +1,12 @@
 ﻿using DigitalAssetManagement.Application.Common.Requests;
-using DigitalAssetManagement.Application.Dtos.Requests;
-using DigitalAssetManagement.Application.Dtos.Requests.Folders;
-using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 using DigitalAssetManagement.Application.Services;
+using DigitalAssetManagement.UseCases.Folders;
 using DigitalAssetManagement.UseCases.Folders.Create;
+using DigitalAssetManagement.UseCases.Folders.Read;
 using DigitalAssetManagement.UseCases.Permissions.Create;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Net;
-using System.Net.Mime;
 
 namespace DigitalAssetManagement.API.Controllers
 {
@@ -18,17 +15,20 @@ namespace DigitalAssetManagement.API.Controllers
     public class FoldersController(
         FolderCreation folderCreation, 
         FolderPermissionCreation folderPermissionCreation,
-        FolderService folderService, IAuthorizationService authorizationService) : ControllerBase
+        GetFolder getFolder,
+        FolderService folderService,
+        IAuthorizationService authorizationService) : ControllerBase
     {
         private readonly FolderCreation _folderCreation = folderCreation;
         private readonly FolderPermissionCreation _folderPermissionCreation = folderPermissionCreation;
+        private readonly GetFolder _getFolder = getFolder;
         private readonly FolderService _folderService = folderService;
         private readonly IAuthorizationService _authorizationService = authorizationService;
 
         [HttpPost]
-        [ProducesResponseType<FolderDetailResponseDto>(StatusCodes.Status201Created)]
+        [ProducesResponseType<FolderDetailResponse>(StatusCodes.Status201Created)]
         [Authorize]
-        public async Task<ActionResult<FolderDetailResponseDto>> AddFolder([FromBody] FolderCreationRequest request)
+        public async Task<ActionResult<FolderDetailResponse>> AddFolder([FromBody] FolderCreationRequest request)
         {
             await _authorizationService.AuthorizeAsync(User, request, "Contributor");
             return await _folderCreation.AddFolder(request);
@@ -76,10 +76,10 @@ namespace DigitalAssetManagement.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<FolderDetailResponseDto> Get([FromRoute] int id)
+        public async Task<FolderDetailResponse> Get([FromRoute] int id)
         {
             await _authorizationService.AuthorizeAsync(User, new ResourceBasedPermissionCheckingRequestDto { ParentId = id }, "Reader");
-            return await _folderService.Get(id);
+            return await _getFolder.GetFolder(id);
         }
 
         [HttpPatch("move/{folderId}")]

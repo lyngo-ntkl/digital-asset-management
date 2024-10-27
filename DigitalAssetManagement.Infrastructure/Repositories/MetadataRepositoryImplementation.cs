@@ -20,7 +20,10 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
 
         public async Task<Entities.DomainEntities.Metadata?> GetByIdAsync(int id)
         {
-            var dbMetadata = await _context.Metadata.FindAsync(id);
+            var dbMetadata = await _context.Metadata
+                .Include(m => m.Permissions)
+                .Include(m => m.Children)
+                .FirstOrDefaultAsync(m => m.Id == id);
             return _mapper.Map<Entities.DomainEntities.Metadata?>(dbMetadata);
         }
 

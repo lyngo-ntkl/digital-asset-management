@@ -49,16 +49,6 @@ namespace DigitalAssetManagement.Infrastructure.Services
             _configuration = configuration;
         }
 
-        public async Task AddFolderPermission(int folderId, PermissionRequest request)
-        {
-            var folderMetadata = await _metadataService.GetFolderMetadataByIdAsync(folderId);
-
-            var user = await _userService.GetByEmail(request.Email);
-
-            // TODO: refactor
-            await _permissionService.AddFolderPermission(folderMetadata.AbsolutePath, user.Id, request.Role);
-        }
-
         public async Task DeleteFolder(int id)
         {
             Metadata metadata = await _metadataService.GetFolderMetadataByIdAsync(id);

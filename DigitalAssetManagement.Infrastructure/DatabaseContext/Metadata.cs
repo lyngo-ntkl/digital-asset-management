@@ -18,6 +18,6 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext
         public int? ParentId { get; set; }
         [ForeignKey(nameof(ParentId))]
         public virtual Metadata? ParentMetadata { get; set; }
-        public virtual ICollection<Metadata> ChildrenMetadata { get; set; } = null!;
+        public virtual ICollection<Metadata> Children { get; set; } = null!;
     }
 }
