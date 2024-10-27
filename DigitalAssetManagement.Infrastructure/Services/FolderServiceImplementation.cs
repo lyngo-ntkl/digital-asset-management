@@ -73,35 +73,5 @@ namespace DigitalAssetManagement.Infrastructure.Services
                 TimeSpan.FromDays(int.Parse(_configuration["schedule:deletedWaitDays"]!))
             );
         }
-
-        public async Task<FolderDetailResponseDto> Get(int id)
-        {
-            var folder = await _unitOfWork.MetadataRepository.GetByIdAsync(id, $"{nameof(Metadata.ChildrenMetadata)},{nameof(Metadata.Permissions)}");
-            if (folder == null || folder.MetadataType != MetadataType.Folder)
-            {
-                throw new NotFoundException(ExceptionMessage.MetadataNotFound);
-            }
-            return _mapper.Map<FolderDetailResponseDto>(folder);
-        }
-
-
-        public async Task MoveFolder(int folderId, int newParentId)
-        {
-            var folder = await _metadataService.GetFolderMetadataByIdAsync(folderId);
-            var newParent = await _metadataService.GetFolderOrDriveMetadataByIdAsync(newParentId);
-            
-            var newAbsolutePath = _systemFolderHelper.MoveFolder(folder.AbsolutePath, newParent.AbsolutePath);
-
-            folder.ParentMetadataId = newParentId;
-            await _metadataService.Update(folder);
-
-            await _metadataService.UpdateFolderAbsolutePathAsync(folder.AbsolutePath, newAbsolutePath);
-
-            var folderAndChildrenMetadataIds = new List<int> { folderId };
-            folderAndChildrenMetadataIds.AddRange(_unitOfWork.MetadataRepository.GetPropertyValue(m => m.Id, m => m.ParentMetadataId == folderId));
-            
-            await _permissionService.DeletePermissonsByMetadataIds(folderAndChildrenMetadataIds);
-            await _permissionService.DuplicatePermissions(folderAndChildrenMetadataIds, newParentId);
-        }
     }
 }

@@ -78,10 +78,10 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             return await permissions.ToListAsync();
         }
 
-        public ICollection<Entities.DomainEntities.Permission> GetByMetadataIdAndNotIsDeletedNoTrackingAsync(int metadataId)
+        public ICollection<Entities.DomainEntities.Permission> GetByMetadataIdNoTracking(int metadataId)
         {
             var dbPermissions = _context.Permissions
-                .Where(p => p.MetadataId == metadataId && !p.IsDeleted)
+                .Where(p => p.MetadataId == metadataId)
                 .AsNoTracking();
             return _mapper.Map<ICollection<Entities.DomainEntities.Permission>>(dbPermissions);
         }

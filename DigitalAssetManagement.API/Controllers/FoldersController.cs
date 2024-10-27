@@ -3,6 +3,7 @@ using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.UseCases.Folders;
 using DigitalAssetManagement.UseCases.Folders.Create;
 using DigitalAssetManagement.UseCases.Folders.Read;
+using DigitalAssetManagement.UseCases.Folders.Update;
 using DigitalAssetManagement.UseCases.Permissions.Create;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,12 +17,14 @@ namespace DigitalAssetManagement.API.Controllers
         FolderCreation folderCreation, 
         FolderPermissionCreation folderPermissionCreation,
         GetFolder getFolder,
+        MoveFolder moveFolder,
         FolderService folderService,
         IAuthorizationService authorizationService) : ControllerBase
     {
         private readonly FolderCreation _folderCreation = folderCreation;
         private readonly FolderPermissionCreation _folderPermissionCreation = folderPermissionCreation;
         private readonly GetFolder _getFolder = getFolder;
+        private readonly MoveFolder _moveFolder = moveFolder;
         private readonly FolderService _folderService = folderService;
         private readonly IAuthorizationService _authorizationService = authorizationService;
 
@@ -82,12 +85,12 @@ namespace DigitalAssetManagement.API.Controllers
             return await _getFolder.GetFolder(id);
         }
 
-        [HttpPatch("move/{folderId}")]
-        public async Task MoveFolder([FromRoute] int folderId, [FromQuery][Required] int newParentId)
+        [HttpPatch("move")]
+        public async Task MoveFolder([FromBody] MoveFolderRequest request)
         {
-            await _authorizationService.AuthorizeAsync(User, new ResourceBasedPermissionCheckingRequestDto { ParentId = folderId }, "Admin");
-            await _authorizationService.AuthorizeAsync(User, new ResourceBasedPermissionCheckingRequestDto { ParentId = newParentId }, "Admin");
-            await _folderService.MoveFolder(folderId, newParentId);
+            await _authorizationService.AuthorizeAsync(User, new ResourceBasedPermissionCheckingRequestDto { ParentId = request.FolderId }, "Admin");
+            await _authorizationService.AuthorizeAsync(User, new ResourceBasedPermissionCheckingRequestDto { ParentId = request.NewParentId }, "Admin");
+            await _moveFolder.MoveFolder(request);
         }
 
     }

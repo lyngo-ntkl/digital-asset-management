@@ -35,11 +35,6 @@ namespace DigitalAssetManagement.Infrastructure.Services
             await _unitOfWork.SaveAsync();
         }
 
-        public async Task DeletePermissonsByMetadataIds(ICollection<int> metadataIds)
-        {
-            await _unitOfWork.PermissionRepository.DeleteRangeAsync(p => metadataIds.Contains(p.MetadataId));
-        }
-
         public async Task DuplicatePermissionsAsync(int childMetadataId, int parentMetadataId)
         {
             var parentPermissions = await GetPermissions(parentMetadataId, false);

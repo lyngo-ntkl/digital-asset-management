@@ -1,11 +1,14 @@
-﻿using DigitalAssetManagement.Domain.Common;
-using DigitalAssetManagement.Domain.Enums;
+﻿using DigitalAssetManagement.Entities.Enums;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext
 {
-    public class Metadata : BaseEntity
+    public class Metadata
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
         public required string Name { get; set; }
         public required MetadataType MetadataType { get; set; }
         public required string AbsolutePath { get; set; }
@@ -19,5 +22,9 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext
         [ForeignKey(nameof(ParentId))]
         public virtual Metadata? ParentMetadata { get; set; }
         public virtual ICollection<Metadata> Children { get; set; } = null!;
+
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+        public DateTime ModifiedDate { get; set; } = DateTime.UtcNow;
+        public bool IsDeleted { get; set; } = false;
     }
 }

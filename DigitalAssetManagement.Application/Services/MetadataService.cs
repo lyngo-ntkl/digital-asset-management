@@ -12,11 +12,9 @@ namespace DigitalAssetManagement.Application.Services
         Task<Metadata> GetById(int id);
         Task<ICollection<Metadata>> GetByAbsolutePathStartsWith(string absolutePath);
         Task<Metadata> GetFileMetadataById(int id);
-        Task<Metadata> GetFolderMetadataByIdAsync(int id);
         Task<Metadata> GetFolderOrDriveMetadataByIdAsync(int id);
         Task<bool> IsFileExist(int id);
         Task<bool> IsFolderExist(int id);
         Task Update(Metadata metadata);
-        Task<int> UpdateFolderAbsolutePathAsync(string oldFolderAbsolutePath, string newFolderAbsolutePath);
     }
 }

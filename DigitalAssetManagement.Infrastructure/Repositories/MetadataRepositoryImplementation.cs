@@ -30,7 +30,7 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
         public async Task<Entities.DomainEntities.Metadata> GetByUserIdAndTypeDrive(int userId)
         {
             var dbDrive = await _context.Metadata.FirstOrDefaultAsync(m => m.OwnerId == userId && m.MetadataType == MetadataType.Drive);
-            return _mapper.Map(dbDrive);
+            return _mapper.Map<Entities.DomainEntities.Metadata>(dbDrive);
         }
 
         public async Task<ICollection<int>> GetMetadataIdByParentIdAsync(int parentId)
@@ -41,5 +41,24 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             return await metadataIds.ToListAsync();
         }
 
+        public async Task UpdateAbsolutePathByIdsAsync(ICollection<int> ids, string newParentAbsolutePath)
+        {
+            IQueryable<Metadata> metadata = _context.Metadata.Where(m => ids.Contains(m.Id));
+
+            await metadata.ExecuteUpdateAsync(
+                m => m.SetProperty(
+                    x => x.AbsolutePath,
+                    x => $"{newParentAbsolutePath}/{x.Name}"
+                )
+            );
+        }
+
+        public async Task UpdateAsync(Entities.DomainEntities.Metadata permission)
+        {
+            var dbMetadata = await _context.Metadata.FindAsync(permission.Id);
+            dbMetadata = _mapper.Map(permission, dbMetadata);
+            _context.Metadata.Update(dbMetadata);
+            await _context.SaveChangesAsync();
+        }
     }
 }

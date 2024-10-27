@@ -29,11 +29,10 @@ namespace DigitalAssetManagement.Infrastructure.Common
         public string MoveFolder(string oldFolderAbsolutePath, string newParentAbsolutePath)
         {
             var srcRelativePath = $"{BasePath}{oldFolderAbsolutePath}";
-            var folderName = oldFolderAbsolutePath.Split(FolderSeparator).Last();
-            var newFolderAbsolutePath = $"{newParentAbsolutePath}{FolderSeparator}{folderName}";
-            var destRelativePath = $"{BasePath}{newFolderAbsolutePath}";
+            var newAbsolutePath = AbsolutePathCreationHelper.GetNewAbsolutePath(oldFolderAbsolutePath, newParentAbsolutePath);
+            var destRelativePath = $"{BasePath}{newAbsolutePath}";
             Directory.Move(srcRelativePath, destRelativePath);
-            return newFolderAbsolutePath;
+            return newAbsolutePath;
         }
     }
 }

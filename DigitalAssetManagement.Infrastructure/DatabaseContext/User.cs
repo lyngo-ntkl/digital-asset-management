@@ -1,10 +1,14 @@
-﻿using DigitalAssetManagement.Domain.Common;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext
 {
-    public class User : BaseEntity
+    public class User
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
         // TODO: send verification email
         public required string Email { get; set; }
         public required string PasswordHash { get; set; }
