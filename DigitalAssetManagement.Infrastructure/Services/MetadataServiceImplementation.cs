@@ -102,16 +102,6 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return metadata;
         }
 
-        public async Task<Metadata?> GetLoginUserDriveMetadata()
-        {
-            var loginUserId = int.Parse(_jwtHelper.ExtractSidFromAuthorizationHeader()!);
-            var driveMetadata = await _unitOfWork.MetadataRepository.GetAllAsync(
-                filter: m => m.OwnerId == loginUserId && m.MetadataType == MetadataType.UserDrive,
-                includedProperties: $"{nameof(Metadata.ChildrenMetadata)}"
-            );
-            return driveMetadata.FirstOrDefault();
-        }
-
         public async Task<bool> IsFileExist(int id)
         {
             return await _unitOfWork.MetadataRepository.ExistByConditionAsync(m => m.Id == id && m.MetadataType == MetadataType.File);

@@ -1,6 +1,7 @@
 ﻿using DigitalAssetManagement.Application.Common.Requests;
-using DigitalAssetManagement.Application.Dtos.Responses.Folders;
 using DigitalAssetManagement.Application.Services;
+using DigitalAssetManagement.UseCases.Folders;
+using DigitalAssetManagement.UseCases.Folders.Read;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,22 +9,16 @@ namespace DigitalAssetManagement.API.Controllers
 {
     [Route("v1/api/drives")]
     [ApiController]
-    public class DrivesController : ControllerBase
+    public class DrivesController(GetDrive getDrive, IAuthorizationService authorizationService) : ControllerBase
     {
-        private readonly DriveService _driveService;
-        private readonly IAuthorizationService _authorizationService;
-
-        public DrivesController(DriveService driveService, IAuthorizationService authorizationService)
-        {
-            _driveService = driveService;
-            _authorizationService = authorizationService;
-        }
+        private readonly GetDrive _getDrive = getDrive;
+        private readonly IAuthorizationService _authorizationService = authorizationService;
 
         [HttpGet("my-drive")]
         [Authorize]
-        public async Task<FolderDetailResponseDto> GetLoginUserDrive()
+        public async Task<FolderDetailResponse> GetLoginUserDrive()
         {
-            var myDrive = await _driveService.GetLoginUserDrive();
+            var myDrive = await _getDrive.GetDrive();
             await _authorizationService.AuthorizeAsync(
                 User,
                 new ResourceBasedPermissionCheckingRequestDto { ParentId = myDrive.Id },

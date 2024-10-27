@@ -14,7 +14,6 @@ namespace DigitalAssetManagement.Application.Services
         Task<Metadata> GetFileMetadataById(int id);
         Task<Metadata> GetFolderMetadataByIdAsync(int id);
         Task<Metadata> GetFolderOrDriveMetadataByIdAsync(int id);
-        Task<Metadata?> GetLoginUserDriveMetadata();
         Task<bool> IsFileExist(int id);
         Task<bool> IsFolderExist(int id);
         Task Update(Metadata metadata);

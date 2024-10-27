@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using DigitalAssetManagement.Entities.Enums;
 using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
 using DigitalAssetManagement.UseCases.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,12 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             return _mapper.Map<Entities.DomainEntities.Metadata?>(dbMetadata);
         }
 
+        public async Task<Entities.DomainEntities.Metadata> GetByUserIdAndTypeDrive(int userId)
+        {
+            var dbDrive = await _context.Metadata.FirstOrDefaultAsync(m => m.OwnerId == userId && m.MetadataType == MetadataType.Drive);
+            return _mapper.Map(dbDrive);
+        }
+
         public async Task<ICollection<int>> GetMetadataIdByParentIdAsync(int parentId)
         {
             var metadataIds = _context.Metadata
@@ -30,5 +37,6 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
                 .Select(m => m.Id);
             return await metadataIds.ToListAsync();
         }
+
     }
 }
