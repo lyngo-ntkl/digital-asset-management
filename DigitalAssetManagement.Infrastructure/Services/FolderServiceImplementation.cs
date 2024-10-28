@@ -49,13 +49,6 @@ namespace DigitalAssetManagement.Infrastructure.Services
             _configuration = configuration;
         }
 
-        public async Task DeleteFolder(int id)
-        {
-            Metadata metadata = await _metadataService.GetFolderMetadataByIdAsync(id);
-            _systemFolderHelper.DeleteFolder(metadata.AbsolutePath);
-            await _metadataService.DeleteMetadata(metadata);
-        }
-
         public async Task DeleteFolderSoftly(int id)
         {
             if (! await _metadataService.IsFolderExist(id))

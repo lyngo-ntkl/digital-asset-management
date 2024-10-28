@@ -18,6 +18,16 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             return _mapper.Map<Entities.DomainEntities.Metadata>(dbMetadata);
         }
 
+        public async Task DeleteAsync(int id)
+        {
+            var metadata = await _context.Metadata.FindAsync(id);
+            if (metadata != null)
+            {
+                _context.Metadata.Remove(metadata);
+            }
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<Entities.DomainEntities.Metadata?> GetByIdAsync(int id)
         {
             var dbMetadata = await _context.Metadata

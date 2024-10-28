@@ -8,7 +8,6 @@ namespace DigitalAssetManagement.Application.Services
     {
         
         //Task<FolderDetailResponseDto> Update(int id, FolderModificationRequestDto request);
-        Task DeleteFolder(int id);
         Task DeleteFolderSoftly(int id);
     }
 }

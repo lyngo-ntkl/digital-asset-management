@@ -49,12 +49,6 @@ namespace DigitalAssetManagement.Infrastructure.Services
             await _unitOfWork.SaveAsync();
         }
 
-        public async Task DeleteMetadata(Metadata metadata)
-        {
-            _unitOfWork.MetadataRepository.Delete(metadata);
-            await _unitOfWork.SaveAsync();
-        }
-
         public async Task<Metadata> GetById(int id)
         {
             var metadata = await _unitOfWork.MetadataRepository.GetByIdAsync(id);

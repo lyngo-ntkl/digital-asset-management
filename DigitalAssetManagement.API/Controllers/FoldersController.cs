@@ -2,6 +2,7 @@
 using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.UseCases.Folders;
 using DigitalAssetManagement.UseCases.Folders.Create;
+using DigitalAssetManagement.UseCases.Folders.Delete;
 using DigitalAssetManagement.UseCases.Folders.Read;
 using DigitalAssetManagement.UseCases.Folders.Update;
 using DigitalAssetManagement.UseCases.Permissions.Create;
@@ -18,6 +19,7 @@ namespace DigitalAssetManagement.API.Controllers
         FolderPermissionCreation folderPermissionCreation,
         GetFolder getFolder,
         MoveFolder moveFolder,
+        FolderDeletion folderDeletion,
         FolderService folderService,
         IAuthorizationService authorizationService) : ControllerBase
     {
@@ -25,6 +27,7 @@ namespace DigitalAssetManagement.API.Controllers
         private readonly FolderPermissionCreation _folderPermissionCreation = folderPermissionCreation;
         private readonly GetFolder _getFolder = getFolder;
         private readonly MoveFolder _moveFolder = moveFolder;
+        private readonly FolderDeletion _folderDeletion = folderDeletion;
         private readonly FolderService _folderService = folderService;
         private readonly IAuthorizationService _authorizationService = authorizationService;
 
@@ -63,7 +66,7 @@ namespace DigitalAssetManagement.API.Controllers
                 new ResourceBasedPermissionCheckingRequestDto { ParentId = id}, 
                 "Contributor"
             );
-            await _folderService.DeleteFolder(id);
+            await _folderDeletion.DeleteFolder(id);
         }
 
         [HttpDelete("soft-deletion/{id}")]
