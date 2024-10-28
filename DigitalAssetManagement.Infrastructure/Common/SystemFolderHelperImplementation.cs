@@ -29,7 +29,7 @@ namespace DigitalAssetManagement.Infrastructure.Common
         public string MoveFolder(string oldFolderAbsolutePath, string newParentAbsolutePath)
         {
             var srcRelativePath = $"{BasePath}{oldFolderAbsolutePath}";
-            var newAbsolutePath = AbsolutePathCreationHelper.GetNewAbsolutePath(oldFolderAbsolutePath, newParentAbsolutePath);
+            var newAbsolutePath = AbsolutePathCreationHelper.ChangeParentPath(oldFolderAbsolutePath, newParentAbsolutePath);
             var destRelativePath = $"{BasePath}{newAbsolutePath}";
             Directory.Move(srcRelativePath, destRelativePath);
             return newAbsolutePath;

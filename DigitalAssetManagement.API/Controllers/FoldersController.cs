@@ -1,5 +1,4 @@
 ﻿using DigitalAssetManagement.Application.Common.Requests;
-using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.UseCases.Folders;
 using DigitalAssetManagement.UseCases.Folders.Create;
 using DigitalAssetManagement.UseCases.Folders.Delete;
@@ -8,7 +7,6 @@ using DigitalAssetManagement.UseCases.Folders.Update;
 using DigitalAssetManagement.UseCases.Permissions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
 
 namespace DigitalAssetManagement.API.Controllers
 {
@@ -21,7 +19,7 @@ namespace DigitalAssetManagement.API.Controllers
         MoveFolder moveFolder,
         FolderSoftDeletion folderSoftDeletion,
         FolderDeletion folderDeletion,
-        FolderService folderService,
+        FolderNameModification folderNameModification,
         IAuthorizationService authorizationService) : ControllerBase
     {
         private readonly FolderCreation _folderCreation = folderCreation;
@@ -30,7 +28,7 @@ namespace DigitalAssetManagement.API.Controllers
         private readonly MoveFolder _moveFolder = moveFolder;
         private readonly FolderSoftDeletion _folderSoftDeletion = folderSoftDeletion;
         private readonly FolderDeletion _folderDeletion = folderDeletion;
-        private readonly FolderService _folderService = folderService;
+        private readonly FolderNameModification _folderNameModification = folderNameModification;
         private readonly IAuthorizationService _authorizationService = authorizationService;
 
         [HttpPost]
@@ -53,11 +51,16 @@ namespace DigitalAssetManagement.API.Controllers
             await _folderPermissionCreation.AddFolderPermission(request);
         }
 
-        //[HttpPatch("{id}")]
-        //public async Task<FolderDetailResponseDto> Update([FromRoute] int id, [FromBody] FolderModificationRequestDto request)
-        //{
-        //    return await _folderService.Update(id, request);
-        //}
+        [HttpPatch("name-modification")]
+        public async Task<FolderDetailResponse> Update([FromBody] MetadataNameModificationRequest request)
+        {
+            await _authorizationService.AuthorizeAsync(
+                User,
+                new ResourceBasedPermissionCheckingRequestDto { ParentId = request.Id },
+                "Contributor"
+            );
+            return await _folderNameModification.UpdateName(request);
+        }
 
         [HttpDelete("{id}")]
         [Authorize]

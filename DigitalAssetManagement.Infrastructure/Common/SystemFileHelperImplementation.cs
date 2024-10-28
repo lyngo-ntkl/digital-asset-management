@@ -97,7 +97,7 @@ namespace DigitalAssetManagement.Infrastructure.Common
 
         public string MoveFile(string oldAbsolutePath, string newParentAbsolutePath)
         {
-            var newFileAbsolutePath = AbsolutePathCreationHelper.GetNewAbsolutePath(oldAbsolutePath, newParentAbsolutePath);
+            var newFileAbsolutePath = AbsolutePathCreationHelper.ChangeParentPath(oldAbsolutePath, newParentAbsolutePath);
             var srcPath = $"{BasePath}{oldAbsolutePath}";
             var destPath = $"{BasePath}{newFileAbsolutePath}";
             File.Move(srcPath, destPath);
