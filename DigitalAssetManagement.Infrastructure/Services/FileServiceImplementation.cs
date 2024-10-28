@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using RabbitMQ.Client;
 using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
-using DigitalAssetManagement.UseCases.Permissions.Create;
+using DigitalAssetManagement.UseCases.Permissions;
 
 namespace DigitalAssetManagement.Infrastructure.Services
 {

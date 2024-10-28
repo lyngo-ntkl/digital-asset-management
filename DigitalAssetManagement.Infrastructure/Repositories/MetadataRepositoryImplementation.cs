@@ -28,6 +28,11 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<bool> ExistByIdAndTypeAsync(int id, MetadataType type)
+        {
+            return await _context.Metadata.AnyAsync(m => m.Id == id && m.Type == type);
+        }
+
         public async Task<Entities.DomainEntities.Metadata?> GetByIdAsync(int id)
         {
             var dbMetadata = await _context.Metadata
@@ -39,7 +44,7 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
 
         public async Task<Entities.DomainEntities.Metadata> GetByUserIdAndTypeDrive(int userId)
         {
-            var dbDrive = await _context.Metadata.FirstOrDefaultAsync(m => m.OwnerId == userId && m.MetadataType == MetadataType.Drive);
+            var dbDrive = await _context.Metadata.FirstOrDefaultAsync(m => m.OwnerId == userId && m.Type == MetadataType.Drive);
             return _mapper.Map<Entities.DomainEntities.Metadata>(dbDrive);
         }
 
@@ -69,6 +74,19 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
             dbMetadata = _mapper.Map(permission, dbMetadata);
             _context.Metadata.Update(dbMetadata);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateIsDeletedByIdAsync(int id)
+        {
+            var metadata = await _context.Metadata.FindAsync(id);
+            metadata.IsDeleted = true;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateIsDeletedByParentIdAsync(int parentId)
+        {
+            IQueryable<Metadata> metadata = _context.Metadata.Where(m => m.ParentId == parentId);
+            await metadata.ExecuteUpdateAsync(x => x.SetProperty(m => m.IsDeleted, m => true));
         }
     }
 }

@@ -10,7 +10,7 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public required string Name { get; set; }
-        public required MetadataType MetadataType { get; set; }
+        public required MetadataType Type { get; set; }
         public required string AbsolutePath { get; set; }
 
         public required int OwnerId { get; set; }

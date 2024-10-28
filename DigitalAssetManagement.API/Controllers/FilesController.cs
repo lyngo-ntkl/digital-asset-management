@@ -1,7 +1,7 @@
 ﻿using DigitalAssetManagement.Application.Common.Requests;
 using DigitalAssetManagement.Application.Dtos.Requests;
 using DigitalAssetManagement.Application.Services;
-using DigitalAssetManagement.UseCases.Permissions.Create;
+using DigitalAssetManagement.UseCases.Permissions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;

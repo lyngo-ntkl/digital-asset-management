@@ -91,11 +91,6 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return await _unitOfWork.MetadataRepository.ExistByConditionAsync(m => m.Id == id && m.MetadataType == MetadataType.File);
         }
 
-        public async Task<bool> IsFolderExist(int id)
-        {
-            return await _unitOfWork.MetadataRepository.ExistByConditionAsync(m => m.Id == id && m.MetadataType == MetadataType.Folder);
-        }
-
         public async Task Update(Metadata metadata)
         {
             _unitOfWork.MetadataRepository.Update(metadata);
