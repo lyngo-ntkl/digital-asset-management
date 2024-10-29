@@ -145,19 +145,5 @@ namespace DigitalAssetManagement.Infrastructure.Services
                 FileName = file.Name
             };
         }
-
-        public async Task MoveFile(int fileId, int newParentId)
-        {
-            var fileMetadata = await _metadataService.GetFileMetadataById(fileId);
-            var newParentMetadata = await _metadataService.GetFolderOrDriveMetadataByIdAsync(newParentId);
-
-            var newFileAbsolutePath = _systemFileHelper.MoveFile(fileMetadata.AbsolutePath, newParentMetadata.AbsolutePath);
-
-            fileMetadata.ParentMetadataId = newParentId;
-            fileMetadata.AbsolutePath = newFileAbsolutePath;
-            await _metadataService.Update(fileMetadata);
-
-            await _permissionService.AddPermissionsWithDifferentUsers(fileId, newParentId);
-        }
     }
 }

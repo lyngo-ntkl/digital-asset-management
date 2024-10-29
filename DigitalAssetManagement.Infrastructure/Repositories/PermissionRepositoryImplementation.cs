@@ -27,6 +27,12 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
 
         public void Delete(Entities.DomainEntities.Permission permission) => _context.Permissions.Remove(permission);
 
+        public async Task DeleteByMetadataId(int metadataId)
+        {
+            IQueryable<Permission> permissions = _context.Permissions.Where(m => m.MetadataId == metadataId);
+            await permissions.ExecuteDeleteAsync();
+        }
+
         public async Task DeleteRangeAsync(Expression<Func<Permission, bool>>? filter = null)
         {
             IQueryable<Permission> permissions = _context.Permissions;

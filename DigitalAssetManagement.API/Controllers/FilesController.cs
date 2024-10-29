@@ -1,6 +1,8 @@
 ﻿using DigitalAssetManagement.Application.Common.Requests;
 using DigitalAssetManagement.Application.Dtos.Requests;
 using DigitalAssetManagement.Application.Services;
+using DigitalAssetManagement.UseCases.Files.Update;
+using DigitalAssetManagement.UseCases.Folders.Update;
 using DigitalAssetManagement.UseCases.Permissions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,8 +14,12 @@ namespace DigitalAssetManagement.API.Controllers
 {
     [Route("/v1/api/files")]
     [ApiController]
-    public class FilesController(IAuthorizationService authorizationService, FileService fileService) : ControllerBase
+    public class FilesController(
+        MoveFile moveFile,
+        IAuthorizationService authorizationService, 
+        FileService fileService) : ControllerBase
     {
+        private readonly MoveFile _moveFile = moveFile;
         private readonly IAuthorizationService _authorizationService = authorizationService;
         private readonly FileService _fileService = fileService;
 
@@ -80,12 +86,12 @@ namespace DigitalAssetManagement.API.Controllers
             return File(fileResponse.FileContent, contentType!, fileResponse.FileName);
         }
 
-        [HttpPatch("move/{fileId}")]
-        public async Task MoveFile([FromRoute] int fileId, [FromQuery] [Required] int newParentId)
+        [HttpPatch("move")]
+        public async Task MoveFile([FromBody] MoveFileRequest request)
         {
-            await _authorizationService.AuthorizeAsync(User, new ResourceBasedPermissionCheckingRequestDto { ParentId = fileId }, "Admin");
-            await _authorizationService.AuthorizeAsync(User, new ResourceBasedPermissionCheckingRequestDto { ParentId = newParentId }, "Admin");
-            await _fileService.MoveFile(fileId, newParentId);
+            await _authorizationService.AuthorizeAsync(User, new ResourceBasedPermissionCheckingRequestDto { ParentId = request.FileId }, "Admin");
+            await _authorizationService.AuthorizeAsync(User, new ResourceBasedPermissionCheckingRequestDto { ParentId = request.NewParentId }, "Admin");
+            await _moveFile.MoveFile(request);
         }
     }
 }

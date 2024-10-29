@@ -17,24 +17,6 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return permission;
         }
 
-        public async Task AddPermissionsWithDifferentUsers(int fileMetadataId, int newParentMetadataId)
-        {
-            var newParentPermissions = await _unitOfWork.PermissionRepository.GetAllAsync(p => p.MetadataId == newParentMetadataId, isTracked: false);
-            var newParentPermissionUserIds = newParentPermissions.Select(p => p.UserId);
-            var filePermissionUserIds = _unitOfWork.PermissionRepository.GetUserIdByMetadataId(fileMetadataId);
-            var differenceUserIds = newParentPermissionUserIds.Except(filePermissionUserIds);
-
-            var permissions = newParentPermissions.Where(p => differenceUserIds.Contains(p.UserId));
-            foreach (var permission in permissions)
-            {
-                permission.Id = 0;
-                permission.MetadataId = fileMetadataId;
-            }
-
-            await _unitOfWork.PermissionRepository.AddRangeAsync(permissions);
-            await _unitOfWork.SaveAsync();
-        }
-
         public async Task DuplicatePermissionsAsync(int childMetadataId, int parentMetadataId)
         {
             var parentPermissions = await GetPermissions(parentMetadataId, false);

@@ -76,16 +76,6 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return metadata;
         }
 
-        public async Task<Metadata> GetFolderOrDriveMetadataByIdAsync(int id)
-        {
-            var metadata = await _unitOfWork.MetadataRepository.GetByIdAsync(id);
-            if (metadata == null || (metadata.MetadataType != MetadataType.Folder && metadata.MetadataType != MetadataType.UserDrive))
-            {
-                throw new NotFoundException(ExceptionMessage.FolderNotFound);
-            }
-            return metadata;
-        }
-
         public async Task<bool> IsFileExist(int id)
         {
             return await _unitOfWork.MetadataRepository.ExistByConditionAsync(m => m.Id == id && m.MetadataType == MetadataType.File);

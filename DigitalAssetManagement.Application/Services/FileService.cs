@@ -11,6 +11,5 @@ namespace DigitalAssetManagement.Application.Services
         Task DeleteFile(int fileId);
         Task DeleteFileSoftly(int fileId);
         Task<FileResponseDto> GetFile(int fileId);
-        Task MoveFile(int fileId, int newParentId);
     }
 }
