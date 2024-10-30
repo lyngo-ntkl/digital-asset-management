@@ -119,7 +119,16 @@ namespace DigitalAssetManagement.Infrastructure.Repositories
                 .Select(p => p.UserId);
         }
 
-        public void Update(Permission permission) => _context.Permissions.Update(permission);
+        public async Task UpdateAsync(Entities.DomainEntities.Permission permission)
+        {
+            var dbPermission = await _context.Permissions.FindAsync(permission.Id);
+            if (dbPermission != null)
+            {
+                dbPermission = _mapper.Map(permission, dbPermission);
+                _context.Permissions.Update(dbPermission);
+            }
+            await _context.SaveChangesAsync();
+        }
 
         public async Task<int> UpdateRangeAsync(Expression<Func<SetPropertyCalls<Permission>, SetPropertyCalls<Permission>>> updatedProperties, Expression<Func<Permission, bool>> filter)
         {

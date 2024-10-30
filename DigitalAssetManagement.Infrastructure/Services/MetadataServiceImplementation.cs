@@ -41,8 +41,6 @@ namespace DigitalAssetManagement.Infrastructure.Services
             return newMetadata;
         }
 
-
-
         public async Task AddRange(ICollection<Metadata> metadata)
         {
             await _unitOfWork.MetadataRepository.BatchAddAsync(metadata);

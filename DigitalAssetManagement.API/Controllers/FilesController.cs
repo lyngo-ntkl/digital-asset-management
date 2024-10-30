@@ -3,7 +3,7 @@ using DigitalAssetManagement.Application.Dtos.Requests;
 using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.UseCases.Files.Create;
 using DigitalAssetManagement.UseCases.Files.Update;
-using DigitalAssetManagement.UseCases.Permissions;
+using DigitalAssetManagement.UseCases.Permissions.Create;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
@@ -15,11 +15,13 @@ namespace DigitalAssetManagement.API.Controllers
     [ApiController]
     public class FilesController(
         FileCreation fileCreation,
+        FilePermissionCreation filePermissionCreation,
         MoveFile moveFile,
         IAuthorizationService authorizationService, 
         FileService fileService) : ControllerBase
     {
         private readonly FileCreation _fileCreation = fileCreation;
+        private readonly FilePermissionCreation _filePermissionCreation = filePermissionCreation;
         private readonly MoveFile _moveFile = moveFile;
         private readonly IAuthorizationService _authorizationService = authorizationService;
         private readonly FileService _fileService = fileService;
@@ -32,25 +34,15 @@ namespace DigitalAssetManagement.API.Controllers
             return await _fileCreation.AddFileMetadataAsync(request);
         }
 
-        [HttpPost]
-        [Consumes(MediaTypeNames.Multipart.FormData)]
-        [Authorize]
-        public async Task<IActionResult> AddFiles(MultipleFilesUploadRequestDto request)
-        {
-            await _authorizationService.AuthorizeAsync(User, request, "Contributor");
-            await _fileService.AddFiles(request);
-            return Created();
-        }
-
-        [HttpPost("{id}/permissions")]
-        public async Task AddPermission([FromRoute] int id, PermissionCreationRequest request)
+        [HttpPost("permissions")]
+        public async Task AddPermission(PermissionCreationRequest request)
         {
             await _authorizationService.AuthorizeAsync(
                 User,
-                new ResourceBasedPermissionCheckingRequestDto { ParentId = id },
+                new ResourceBasedPermissionCheckingRequestDto { ParentId = request.MetadataId },
                 "Admin"
             );
-            await _fileService.AddFilePermission(id, request);
+            await _filePermissionCreation.AddFilePermissionAsync(request);
         }
 
         [HttpDelete("{id}")]

@@ -4,7 +4,7 @@ using DigitalAssetManagement.UseCases.Folders.Create;
 using DigitalAssetManagement.UseCases.Folders.Delete;
 using DigitalAssetManagement.UseCases.Folders.Read;
 using DigitalAssetManagement.UseCases.Folders.Update;
-using DigitalAssetManagement.UseCases.Permissions;
+using DigitalAssetManagement.UseCases.Permissions.Create;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

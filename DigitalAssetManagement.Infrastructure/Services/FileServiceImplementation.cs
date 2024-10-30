@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using RabbitMQ.Client;
 using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
-using DigitalAssetManagement.UseCases.Permissions;
+using DigitalAssetManagement.UseCases.Permissions.Create;
 
 namespace DigitalAssetManagement.Infrastructure.Services
 {
@@ -44,63 +44,6 @@ namespace DigitalAssetManagement.Infrastructure.Services
             _userService = userService;
             _backgroundJobClient = backgroundJobClient;
             _configuration = configuration;
-        }
-
-        public async Task AddFile(IFormFile file, Metadata parent, int ownerId)
-        {
-            var fileAbsolutePath = _systemFileHelper.AddFile(
-                file.OpenReadStream(),
-                AbsolutePathCreationHelper.CreateAbsolutePath(file.FileName, parent.AbsolutePath)
-            );
-            var fileMetadata = new Metadata
-            {
-                Name = file.FileName,
-                AbsolutePath = fileAbsolutePath,
-                MetadataType = Domain.Enums.MetadataType.File,
-                OwnerId = ownerId,
-                ParentId = parent.Id
-            };
-            fileMetadata = await _metadataService.Add(fileMetadata);
-            //await _permissionService.DuplicatePermissions(fileMetadata.Id!.Value, parentMetadata.Id!.Value);
-            await _permissionService.DuplicatePermissionsAsync(fileMetadata.Id, parent.Id);
-        }
-
-        public async Task AddFiles(MultipleFilesUploadRequestDto request)
-        {
-            var loginUserId = int.Parse(_jwtHelper.ExtractSidFromAuthorizationHeader()!);
-            var parentMetadata = await _metadataService.GetFolderOrDriveMetadataByIdAsync(request.ParentId);
-
-            foreach ( var file in request.Files )
-            {
-                await AddFile(file, parentMetadata, loginUserId);
-            }
-        }
-
-        public async Task AddFilePermission(int fileId, PermissionCreationRequest request)
-        {
-            if (! await _metadataService.IsFileExist(fileId))
-            {
-                throw new NotFoundException(ExceptionMessage.FileNotFound);
-            }
-
-            var user = await _userService.GetByEmail(request.Email);
-
-            var permission = await _permissionService.GetPermissionByUserIdAndMetadataId(user.Id, fileId);
-            if (permission != null)
-            {
-                permission.Role = request.Role;
-                await _permissionService.UpdatePermission(permission);
-            }
-            else
-            {
-                permission = new Permission
-                {
-                    MetadataId = fileId,
-                    UserId = user.Id,
-                    Role = request.Role,
-                };
-                await _permissionService.Add(permission);
-            }
         }
 
         public async Task DeleteFile(int fileId)
