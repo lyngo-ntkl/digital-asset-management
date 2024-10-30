@@ -46,14 +46,7 @@ namespace DigitalAssetManagement.Infrastructure.Services
             _configuration = configuration;
         }
 
-        public async Task DeleteFileSoftly(int fileId)
-        {
-            var file = await _metadataService.GetFileMetadataById(fileId);
-            file.IsDeleted = true;
-            await _metadataService.Update(file);
-
-            _backgroundJobClient.Schedule(() => DeleteFile(fileId), TimeSpan.FromDays(int.Parse(_configuration["schedule:deletedWaitDays"]!)));
-        }
+        
 
         public async Task<FileResponseDto> GetFile(int fileId)
         {

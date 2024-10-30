@@ -16,6 +16,7 @@ namespace DigitalAssetManagement.API.Controllers
         FileCreation fileCreation,
         FilePermissionCreation filePermissionCreation,
         MoveFile moveFile,
+        FileSoftDeletion fileSoftDeletion,
         FileDeletion fileDeletion,
         IAuthorizationService authorizationService, 
         FileService fileService) : ControllerBase
@@ -23,6 +24,7 @@ namespace DigitalAssetManagement.API.Controllers
         private readonly FileCreation _fileCreation = fileCreation;
         private readonly FilePermissionCreation _filePermissionCreation = filePermissionCreation;
         private readonly MoveFile _moveFile = moveFile;
+        private readonly FileSoftDeletion _fileSoftDeletion = fileSoftDeletion;
         private readonly FileDeletion _fileDeletion = fileDeletion;
         private readonly IAuthorizationService _authorizationService = authorizationService;
         private readonly FileService _fileService = fileService;
@@ -65,7 +67,7 @@ namespace DigitalAssetManagement.API.Controllers
                 new ResourceBasedPermissionCheckingRequestDto { ParentId = id },
                 "Contributor"
             );
-            await _fileService.DeleteFileSoftly(id);
+            await _fileSoftDeletion.DeleteFileSoftlyAsync(id);
         }
 
         [HttpGet("{id}")]
