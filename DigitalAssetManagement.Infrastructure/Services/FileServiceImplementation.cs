@@ -46,13 +46,6 @@ namespace DigitalAssetManagement.Infrastructure.Services
             _configuration = configuration;
         }
 
-        public async Task DeleteFile(int fileId)
-        {
-            var deletedFileMetadata = await _metadataService.GetFileMetadataById(fileId);
-            _systemFileHelper.DeleteFile(deletedFileMetadata.AbsolutePath);
-            await _metadataService.DeleteMetadata(deletedFileMetadata);
-        }
-
         public async Task DeleteFileSoftly(int fileId)
         {
             var file = await _metadataService.GetFileMetadataById(fileId);

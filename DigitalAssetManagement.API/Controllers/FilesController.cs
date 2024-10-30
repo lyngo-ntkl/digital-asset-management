@@ -1,13 +1,12 @@
 ﻿using DigitalAssetManagement.Application.Common.Requests;
-using DigitalAssetManagement.Application.Dtos.Requests;
 using DigitalAssetManagement.Application.Services;
 using DigitalAssetManagement.UseCases.Files.Create;
+using DigitalAssetManagement.UseCases.Files.Delete;
 using DigitalAssetManagement.UseCases.Files.Update;
 using DigitalAssetManagement.UseCases.Permissions.Create;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
-using System.Net.Mime;
 
 namespace DigitalAssetManagement.API.Controllers
 {
@@ -17,12 +16,14 @@ namespace DigitalAssetManagement.API.Controllers
         FileCreation fileCreation,
         FilePermissionCreation filePermissionCreation,
         MoveFile moveFile,
+        FileDeletion fileDeletion,
         IAuthorizationService authorizationService, 
         FileService fileService) : ControllerBase
     {
         private readonly FileCreation _fileCreation = fileCreation;
         private readonly FilePermissionCreation _filePermissionCreation = filePermissionCreation;
         private readonly MoveFile _moveFile = moveFile;
+        private readonly FileDeletion _fileDeletion = fileDeletion;
         private readonly IAuthorizationService _authorizationService = authorizationService;
         private readonly FileService _fileService = fileService;
 
@@ -53,7 +54,7 @@ namespace DigitalAssetManagement.API.Controllers
                 new ResourceBasedPermissionCheckingRequestDto { ParentId = id },
                 "Contributor"
             );
-            await _fileService.DeleteFile(id);
+            await _fileDeletion.DeleteFileAsync(id);
         }
 
         [HttpDelete("soft-deletion/{id}")]
