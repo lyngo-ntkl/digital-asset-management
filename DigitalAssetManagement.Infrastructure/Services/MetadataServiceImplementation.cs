@@ -66,16 +66,6 @@ namespace DigitalAssetManagement.Infrastructure.Services
             );
         }
 
-        public async Task<Metadata> GetFileMetadataById(int id)
-        {
-            var metadata = await _unitOfWork.MetadataRepository.GetByIdAsync(id);
-            if (metadata == null || metadata.MetadataType != MetadataType.File)
-            {
-                throw new NotFoundException(ExceptionMessage.MetadataNotFound);
-            }
-            return metadata;
-        }
-
         public async Task<bool> IsFileExist(int id)
         {
             return await _unitOfWork.MetadataRepository.ExistByConditionAsync(m => m.Id == id && m.MetadataType == MetadataType.File);

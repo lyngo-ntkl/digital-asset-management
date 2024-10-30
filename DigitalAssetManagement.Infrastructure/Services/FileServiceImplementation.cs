@@ -76,22 +76,6 @@ namespace DigitalAssetManagement.Infrastructure.Services
             }
         }
 
-        public async Task<int> AddFileMetadataAsync(FileMetadataCreationRequestDto request)
-        {
-            var parent = await _metadataService.GetFolderOrDriveMetadataByIdAsync(request.ParentId);
-            var loginUserId = int.Parse(_jwtHelper.ExtractSidFromAuthorizationHeader()!);
-            var metadata = _mapper.Map<Metadata>(request);
-            metadata.MetadataType = Domain.Enums.MetadataType.File;
-            metadata.AbsolutePath = AbsolutePathCreationHelper.CreateAbsolutePath(request.FileName, parent.AbsolutePath);
-            metadata.OwnerId = loginUserId;
-
-            metadata = await _metadataService.Add(metadata);
-
-            await _permissionService.DuplicatePermissionsAsync(metadata.Id, request.ParentId);
-            
-            return metadata.Id;
-        }
-
         public async Task AddFilePermission(int fileId, PermissionCreationRequest request)
         {
             if (! await _metadataService.IsFileExist(fileId))

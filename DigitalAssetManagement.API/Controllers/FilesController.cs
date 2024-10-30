@@ -1,13 +1,12 @@
 ﻿using DigitalAssetManagement.Application.Common.Requests;
 using DigitalAssetManagement.Application.Dtos.Requests;
 using DigitalAssetManagement.Application.Services;
+using DigitalAssetManagement.UseCases.Files.Create;
 using DigitalAssetManagement.UseCases.Files.Update;
-using DigitalAssetManagement.UseCases.Folders.Update;
 using DigitalAssetManagement.UseCases.Permissions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
-using System.ComponentModel.DataAnnotations;
 using System.Net.Mime;
 
 namespace DigitalAssetManagement.API.Controllers
@@ -15,20 +14,22 @@ namespace DigitalAssetManagement.API.Controllers
     [Route("/v1/api/files")]
     [ApiController]
     public class FilesController(
+        FileCreation fileCreation,
         MoveFile moveFile,
         IAuthorizationService authorizationService, 
         FileService fileService) : ControllerBase
     {
+        private readonly FileCreation _fileCreation = fileCreation;
         private readonly MoveFile _moveFile = moveFile;
         private readonly IAuthorizationService _authorizationService = authorizationService;
         private readonly FileService _fileService = fileService;
 
         [HttpPost("metadata")]
         [Authorize]
-        public async Task<int> AddFileMetadata(FileMetadataCreationRequestDto request)
+        public async Task<int> AddFileMetadata(FileCreationRequest request)
         {
             await _authorizationService.AuthorizeAsync(User, request, "Contributor");
-            return await _fileService.AddFileMetadataAsync(request);
+            return await _fileCreation.AddFileMetadataAsync(request);
         }
 
         [HttpPost]

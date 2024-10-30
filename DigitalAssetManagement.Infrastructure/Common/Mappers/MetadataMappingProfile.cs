@@ -16,7 +16,7 @@ namespace DigitalAssetManagement.Infrastructure.Common.Mappers
             CreateMap<Metadata, FolderDetailResponseDto>()
                 .ForMember(dto => dto.Children, opt => opt.MapFrom(entity => entity.Children))
                 .ForAllMembers(opt => opt.Condition((src, dest, value) => value != null));
-            CreateMap<FileMetadataCreationRequestDto, Metadata>()
+            CreateMap<FileCreationRequest, Metadata>()
                 .ForMember(entity => entity.ParentId, opt => opt.MapFrom(dto => dto.ParentId))
                 .ForMember(entity => entity.Name, opt => opt.MapFrom(dto => dto.FileName))
                 .ForAllMembers(opt => opt.Condition((src, dest, value) => value != null));
