@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34723.18
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.API", "DigitalAssetManagement.API\DigitalAssetManagement.API.csproj", "{A42FD39C-3013-413A-9EE7-E30426D91F57}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Infrastructure", "DigitalAssetManagement.Infrastructure\DigitalAssetManagement.Infrastructure.csproj", "{A42FD39C-3013-413A-9EE7-E30426D91F57}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Infrastructure.PostgreSQL", "DigitalAssetManagement.Infrastructure\DigitalAssetManagement.Infrastructure.PostgreSQL.csproj", "{C1ECF8D6-D3E9-44B9-8141-720DA04DAC75}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Infrastructure.PostgreSQL", "DigitalAssetManagement.Infrastructure.PostgreSQL\DigitalAssetManagement.Infrastructure.PostgreSQL.csproj", "{C1ECF8D6-D3E9-44B9-8141-720DA04DAC75}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Application", "DigitalAssetManagement.Application\DigitalAssetManagement.Application.csproj", "{0571A29B-CE07-42F2-BCF1-F79083B9E6F6}"
 EndProject
@@ -13,9 +13,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Test
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{9E12B54E-FD39-417F-A004-BD6BA807157A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Entities", "..\DigitalAssetManagement.Entities\DigitalAssetManagement.Entities.csproj", "{0EFBEFAE-130A-4C35-92F8-75A51A49EBD3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Entities", "DigitalAssetManagement.Entities\DigitalAssetManagement.Entities.csproj", "{0EFBEFAE-130A-4C35-92F8-75A51A49EBD3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.UseCases", "..\DigitalAssetManagement.UseCases\DigitalAssetManagement.UseCases.csproj", "{CC635A31-3714-4062-903A-BB5A1F879F5F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.UseCases", "DigitalAssetManagement.UseCases\DigitalAssetManagement.UseCases.csproj", "{CC635A31-3714-4062-903A-BB5A1F879F5F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Infrastructure.Redis", "DigitalAssetManagement.Infrastructure.Redis\DigitalAssetManagement.Infrastructure.Redis.csproj", "{D0EA85E3-1396-4A63-B7B8-5F04E0D3C35B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Infrastructure.RabbitMQ", "DigitalAssetManagement.Infrastructure.RabbitMQ\DigitalAssetManagement.Infrastructure.RabbitMQ.csproj", "{9EAE3FC7-7597-4708-8C43-460FBC74C5BF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +55,14 @@ Global
 		{CC635A31-3714-4062-903A-BB5A1F879F5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC635A31-3714-4062-903A-BB5A1F879F5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC635A31-3714-4062-903A-BB5A1F879F5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0EA85E3-1396-4A63-B7B8-5F04E0D3C35B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0EA85E3-1396-4A63-B7B8-5F04E0D3C35B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0EA85E3-1396-4A63-B7B8-5F04E0D3C35B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0EA85E3-1396-4A63-B7B8-5F04E0D3C35B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EAE3FC7-7597-4708-8C43-460FBC74C5BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EAE3FC7-7597-4708-8C43-460FBC74C5BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EAE3FC7-7597-4708-8C43-460FBC74C5BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EAE3FC7-7597-4708-8C43-460FBC74C5BF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,71 +1,110 @@
-﻿using DigitalAssetManagement.Application.Repositories;
-using DigitalAssetManagement.Application.Services;
-using DigitalAssetManagement.Infrastructure.Common;
-using DigitalAssetManagement.Infrastructure.Common.Mappers;
-using DigitalAssetManagement.Infrastructure.DatabaseContext;
-using DigitalAssetManagement.Infrastructure.Repositories;
-using DigitalAssetManagement.Infrastructure.Services;
-using Hangfire;
-using Hangfire.PostgreSql;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using DigitalAssetManagement.API.Common;
+using DigitalAssetManagement.Infrastructure.Common.AuthorizationHandler;
+using DigitalAssetManagement.Entities.Enums;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
 
-namespace DigitalAssetManagement.Infrastructure
+namespace DigitalAssetManagement.API
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddAPI(this IServiceCollection services, IConfiguration configuration)
         {
-            // dbcontext
-            services.AddDbContext<ApplicationDbContext>(options =>
+            // swagger
+            services.AddSwaggerGen(options =>
             {
-                options.UseNpgsql(configuration.GetConnectionString("defaultConnection"));
-                options.UseLazyLoadingProxies();
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "Digital Asset Management API", Version = "v1" });
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Enter JWT",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    BearerFormat = "JWT",
+                    Scheme = "Bearer"
+                });
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] {}
+                    }
+                });
             });
-            services.AddStackExchangeRedisCache(options =>
+
+            // controllers
+            services.AddControllers();
+
+            // cors
+            services.AddCors(options =>
             {
-                options.Configuration = configuration.GetConnectionString("redis");
+                options.AddPolicy("cors", opts =>
+                {
+                    opts.AllowAnyOrigin()
+                        .AllowAnyMethod();
+                });
             });
 
-            // mapper
-            services.AddAutoMapper(typeof(UserMappingProfile));
-            services.AddAutoMapper(typeof(PermissionMappingProfile));
-            services.AddAutoMapper(typeof(MetadataMappingProfile));
+            // exception handler
+            services.AddExceptionHandler<GlobalExceptionHandler>();
+            services.AddProblemDetails();
+            services.AddMemoryCache();
 
-            // hangfire
-            services.AddHangfire(options =>
+            // auth
+            services.AddAuthentication(options =>
             {
-                options.UsePostgreSqlStorage(opts => opts.UseNpgsqlConnection(configuration.GetConnectionString("defaultConnection")));
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
+                    ValidateAudience = false,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["jwt:key"]!)),
+                    ValidIssuer = configuration["jwt:issuer"]
+                };
             });
-            services.AddHangfireServer();
 
-            // rabbitmq
-            services.AddHostedService<RabbitMQBackgroundService>();
+            services.AddTransient<IAuthorizationHandler, ResourceBasedAuthorizationHandler>();
 
-            // repositories
-            services.AddScoped<UnitOfWork, UnitOfWorkImplementation>();
-            services.AddScoped<MetadataRepository, MetadataRepositoryImplementation>();
-            services.AddScoped<PermissionRepository, PermissionRepositoryImplementation>();
-            //services.AddScoped<UserRepository, UserRepositoryImplementation>();
-            services.AddScoped<UserRepository, CachedUserRepositoryDecorator>();
-            services.AddScoped<UserRepositoryImplementation>();
-
-            // services
-            services.AddScoped<DriveService, DriveServiceImplementation>();
-            services.AddScoped<FileService,  FileServiceImplementation>();
-            services.AddScoped<FolderService, FolderServiceImplementation>();
-            services.AddScoped<MetadataService, MetadataServiceImplementation>();
-            services.AddScoped<PermissionService, PermissionServiceImplementation>();
-            services.AddScoped<UserService, UserServiceImplementation>();
-
-            // helper
-            services.AddSingleton<HashingHelper, HashingHelperImplementation>();
-            services.AddSingleton<JwtHelper, JwtHelperImplementation>();
-            services.AddSingleton<SystemFileHelper, SystemFileHelperImplementation>();
-            services.AddScoped<SystemFolderHelper, SystemFolderHelperImplementation>();
+            // httpcontextaccessor
+            services.AddHttpContextAccessor();
 
             return services;
+        }
+
+        public static void AddAuthorizationPolicy(IServiceCollection services)
+        {
+            services.AddAuthorizationBuilder()
+                .AddPolicy("Contributor", policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.Requirements.Add(new CustomAuthorizationRequirement(Role.Contributor));
+                })
+                .AddPolicy("Reader", policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.Requirements.Add(new CustomAuthorizationRequirement(Role.Reader));
+                })
+                .AddPolicy("Admin", policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.Requirements.Add(new CustomAuthorizationRequirement(Role.Admin));
+                });
         }
     }
 }

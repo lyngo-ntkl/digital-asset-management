@@ -1,18 +1,12 @@
 ﻿using DigitalAssetManagement.UseCases.Common;
-using Microsoft.Extensions.Hosting;
 
 namespace DigitalAssetManagement.Infrastructure.Common
 {
-    public class SystemFolderHelperImplementation: SystemFolderHelper
+    public class SystemFolderHelperImplementation(IHostEnvironment env) : SystemFolderHelper
     {
         private const string BaseFolder = "Files";
-        private readonly string BasePath;
+        private readonly string BasePath = $"{env.ContentRootPath}{FolderSeparator}{BaseFolder}{FolderSeparator}";
         private const string FolderSeparator = "/";
-
-        public SystemFolderHelperImplementation(IHostEnvironment env)
-        {
-            this.BasePath = $"{env.ContentRootPath}{FolderSeparator}{BaseFolder}{FolderSeparator}";
-        }
 
         public void AddFolder(string absolutePath)
         {

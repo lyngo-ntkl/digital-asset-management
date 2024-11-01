@@ -18,11 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DigitalAssetManagement.API\DigitalAssetManagement.API.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="UnitTests\Users\" />
+    <Folder Include="Users\" />
   </ItemGroup>
 
 </Project>
