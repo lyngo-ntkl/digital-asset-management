@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 
-namespace DigitalAssetManagement.Infrastructure.Common.Mappers
+namespace DigitalAssetManagement.Infrastructure.Mapper.MapperProfiles
 {
     public partial class UserMappingProfile : Profile
     {
@@ -8,7 +8,7 @@ namespace DigitalAssetManagement.Infrastructure.Common.Mappers
         {
             CreateMap<Entities.DomainEntities.User, PostgreSQL.DatabaseContext.User>();
             CreateMap<PostgreSQL.DatabaseContext.User, Entities.DomainEntities.User>();
-            CreateMap<User, UserResponseDto>()
+            CreateMap<Entities.DomainEntities.User, UseCases.Users.Read.UserResponse>()
                 .ForAllMembers(options => options.Condition((src, dest, srcVal) => srcVal != null));
         }
     }

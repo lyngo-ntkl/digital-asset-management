@@ -1,12 +1,6 @@
 ﻿using DigitalAssetManagement.UseCases.Common;
 using DigitalAssetManagement.Entities.DomainEntities;
 using DigitalAssetManagement.Entities.Enums;
-using DigitalAssetManagement.Application.Dtos.Requests;
-using Newtonsoft.Json;
-using System.Text;
-using DigitalAssetManagement.Application.Services;
-using Microsoft.Extensions.Caching.Memory;
-using System.IO;
 using DigitalAssetManagement.UseCases.Common.Exceptions;
 
 namespace DigitalAssetManagement.UseCases.Files.Create

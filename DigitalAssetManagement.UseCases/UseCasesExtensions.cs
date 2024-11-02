@@ -9,6 +9,7 @@ using DigitalAssetManagement.UseCases.Folders.Update;
 using DigitalAssetManagement.UseCases.Permissions.Create;
 using DigitalAssetManagement.UseCases.Users.Create;
 using DigitalAssetManagement.UseCases.Users.Login;
+using DigitalAssetManagement.UseCases.Users.Read;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DigitalAssetManagement.UseCases
@@ -19,6 +20,7 @@ namespace DigitalAssetManagement.UseCases
         {
             services.AddScoped<UserRegistration, UserRegistrationHandler>();
             services.AddScoped<LoginByEmailPassword, LoginByEmailPasswordHandler>();
+            services.AddScoped<GetUsers, GetUsersHandler>();
 
             services.AddScoped<FileDeletion, FileDeletionHandler>();
             services.AddScoped<GetFile, GetFileHandler>();

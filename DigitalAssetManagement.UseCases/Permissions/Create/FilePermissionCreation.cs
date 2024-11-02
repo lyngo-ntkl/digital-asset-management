@@ -2,6 +2,6 @@
 {
     public interface FilePermissionCreation
     {
-        Task AddFilePermissionAsync(PermissionCreationRequest request);
+        Task AddOrUpdateFilePermissionAsync(PermissionCreationRequest request);
     }
 }

@@ -1,21 +1,8 @@
-﻿using DigitalAssetManagement.Application.Repositories;
-using DigitalAssetManagement.Application.Services;
-using DigitalAssetManagement.Infrastructure.Common.Mappers;
-using DigitalAssetManagement.Infrastructure.Services;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Moq;
-using AutoMapper;
-using DigitalAssetManagement.Infrastructure.Common;
-using Microsoft.Extensions.Configuration;
-using DigitalAssetManagement.Application.Common.Exceptions;
-using DigitalAssetManagement.Application.Dtos.Requests.Users;
-using DigitalAssetManagement.Application.Common;
-using DigitalAssetManagement.Domain.Entities;
-using Microsoft.AspNetCore.Http;
-namespace DigitalAssetManagement.Tests
+namespace DigitalAssetManagement.Tests.Users
 {
-    [TestFixture]
-    public class UserServiceTest
+    public class UserServiceSetUp
     {
         //private Mock<UnitOfWork>? _unitOfWork;
         //private IMapper? _mapper;

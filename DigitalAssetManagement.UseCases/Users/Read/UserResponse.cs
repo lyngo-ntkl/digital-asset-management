@@ -1,4 +1,4 @@
-﻿namespace DigitalAssetManagement.UseCases.Users
+﻿namespace DigitalAssetManagement.UseCases.Users.Read
 {
     public class UserResponse
     {

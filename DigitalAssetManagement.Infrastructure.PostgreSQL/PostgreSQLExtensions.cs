@@ -1,7 +1,5 @@
-﻿using DigitalAssetManagement.Infrastructure.Common;
-using DigitalAssetManagement.Infrastructure.Common.Mappers;
-using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
-using DigitalAssetManagement.Infrastructure.Repositories;
+﻿using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
+using DigitalAssetManagement.Infrastructure.PostgreSQL.Repositories;
 using DigitalAssetManagement.UseCases.Common;
 using DigitalAssetManagement.UseCases.Repositories;
 using Hangfire;
@@ -10,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DigitalAssetManagement.Infrastructure
+namespace DigitalAssetManagement.Infrastructure.PostgreSQL
 {
     public static class PostgreSQLExtensions
     {
@@ -31,11 +29,6 @@ namespace DigitalAssetManagement.Infrastructure
 
 
             
-
-            // mapper
-            services.AddAutoMapper(typeof(UserMappingProfile));
-            services.AddAutoMapper(typeof(PermissionMappingProfile));
-            services.AddAutoMapper(typeof(MetadataMappingProfile));
 
             // hangfire
             services.AddHangfire(options =>

@@ -1,5 +1,5 @@
-﻿using DigitalAssetManagement.UseCases.Users;
-using DigitalAssetManagement.Entities.Enums;
+﻿using DigitalAssetManagement.Entities.Enums;
+using DigitalAssetManagement.UseCases.Users.Read;
 
 namespace DigitalAssetManagement.UseCases.Permissions
 {

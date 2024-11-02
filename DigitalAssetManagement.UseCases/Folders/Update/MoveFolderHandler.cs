@@ -25,7 +25,7 @@ namespace DigitalAssetManagement.UseCases.Folders.Update
             await _unitOfWork.MetadataRepository.UpdateAsync(folder);
 
             var childrenMetadataIds = await _unitOfWork.MetadataRepository.GetMetadataIdByParentIdAsync(request.FolderId);
-            _unitOfWork.MetadataRepository.UpdateAbsolutePathByIdsAsync(childrenMetadataIds, newAbsolutePath);
+            await _unitOfWork.MetadataRepository.UpdateAbsolutePathByIdsAsync(childrenMetadataIds, newAbsolutePath);
 
             // permissions of folder & its children follow permission in new parent
             var folderAndChildrenMetadataIds = new List<int>(childrenMetadataIds.Count + 1);

@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
-using DigitalAssetManagement.Domain.Enums;
+using DigitalAssetManagement.Entities.Enums;
 using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
 
-namespace DigitalAssetManagement.Infrastructure.Common.Mappers
+namespace DigitalAssetManagement.Infrastructure.Mapper.MapperProfiles
 {
-    public class MetadataMappingProfile: Profile
+    public class MetadataMappingProfile : Profile
     {
         public MetadataMappingProfile()
         {

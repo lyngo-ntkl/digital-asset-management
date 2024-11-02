@@ -3,9 +3,9 @@ using DigitalAssetManagement.Application.Dtos.Responses;
 using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
 
-namespace DigitalAssetManagement.Infrastructure.Common.Mappers
+namespace DigitalAssetManagement.Infrastructure.Mapper.MapperProfiles
 {
-    public partial class PermissionMappingProfile: Profile
+    public partial class PermissionMappingProfile : Profile
     {
         public PermissionMappingProfile()
         {

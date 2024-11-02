@@ -48,7 +48,7 @@ namespace DigitalAssetManagement.Infrastructure.Controllers
                 new ResourceBasedPermissionCheckingRequest { Id = request.MetadataId },
                 "Admin"
             );
-            await _filePermissionCreation.AddFilePermissionAsync(request);
+            await _filePermissionCreation.AddOrUpdateFilePermissionAsync(request);
         }
 
         [HttpDelete("{id}")]

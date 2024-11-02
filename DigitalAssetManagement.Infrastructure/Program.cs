@@ -1,6 +1,7 @@
 using DigitalAssetManagement.API;
-using DigitalAssetManagement.Infrastructure;
 using DigitalAssetManagement.Infrastructure.Common;
+using DigitalAssetManagement.Infrastructure.PostgreSQL;
+using DigitalAssetManagement.UseCases;
 using Hangfire;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddAPI(builder.Configuration)
     .AddInfrastructure(builder.Configuration);
+builder.Services.AddUseCases();
 
 var app = builder.Build();
 

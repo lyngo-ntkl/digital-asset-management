@@ -38,6 +38,15 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Repositories
             return await _context.Users.AnyAsync(u => u.Id == id);
         }
 
+        public async Task<ICollection<Entities.DomainEntities.User>> GetByContainingEmailWithPaginationAsync(string email, int pageSize = 10, int page = 1)
+        {
+            var users = _context.Users
+                .Where(u => u.Email.Contains(email))
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize);
+            return _mapper.Map<ICollection<Entities.DomainEntities.User>>(await users.ToListAsync());
+        }
+
         public async Task<Entities.DomainEntities.User?> GetByEmailAsync(string email)
         {
             var dbUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
