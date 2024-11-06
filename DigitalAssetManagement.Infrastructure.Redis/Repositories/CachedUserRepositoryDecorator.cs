@@ -57,6 +57,12 @@ namespace DigitalAssetManagement.Infrastructure.Redis.Repositories
             await _userRepository.DeleteAsync(entity);
         }
 
+        public async Task<ICollection<User>> GetByContainingEmailWithPaginationAsync(string email, int pageSize = 10, int page = 1)
+        {
+            var users = await _userRepository.GetByContainingEmailWithPaginationAsync(email, pageSize, page);
+            return users;
+        }
+
         public async Task<User?> GetByIdAsync(int id)
         {
             string key = $"user{id}";

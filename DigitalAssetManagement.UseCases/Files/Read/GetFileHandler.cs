@@ -4,10 +4,10 @@ using DigitalAssetManagement.UseCases.Repositories;
 
 namespace DigitalAssetManagement.UseCases.Files.Read
 {
-    public class GetFileHandler(MetadataRepository metadataRepository, SystemFileHelper systemFileHelper) : GetFile
+    public class GetFileHandler(IMetadataRepository metadataRepository, ISystemFileHelper systemFileHelper) : GetFile
     {
-        private readonly MetadataRepository _metadataRepository = metadataRepository;
-        private readonly SystemFileHelper _systemFileHelper = systemFileHelper;
+        private readonly IMetadataRepository _metadataRepository = metadataRepository;
+        private readonly ISystemFileHelper _systemFileHelper = systemFileHelper;
 
         public async Task<FileContentResponse> GetFileContentAsync(int fileId)
         {

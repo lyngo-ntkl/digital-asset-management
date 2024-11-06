@@ -1,4 +1,4 @@
-﻿using DigitalAssetManagement.Infrastructure.DatabaseContext;
+﻿using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

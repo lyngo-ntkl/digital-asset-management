@@ -3,7 +3,7 @@ using System.Security.Claims;
 
 namespace DigitalAssetManagement.UseCases.Common
 {
-    public interface JwtHelper
+    public interface IJwtHelper
     {
         string? ExtractJwtFromAuthorizationHeader();
         string? ExtractSidFromAuthorizationHeader();

@@ -2,7 +2,7 @@
 
 namespace DigitalAssetManagement.Infrastructure.Mapper
 {
-    public class MapperImplementation(IMapper mapper) : UseCases.Common.Mapper
+    public class MapperImplementation(IMapper mapper) : UseCases.Common.IMapper
     {
         private readonly IMapper _mapper = mapper;
 

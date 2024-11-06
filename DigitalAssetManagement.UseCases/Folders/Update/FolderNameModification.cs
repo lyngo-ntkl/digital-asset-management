@@ -2,6 +2,6 @@
 {
     public interface FolderNameModification
     {
-        Task<FolderDetailResponse> UpdateName(MetadataNameModificationRequest request);
+        Task<FolderDetailResponse> RenameFolderAsync(MetadataNameModificationRequest request);
     }
 }

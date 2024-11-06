@@ -4,10 +4,10 @@ using DigitalAssetManagement.UseCases.Repositories;
 
 namespace DigitalAssetManagement.UseCases.Users.Read
 {
-    public class GetUsersHandler(UserRepository userRepository, Mapper mapper): GetUsers
+    public class GetUsersHandler(UserRepository userRepository, IMapper mapper): GetUsers
     {
         private readonly UserRepository _userRepository = userRepository;
-        private readonly Mapper _mapper = mapper;
+        private readonly IMapper _mapper = mapper;
 
         public async Task<ICollection<UserResponse>> GetUsersAsync(string email, int pageSize, int page)
         {

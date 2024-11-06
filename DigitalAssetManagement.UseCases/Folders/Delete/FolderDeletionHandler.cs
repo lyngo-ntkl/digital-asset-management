@@ -5,16 +5,16 @@ using DigitalAssetManagement.UseCases.Common.Exceptions;
 
 namespace DigitalAssetManagement.UseCases.Folders.Delete
 {
-    public class FolderDeletionHandler(MetadataRepository metadataRepository, SystemFolderHelper systemFolderHelper): FolderDeletion
+    public class FolderDeletionHandler(IMetadataRepository metadataRepository, ISystemFolderHelper systemFolderHelper): FolderDeletion
     {
-        private readonly MetadataRepository _metadataRepository = metadataRepository;
-        private readonly SystemFolderHelper _systemFolderHelper = systemFolderHelper;
+        private readonly IMetadataRepository _metadataRepository = metadataRepository;
+        private readonly ISystemFolderHelper _systemFolderHelper = systemFolderHelper;
 
-        public async Task DeleteFolder(int id)
+        public async Task DeleteFolderAsync(int id)
         {
             Metadata metadata = await GetFolderAsync(id);
-            _systemFolderHelper.DeleteFolder(metadata.AbsolutePath);
             await _metadataRepository.DeleteAsync(id);
+            _systemFolderHelper.DeleteFolder(metadata.AbsolutePath);
         }
 
         private async Task<Metadata> GetFolderAsync(int id)

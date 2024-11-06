@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Users\" />
+    <ProjectReference Include="..\DigitalAssetManagement.Infrastructure\DigitalAssetManagement.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

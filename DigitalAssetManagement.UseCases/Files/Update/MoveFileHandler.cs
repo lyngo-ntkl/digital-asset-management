@@ -2,13 +2,14 @@
 using DigitalAssetManagement.Entities.Enums;
 using DigitalAssetManagement.UseCases.Common;
 using DigitalAssetManagement.UseCases.Common.Exceptions;
+using DigitalAssetManagement.UseCases.UnitOfWork;
 
 namespace DigitalAssetManagement.UseCases.Files.Update
 {
-    public class MoveFileHandler(MetadataPermissionUnitOfWork unitOfWork, SystemFileHelper systemFileHelper): MoveFile
+    public class MoveFileHandler(IMetadataPermissionUnitOfWork unitOfWork, ISystemFileHelper systemFileHelper): MoveFile
     {
-        private readonly MetadataPermissionUnitOfWork _unitOfWork = unitOfWork;
-        private readonly SystemFileHelper _systemFileHelper = systemFileHelper;
+        private readonly IMetadataPermissionUnitOfWork _unitOfWork = unitOfWork;
+        private readonly ISystemFileHelper _systemFileHelper = systemFileHelper;
 
         public async Task MoveFile(MoveFileRequest request)
         {

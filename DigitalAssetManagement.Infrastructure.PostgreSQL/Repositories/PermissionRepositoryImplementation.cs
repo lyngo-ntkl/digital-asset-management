@@ -1,14 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Query;
 using DigitalAssetManagement.Entities.Enums;
 using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
+using DigitalAssetManagement.UseCases.Common;
 using DigitalAssetManagement.UseCases.Repositories;
-using AutoMapper;
+using System.Threading.Tasks;
 
 namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Repositories
 {
-    public class PermissionRepositoryImplementation(ApplicationDbContext context, IMapper mapper) : PermissionRepository
+    public class PermissionRepositoryImplementation(ApplicationDbContext context, IMapper mapper) : IPermissionRepository
     {
         private readonly ApplicationDbContext _context = context;
         private readonly IMapper _mapper = mapper;
@@ -25,7 +24,17 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Repositories
             await _context.Permissions.AddRangeAsync(dbPermissions);
         }
 
-        public void Delete(Entities.DomainEntities.Permission permission) => _context.Permissions.Remove(permission);
+        public async Task DeleteAsync(Entities.DomainEntities.Permission permission)
+        {
+            var dbPermission = await _context.Permissions.FindAsync(permission.Id);
+            _context.Permissions.Remove(dbPermission);
+        }
+
+        public async Task DeleteByMetadataIdsAsync(ICollection<int> ids)
+        {
+            IQueryable<Permission> permissions = _context.Permissions.Where(p => ids.Contains(p.MetadataId));
+            await permissions.ExecuteDeleteAsync();
+        }
 
         public async Task DeleteByMetadataId(int metadataId)
         {
@@ -41,23 +50,24 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Repositories
             return _mapper.Map<ICollection<Entities.DomainEntities.Permission>>(dbPermissions);
         }
 
-        public async Task<Permission?> GetByUserIdAndMetadataIdAsync(int userId, int metadataId)
+        public async Task<Entities.DomainEntities.Permission?> GetByUserIdAndMetadataIdAsync(int userId, int metadataId)
         {
-            return await _context.Permissions.FirstOrDefaultAsync(
-                p => p.UserId == userId && p.MetadataId == metadataId && !p.IsDeleted
+            var dbPermissions = await _context.Permissions.FirstOrDefaultAsync(
+                p => p.UserId == userId && p.MetadataId == metadataId
             );
+            return _mapper.Map<Entities.DomainEntities.Permission>(dbPermissions);
         }
 
-        public async Task<ICollection<Permission>> GetByUserIdAndMetadataIdsAsync(int userId, IEnumerable<int> metadataIds)
+        public async Task<ICollection<Entities.DomainEntities.Permission>> GetByUserIdAndMetadataIdsAsync(int userId, IEnumerable<int> metadataIds)
         {
             var permissions = _context.Permissions
                 .Where(p => p.UserId == userId && metadataIds.Contains(p.MetadataId));
-            return await permissions.ToListAsync();
+            return _mapper.Map<ICollection<Entities.DomainEntities.Permission>>(await permissions.ToListAsync());
         }
 
         public async Task<Role?> GetRoleByUserIdAndMetadataId(int userId, int metadataId)
         {
-            var permission = await _context.Permissions.FirstOrDefaultAsync(p => p.UserId == userId && p.MetadataId == metadataId && !p.IsDeleted);
+            var permission = await _context.Permissions.FirstOrDefaultAsync(p => p.UserId == userId && p.MetadataId == metadataId);
             return permission.Role;
         }
 

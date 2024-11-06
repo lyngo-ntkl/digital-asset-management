@@ -1,7 +1,7 @@
 ﻿using DigitalAssetManagement.UseCases.Repositories;
 using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
 using Microsoft.EntityFrameworkCore;
-using AutoMapper;
+using DigitalAssetManagement.UseCases.Common;
 
 namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Repositories
 {

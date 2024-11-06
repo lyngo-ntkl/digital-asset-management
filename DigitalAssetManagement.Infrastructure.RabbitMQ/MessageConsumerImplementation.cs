@@ -5,9 +5,9 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
 
-namespace DigitalAssetManagement.RabbitMQ
+namespace DigitalAssetManagement.Infrastructure.RabbitMQ
 {
-    public class MessageConsumerImplementation(IConfiguration configuration) : MessageConsumer
+    public class MessageConsumerImplementation(IConfiguration configuration) : IMessageConsumer
     {
         private readonly IConfiguration _configuration = configuration;
         private IConnection? _connection;

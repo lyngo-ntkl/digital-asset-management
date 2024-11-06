@@ -5,10 +5,10 @@ using DigitalAssetManagement.UseCases.Repositories;
 
 namespace DigitalAssetManagement.UseCases.Folders.Read
 {
-    public class GetFolderHandler(MetadataRepository metadataRepository, Mapper mapper) : GetFolder
+    public class GetFolderHandler(IMetadataRepository metadataRepository, IMapper mapper) : GetFolder
     {
-        private readonly MetadataRepository _metadataRepository = metadataRepository;
-        private readonly Mapper _mapper = mapper;
+        private readonly IMetadataRepository _metadataRepository = metadataRepository;
+        private readonly IMapper _mapper = mapper;
 
         public async Task<FolderDetailResponse> GetFolder(int id)
         {

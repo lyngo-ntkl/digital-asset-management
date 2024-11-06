@@ -3,10 +3,10 @@ using DigitalAssetManagement.UseCases.Repositories;
 
 namespace DigitalAssetManagement.UseCases.Files.Delete
 {
-    public class FileDeletionHandler(MetadataRepository metadataRepository, SystemFileHelper systemFileHelper): FileDeletion
+    public class FileDeletionHandler(IMetadataRepository metadataRepository, ISystemFileHelper systemFileHelper): FileDeletion
     {
-        private readonly MetadataRepository _metadataRepository = metadataRepository;
-        private readonly SystemFileHelper _systemFileHelper = systemFileHelper;
+        private readonly IMetadataRepository _metadataRepository = metadataRepository;
+        private readonly ISystemFileHelper _systemFileHelper = systemFileHelper;
         public async Task DeleteFileAsync(int fileId)
         {
             var deletedFileMetadata = await _metadataRepository.GetByIdAsync(fileId);

@@ -1,10 +1,9 @@
 ﻿using DigitalAssetManagement.UseCases.Common;
-using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography;
 
-namespace DigitalAssetManagement.Infrastructure.Common
+namespace DigitalAssetManagement.Infrastructure.Common.Helper
 {
-    public class HashingHelperImplementation: HashingHelper
+    public class HashingHelperImplementation : IHashingHelper
     {
         private readonly IConfiguration _configuration;
         private readonly HashAlgorithmName _hashAlgorithm = HashAlgorithmName.SHA512;

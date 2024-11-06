@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using DigitalAssetManagement.Entities.Enums;
 using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
+using DigitalAssetManagement.UseCases.Files.Create;
+using DigitalAssetManagement.UseCases.Folders;
 
 namespace DigitalAssetManagement.Infrastructure.Mapper.MapperProfiles
 {
@@ -10,8 +12,8 @@ namespace DigitalAssetManagement.Infrastructure.Mapper.MapperProfiles
         {
             CreateMap<MetadataType, string>()
                 .ConvertUsing(metadataType => metadataType.ToString());
-            CreateMap<Metadata, MetadataResponseDto>();
-            CreateMap<Metadata, FolderDetailResponseDto>()
+            CreateMap<Metadata, MetadataResponse>();
+            CreateMap<Metadata, FolderDetailResponse>()
                 .ForMember(dto => dto.Children, opt => opt.MapFrom(entity => entity.Children))
                 .ForAllMembers(opt => opt.Condition((src, dest, value) => value != null));
             CreateMap<FileCreationRequest, Metadata>()

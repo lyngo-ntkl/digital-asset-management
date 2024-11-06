@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Infr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Infrastructure.PostgreSQL", "DigitalAssetManagement.Infrastructure.PostgreSQL\DigitalAssetManagement.Infrastructure.PostgreSQL.csproj", "{C1ECF8D6-D3E9-44B9-8141-720DA04DAC75}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Application", "DigitalAssetManagement.Application\DigitalAssetManagement.Application.csproj", "{0571A29B-CE07-42F2-BCF1-F79083B9E6F6}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Tests", "DigitalAssetManagement.Tests\DigitalAssetManagement.Tests.csproj", "{B71E0534-51BC-4D41-8BFC-55D65E582563}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{9E12B54E-FD39-417F-A004-BD6BA807157A}"
@@ -20,6 +18,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Infrastructure.Redis", "DigitalAssetManagement.Infrastructure.Redis\DigitalAssetManagement.Infrastructure.Redis.csproj", "{D0EA85E3-1396-4A63-B7B8-5F04E0D3C35B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Infrastructure.RabbitMQ", "DigitalAssetManagement.Infrastructure.RabbitMQ\DigitalAssetManagement.Infrastructure.RabbitMQ.csproj", "{9EAE3FC7-7597-4708-8C43-460FBC74C5BF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DigitalAssetManagement.Infrastructure.Mapper", "DigitalAssetManagement.Infrastructure.Mapper\DigitalAssetManagement.Infrastructure.Mapper.csproj", "{CEC78AC3-8CA3-48CB-AA13-EA9C960311A1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DigitalAssetManagement.Infrastructure.Hangfire", "DigitalAssetManagement.Infrastructure.Hangfire\DigitalAssetManagement.Infrastructure.Hangfire.csproj", "{9C2EDE04-D4D0-465C-B2DD-FB677DD2859B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +37,6 @@ Global
 		{C1ECF8D6-D3E9-44B9-8141-720DA04DAC75}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1ECF8D6-D3E9-44B9-8141-720DA04DAC75}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C1ECF8D6-D3E9-44B9-8141-720DA04DAC75}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0571A29B-CE07-42F2-BCF1-F79083B9E6F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0571A29B-CE07-42F2-BCF1-F79083B9E6F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0571A29B-CE07-42F2-BCF1-F79083B9E6F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0571A29B-CE07-42F2-BCF1-F79083B9E6F6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B71E0534-51BC-4D41-8BFC-55D65E582563}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B71E0534-51BC-4D41-8BFC-55D65E582563}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B71E0534-51BC-4D41-8BFC-55D65E582563}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -63,6 +61,14 @@ Global
 		{9EAE3FC7-7597-4708-8C43-460FBC74C5BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9EAE3FC7-7597-4708-8C43-460FBC74C5BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9EAE3FC7-7597-4708-8C43-460FBC74C5BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEC78AC3-8CA3-48CB-AA13-EA9C960311A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEC78AC3-8CA3-48CB-AA13-EA9C960311A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEC78AC3-8CA3-48CB-AA13-EA9C960311A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEC78AC3-8CA3-48CB-AA13-EA9C960311A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C2EDE04-D4D0-465C-B2DD-FB677DD2859B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C2EDE04-D4D0-465C-B2DD-FB677DD2859B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C2EDE04-D4D0-465C-B2DD-FB677DD2859B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C2EDE04-D4D0-465C-B2DD-FB677DD2859B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

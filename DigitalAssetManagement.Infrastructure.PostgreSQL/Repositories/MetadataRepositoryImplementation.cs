@@ -1,12 +1,12 @@
-﻿using AutoMapper;
-using DigitalAssetManagement.Entities.Enums;
+﻿using DigitalAssetManagement.Entities.Enums;
 using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
+using DigitalAssetManagement.UseCases.Common;
 using DigitalAssetManagement.UseCases.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Repositories
 {
-    public class MetadataRepositoryImplementation(ApplicationDbContext context, IMapper mapper): MetadataRepository
+    public class MetadataRepositoryImplementation(ApplicationDbContext context, IMapper mapper): IMetadataRepository
     {
         private readonly ApplicationDbContext _context = context;
         private readonly IMapper _mapper = mapper;
@@ -33,13 +33,25 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Repositories
             return await _context.Metadata.AnyAsync(m => m.Id == id && m.Type == type);
         }
 
-        public async Task<Entities.DomainEntities.Metadata?> GetByIdAsync(int id)
+        public async Task<Entities.DomainEntities.Metadata> GetByIdAsync(int id)
         {
             var dbMetadata = await _context.Metadata
                 .Include(m => m.Permissions)
                 .Include(m => m.Children)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            return _mapper.Map<Entities.DomainEntities.Metadata?>(dbMetadata);
+
+            if (dbMetadata == null)
+            {
+                throw new Exception();
+            }
+
+            return _mapper.Map<Entities.DomainEntities.Metadata>(dbMetadata);
+        }
+
+        public async Task<Entities.DomainEntities.Metadata> GetByIdAndTypeAsync(int id, MetadataType type)
+        {
+            var metadata = await _context.Metadata.FirstOrDefaultAsync(m => m.Id == id && m.Type == type);
+            return _mapper.Map<Entities.DomainEntities.Metadata>(metadata);
         }
 
         public async Task<Entities.DomainEntities.Metadata> GetByUserIdAndTypeDrive(int userId)

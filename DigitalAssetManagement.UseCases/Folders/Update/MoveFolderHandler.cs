@@ -2,20 +2,22 @@
 using DigitalAssetManagement.Entities.DomainEntities;
 using DigitalAssetManagement.UseCases.Common;
 using DigitalAssetManagement.Entities.Enums;
+using DigitalAssetManagement.UseCases.UnitOfWork;
 
 namespace DigitalAssetManagement.UseCases.Folders.Update
 {
-    public class MoveFolderHandler(MetadataPermissionUnitOfWork unitOfWork, SystemFolderHelper systemFolderHelper): MoveFolder
+    public class MoveFolderHandler(IMetadataPermissionUnitOfWork unitOfWork, ISystemFolderHelper systemFolderHelper): MoveFolder
     {
-        private readonly MetadataPermissionUnitOfWork _unitOfWork = unitOfWork;
-        private readonly SystemFolderHelper _systemFolderHelper = systemFolderHelper;
+        private readonly IMetadataPermissionUnitOfWork _unitOfWork = unitOfWork;
+        private readonly ISystemFolderHelper _systemFolderHelper = systemFolderHelper;
 
         public async Task MoveFolder(MoveFolderRequest request)
         {
             // move real folder & its file
             var folder = await GetFolderMetadataAsync(request.FolderId);
             var newParent = await GetParentMetadataAsync(request.NewParentId);
-            var newAbsolutePath = _systemFolderHelper.MoveFolder(folder.AbsolutePath, newParent.AbsolutePath);
+            var newAbsolutePath = AbsolutePathCreationHelper.ChangeParentPath(folder.AbsolutePath, newParent.AbsolutePath);
+            _systemFolderHelper.MoveFolder(folder.AbsolutePath, newAbsolutePath);
 
             // modify folder metadata:
             //   for folder itself: parent id absolute path
@@ -59,7 +61,7 @@ namespace DigitalAssetManagement.UseCases.Folders.Update
 
         private async Task UpdatePermissionsAsync(ICollection<int> folderAndChildrenMetadataIds, int newParentId)
         {
-            await _unitOfWork.PermissionRepository.DeleteRangeAsync(p => folderAndChildrenMetadataIds.Contains(p.Id));
+            await _unitOfWork.PermissionRepository.DeleteByMetadataIdsAsync(folderAndChildrenMetadataIds);
             await DuplicatePermissionsAsync(folderAndChildrenMetadataIds, newParentId);
         }
 

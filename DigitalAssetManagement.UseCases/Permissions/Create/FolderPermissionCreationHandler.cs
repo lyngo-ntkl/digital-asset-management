@@ -3,21 +3,22 @@ using DigitalAssetManagement.Entities.DomainEntities;
 using DigitalAssetManagement.Entities.Enums;
 using DigitalAssetManagement.UseCases.Common;
 using DigitalAssetManagement.UseCases.Repositories;
+using DigitalAssetManagement.UseCases.UnitOfWork;
 
 namespace DigitalAssetManagement.UseCases.Permissions.Create
 {
-    public class FolderPermissionCreationHandler(MetadataPermissionUnitOfWork unitOfWork, UserRepository userRepository) : FolderPermissionCreation
+    public class FolderPermissionCreationHandler(IMetadataPermissionUnitOfWork unitOfWork, UserRepository userRepository) : FolderPermissionCreation
     {
-        private readonly MetadataPermissionUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IMetadataPermissionUnitOfWork _unitOfWork = unitOfWork;
         private readonly UserRepository _userRepository = userRepository;
 
-        public async Task AddFolderPermission(PermissionCreationRequest request)
+        public async Task AddFolderPermissionAsync(PermissionCreationRequest request)
         {
-            var user = await GetByEmail(request.Email);
+            var user = await GetUserByEmailAsync(request.Email);
             await AddPermissionToFolderAndChildren(request.MetadataId, user.Id, request.Role);
         }
 
-        private async Task<User> GetByEmail(string email)
+        private async Task<User> GetUserByEmailAsync(string email)
         {
             var user = await _userRepository.GetByEmailAsync(email);
             if (user == null)

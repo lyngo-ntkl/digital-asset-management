@@ -1,17 +1,17 @@
 ﻿using DigitalAssetManagement.UseCases.Common;
 using Microsoft.Extensions.Hosting;
 
-namespace DigitalAssetManagement.Infrastructure.Common
+namespace DigitalAssetManagement.Infrastructure.Common.Helper
 {
 
-    public class SystemFileHelperImplementation: SystemFileHelper
+    public class SystemFileHelperImplementation : ISystemFileHelper
     {
         private readonly string BasePath;
         private readonly int FileBufferSize = 5 * 1024 * 1024;
 
         public SystemFileHelperImplementation(IHostEnvironment environment)
         {
-            this.BasePath = $"{environment.ContentRootPath}";
+            BasePath = $"{environment.ContentRootPath}";
         }
 
         public string AddFile(byte[] bytes, string absolutePath)

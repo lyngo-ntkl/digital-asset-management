@@ -1,6 +1,6 @@
 ﻿namespace DigitalAssetManagement.UseCases.Common
 {
-    public interface Mapper
+    public interface IMapper
     {
         TDestination Map<TDestination>(object source);
         TDestination Map<TSource, TDestination>(TSource source, TDestination destination);

@@ -1,6 +1,6 @@
 ﻿namespace DigitalAssetManagement.UseCases.Common
 {
-    public interface MessageConsumer
+    public interface IMessageConsumer
     {
         void EstablishConnection();
         void Consume<TMessage>(Action<TMessage> messageProcessor);

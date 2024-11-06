@@ -2,15 +2,16 @@
 using DigitalAssetManagement.Entities.DomainEntities;
 using DigitalAssetManagement.Entities.Enums;
 using DigitalAssetManagement.UseCases.Common.Exceptions;
+using DigitalAssetManagement.UseCases.UnitOfWork;
 
 namespace DigitalAssetManagement.UseCases.Files.Create
 {
-    public class FileCreationHandler(MetadataPermissionUnitOfWork unitOfWork, JwtHelper jwtHelper, SystemFileHelper fileHelper): FileCreation
+    public class FileCreationHandler(IMetadataPermissionUnitOfWork unitOfWork, IJwtHelper jwtHelper, ISystemFileHelper fileHelper, ICache cache): FileCreation
     {
-        private readonly MetadataPermissionUnitOfWork _unitOfWork = unitOfWork;
-        private readonly JwtHelper _jwtHelper = jwtHelper;
-        private readonly SystemFileHelper _fileHelper = fileHelper;
-        private readonly IMemoryCache _fileChunkTracker;
+        private readonly IMetadataPermissionUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IJwtHelper _jwtHelper = jwtHelper;
+        private readonly ISystemFileHelper _fileHelper = fileHelper;
+        private readonly ICache _cache = cache;
 
         public async Task<int> AddFileMetadataAsync(FileCreationRequest request)
         {
@@ -79,28 +80,32 @@ namespace DigitalAssetManagement.UseCases.Files.Create
 
         private async Task TrackUploadedFileChunk(FileChunkUploadRequest fileChunk, int fileId, int totalChunk, int chunkNumber, string path)
         {
-            FileChunkUploadTracking? fileChunkTracking;
-            if (_fileChunkTracker.TryGetValue(fileChunk.FileId, out fileChunkTracking))
+            string key = $"file-chunk-{fileChunk.FileId}";
+            bool existKey = _cache.TryGetValue(key, out FileChunkUploadTracking fileChunkTracking);
+            bool isLastArrivedChunk = fileChunkTracking.ArrivedChunks.Count == fileChunk.TotalChunk - 1;
+
+            if (existKey)
             {
-                if (fileChunkTracking?.ArrivedChunks.Count == fileChunk.TotalChunk - 1)
+                if (isLastArrivedChunk)
                 {
                     fileChunkTracking.ArrivedChunks.Add(fileChunk.ChunkNumber, path);
                     await MergeFileChunk(fileChunk.FileId, fileChunkTracking.ArrivedChunks);
-                    _fileChunkTracker.Remove(fileChunk.FileId);
+                    _cache.Remove(key);
                 }
                 else
                 {
                     var arrivedChunks = fileChunkTracking?.ArrivedChunks;
                     arrivedChunks.Add(fileChunk.ChunkNumber, path);
-                    _fileChunkTracker.Set(fileChunk.FileId, fileChunkTracking);
+                    _cache.Set(key, fileChunkTracking);
                 }
             }
             else
             {
-                _fileChunkTracker.Set(
-                    fileChunk.FileId,
+                _cache.Set(
+                    key,
                     new FileChunkUploadTracking
                     {
+                        FileId = fileId,
                         TotalChunk = fileChunk.TotalChunk,
                         ArrivedChunks = new Dictionary<int, string>
                     {

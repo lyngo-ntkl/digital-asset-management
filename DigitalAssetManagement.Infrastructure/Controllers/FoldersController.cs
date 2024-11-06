@@ -8,16 +8,16 @@ using DigitalAssetManagement.UseCases.Permissions.Create;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DigitalAssetManagement.API.Controllers
+namespace DigitalAssetManagement.Infrastructure.Controllers
 {
     [ApiController]
     [Route("/v1/api/folders")]
     public class FoldersController(
-        FolderCreation folderCreation, 
+        FolderCreation folderCreation,
         FolderPermissionCreation folderPermissionCreation,
         GetFolder getFolder,
         MoveFolder moveFolder,
-        FolderSoftDeletion folderSoftDeletion,
+        MoveFolderToTrash folderSoftDeletion,
         FolderDeletion folderDeletion,
         FolderNameModification folderNameModification,
         IAuthorizationService authorizationService) : ControllerBase
@@ -26,7 +26,7 @@ namespace DigitalAssetManagement.API.Controllers
         private readonly FolderPermissionCreation _folderPermissionCreation = folderPermissionCreation;
         private readonly GetFolder _getFolder = getFolder;
         private readonly MoveFolder _moveFolder = moveFolder;
-        private readonly FolderSoftDeletion _folderSoftDeletion = folderSoftDeletion;
+        private readonly MoveFolderToTrash _moveFolderToTrash = folderSoftDeletion;
         private readonly FolderDeletion _folderDeletion = folderDeletion;
         private readonly FolderNameModification _folderNameModification = folderNameModification;
         private readonly IAuthorizationService _authorizationService = authorizationService;
@@ -37,10 +37,10 @@ namespace DigitalAssetManagement.API.Controllers
         public async Task<ActionResult<FolderDetailResponse>> AddFolder([FromBody] FolderCreationRequest request)
         {
             await _authorizationService.AuthorizeAsync(
-                User, 
+                User,
                 new ResourceBasedPermissionCheckingRequest { Id = request.ParentId },
                 "Contributor");
-            return await _folderCreation.AddFolder(request);
+            return await _folderCreation.AddFolderAsync(request);
         }
 
         [HttpPost("permissions")]
@@ -51,18 +51,18 @@ namespace DigitalAssetManagement.API.Controllers
                 new ResourceBasedPermissionCheckingRequest { Id = request.MetadataId },
                 "Admin"
             );
-            await _folderPermissionCreation.AddFolderPermission(request);
+            await _folderPermissionCreation.AddFolderPermissionAsync(request);
         }
 
         [HttpPatch("name-modification")]
-        public async Task<FolderDetailResponse> Update([FromBody] MetadataNameModificationRequest request)
+        public async Task<FolderDetailResponse> RenameFolderAsync([FromBody] MetadataNameModificationRequest request)
         {
             await _authorizationService.AuthorizeAsync(
                 User,
                 new ResourceBasedPermissionCheckingRequest { Id = request.Id },
                 "Contributor"
             );
-            return await _folderNameModification.UpdateName(request);
+            return await _folderNameModification.RenameFolderAsync(request);
         }
 
         [HttpDelete("{id}")]
@@ -70,23 +70,23 @@ namespace DigitalAssetManagement.API.Controllers
         public async Task DeleteFolder([FromRoute] int id)
         {
             await _authorizationService.AuthorizeAsync(
-                User, 
-                new ResourceBasedPermissionCheckingRequest { Id = id}, 
+                User,
+                new ResourceBasedPermissionCheckingRequest { Id = id },
                 "Contributor"
             );
-            await _folderDeletion.DeleteFolder(id);
+            await _folderDeletion.DeleteFolderAsync(id);
         }
 
         [HttpDelete("soft-deletion/{id}")]
         [Authorize]
-        public async Task DeleteFolderSoftly([FromRoute] int id)
+        public async Task MoveFolderToTrash([FromRoute] int id)
         {
             await _authorizationService.AuthorizeAsync(
                 User,
                 new ResourceBasedPermissionCheckingRequest { Id = id },
                 "Contributor"
             );
-            await _folderSoftDeletion.DeleteFolderSoftly(id);
+            await _moveFolderToTrash.MoveFolderToTrashAsync(id);
         }
 
         [HttpGet("{id}")]

@@ -3,12 +3,13 @@ using DigitalAssetManagement.UseCases.Common;
 using DigitalAssetManagement.UseCases.Repositories;
 using DigitalAssetManagement.Entities.DomainEntities;
 using DigitalAssetManagement.Entities.Enums;
+using DigitalAssetManagement.UseCases.UnitOfWork;
 
 namespace DigitalAssetManagement.UseCases.Permissions.Create
 {
-    public class FilePermissionCreationHandler(MetadataPermissionUnitOfWork unitOfWork, UserRepository userRepository): FilePermissionCreation
+    public class FilePermissionCreationHandler(IMetadataPermissionUnitOfWork unitOfWork, UserRepository userRepository): FilePermissionCreation
     {
-        private readonly MetadataPermissionUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IMetadataPermissionUnitOfWork _unitOfWork = unitOfWork;
         private readonly UserRepository _userRepository = userRepository;
         public async Task AddOrUpdateFilePermissionAsync(PermissionCreationRequest request)
         {

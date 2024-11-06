@@ -24,6 +24,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DigitalAssetManagement.Infrastructure.Hangfire\DigitalAssetManagement.Infrastructure.Hangfire.csproj" />
+    <ProjectReference Include="..\DigitalAssetManagement.Infrastructure.Mapper\DigitalAssetManagement.Infrastructure.Mapper.csproj" />
+    <ProjectReference Include="..\DigitalAssetManagement.Infrastructure.PostgreSQL\DigitalAssetManagement.Infrastructure.PostgreSQL.csproj" />
+    <ProjectReference Include="..\DigitalAssetManagement.Infrastructure.RabbitMQ\DigitalAssetManagement.Infrastructure.RabbitMQ.csproj" />
+    <ProjectReference Include="..\DigitalAssetManagement.Infrastructure.Redis\DigitalAssetManagement.Infrastructure.Redis.csproj" />
     <ProjectReference Include="..\DigitalAssetManagement.UseCases\DigitalAssetManagement.UseCases.csproj" />
   </ItemGroup>
 

@@ -9,9 +9,9 @@ namespace DigitalAssetManagement.Infrastructure.Common.AuthorizationHandler
     public class ResourceBasedAuthorizationHandler : AuthorizationHandler<CustomAuthorizationRequirement, ResourceBasedPermissionCheckingRequest>
     {
         private readonly UserRepository _userRepository;
-        private readonly PermissionRepository _permissionRepository;
+        private readonly IPermissionRepository _permissionRepository;
 
-        public ResourceBasedAuthorizationHandler(UserRepository userRepository, PermissionRepository permissionRepository)
+        public ResourceBasedAuthorizationHandler(UserRepository userRepository, IPermissionRepository permissionRepository)
         {
             _userRepository = userRepository;
             _permissionRepository = permissionRepository;

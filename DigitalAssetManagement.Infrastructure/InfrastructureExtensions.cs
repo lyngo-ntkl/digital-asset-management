@@ -6,12 +6,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using DigitalAssetManagement.Infrastructure.Common.Helper;
+using DigitalAssetManagement.UseCases.Common;
 
-namespace DigitalAssetManagement.API
+namespace DigitalAssetManagement.Infrastructure
 {
-    public static class DependencyInjection
+    public static class InfrastructureExtensions
     {
-        public static IServiceCollection AddAPI(this IServiceCollection services, IConfiguration configuration)
+        public static void AddAPI(this IServiceCollection services, IConfiguration configuration)
         {
             // swagger
             services.AddSwaggerGen(options =>
@@ -41,9 +43,6 @@ namespace DigitalAssetManagement.API
                     }
                 });
             });
-
-            // controllers
-            services.AddControllers();
 
             // cors
             services.AddCors(options =>
@@ -83,11 +82,9 @@ namespace DigitalAssetManagement.API
 
             // httpcontextaccessor
             services.AddHttpContextAccessor();
-
-            return services;
         }
 
-        public static void AddAuthorizationPolicy(IServiceCollection services)
+        public static void AddAuthorizationPolicy(this IServiceCollection services)
         {
             services.AddAuthorizationBuilder()
                 .AddPolicy("Contributor", policy =>
@@ -105,6 +102,14 @@ namespace DigitalAssetManagement.API
                     policy.RequireAuthenticatedUser();
                     policy.Requirements.Add(new CustomAuthorizationRequirement(Role.Admin));
                 });
+        }
+
+        public static void AddHelper(this IServiceCollection services)
+        {
+            services.AddSingleton<IHashingHelper, HashingHelperImplementation>();
+            services.AddSingleton<IJwtHelper, JwtHelperImplementation>();
+            services.AddSingleton<ISystemFileHelper, SystemFileHelperImplementation>();
+            services.AddScoped<ISystemFolderHelper, SystemFolderHelperImplementation>();
         }
     }
 }

@@ -9,7 +9,7 @@ namespace DigitalAssetManagement.Entities.DomainEntities
         public required string AbsolutePath { get; set; }
         public required int OwnerId { get; set; }
         public int? ParentMetadataId { get; set; }
-        public ICollection<Metadata>? Children { get; set; }
+        public ICollection<Metadata> Children { get; set; } = null!;
         public bool IsDeleted { get; set; } = false;
     }
 }

@@ -7,6 +7,7 @@ using DigitalAssetManagement.UseCases.Folders.Delete;
 using DigitalAssetManagement.UseCases.Folders.Read;
 using DigitalAssetManagement.UseCases.Folders.Update;
 using DigitalAssetManagement.UseCases.Permissions.Create;
+using DigitalAssetManagement.UseCases.UnitOfWork;
 using DigitalAssetManagement.UseCases.Users.Create;
 using DigitalAssetManagement.UseCases.Users.Login;
 using DigitalAssetManagement.UseCases.Users.Read;
@@ -27,17 +28,20 @@ namespace DigitalAssetManagement.UseCases
             services.AddScoped<FileSoftDeletion, FileSoftDeletionHandler>();
             services.AddScoped<MoveFile, MoveFileHandler>();
             services.AddScoped<FileCreation, FileCreationHandler>();
+            services.AddHostedService<FileContentTransferBackgroundService>();
 
             services.AddScoped<FolderCreation, FolderCreationHandler>();
             services.AddScoped<FolderDeletion, FolderDeletionHandler>();
             services.AddScoped<GetDrive, GetDriveHandler>();
             services.AddScoped<GetFolder, GetFolderHandler>();
             services.AddScoped<FolderNameModification, FolderNameModificationHandler>();
-            services.AddScoped<FolderSoftDeletion, FolderSoftDeletionHandler>();
+            services.AddScoped<MoveFolderToTrash, MoveFolderToTrashHandler>();
             services.AddScoped<MoveFolder, MoveFolderHandler>();
 
             services.AddScoped<FilePermissionCreation, FilePermissionCreationHandler>();
             services.AddScoped<FolderPermissionCreation, FolderPermissionCreationHandler>();
+
+            services.AddScoped<IMetadataPermissionUnitOfWork, MetadataPermissionUnitOfWorkImplementation>();
         }
     }
 }

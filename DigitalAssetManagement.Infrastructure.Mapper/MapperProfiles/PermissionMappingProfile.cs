@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
-using DigitalAssetManagement.Application.Dtos.Responses;
-using DigitalAssetManagement.Domain.Entities;
 using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
+using DigitalAssetManagement.UseCases.Permissions;
 
 namespace DigitalAssetManagement.Infrastructure.Mapper.MapperProfiles
 {
@@ -9,7 +8,7 @@ namespace DigitalAssetManagement.Infrastructure.Mapper.MapperProfiles
     {
         public PermissionMappingProfile()
         {
-            CreateMap<Permission, PermissionResponseDto>()
+            CreateMap<Permission, PermissionResponse>()
                 .ForAllMembers(config => config.Condition((src, dest, srcVal) => srcVal != null));
         }
     }

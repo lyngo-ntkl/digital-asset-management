@@ -2,6 +2,6 @@
 {
     public interface FolderPermissionCreation
     {
-        Task AddFolderPermission(PermissionCreationRequest request);
+        Task AddFolderPermissionAsync(PermissionCreationRequest request);
     }
 }

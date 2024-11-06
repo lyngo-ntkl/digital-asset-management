@@ -4,11 +4,12 @@ using System.Linq.Expressions;
 
 namespace DigitalAssetManagement.UseCases.Repositories
 {
-    public interface PermissionRepository
+    public interface IPermissionRepository
     {
         Task<Permission> AddAsync(Permission permission);
         Task AddRangeAsync(IEnumerable<Permission> permissions);
-        void Delete(Permission permission);
+        Task DeleteAsync(Permission permission);
+        Task DeleteByMetadataIdsAsync(ICollection<int> ids);
         Task DeleteByMetadataId(int metadataId);
         ICollection<Permission> GetByMetadataIdNoTracking(int metadataId);
         Task<Permission?> GetByUserIdAndMetadataIdAsync(int userId, int metadataId);

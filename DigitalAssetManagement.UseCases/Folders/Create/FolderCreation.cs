@@ -2,6 +2,6 @@
 {
     public interface FolderCreation
     {
-        Task<FolderDetailResponse> AddFolder(FolderCreationRequest request);
+        Task<FolderDetailResponse> AddFolderAsync(FolderCreationRequest request);
     }
 }

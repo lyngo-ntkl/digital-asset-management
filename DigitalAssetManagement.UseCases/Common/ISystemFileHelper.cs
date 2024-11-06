@@ -1,6 +1,6 @@
 ﻿namespace DigitalAssetManagement.UseCases.Common
 {
-    public interface SystemFileHelper
+    public interface ISystemFileHelper
     {
         string AddFile(byte[] bytes, string absolutePath);
         string AddFile(Stream fileStream, string absolutePath);

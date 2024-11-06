@@ -1,9 +1,9 @@
 ﻿namespace DigitalAssetManagement.UseCases.Common
 {
-    public interface SystemFolderHelper
+    public interface ISystemFolderHelper
     {
         void AddFolder(string absolutePath);
         void DeleteFolder(string absolutePath);
-        string MoveFolder(string oldFolderAbsolutePath, string newParentAbsolutePath);
+        void MoveFolder(string oldAbsolutePath, string newAbsolutePath);
     }
 }

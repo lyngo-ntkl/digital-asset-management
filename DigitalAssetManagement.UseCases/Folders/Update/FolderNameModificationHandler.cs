@@ -5,19 +5,24 @@ using DigitalAssetManagement.UseCases.Common;
 
 namespace DigitalAssetManagement.UseCases.Folders.Update
 {
-    public class FolderNameModificationHandler(MetadataRepository metadataRepository, Mapper mapper) : FolderNameModification
+    public class FolderNameModificationHandler(
+        IMetadataRepository metadataRepository, 
+        IMapper mapper,
+        ISystemFolderHelper systemFolderHelper) : FolderNameModification
     {
-        private readonly MetadataRepository _metadataRepository = metadataRepository;
-        private readonly Mapper _mapper = mapper;
+        private readonly IMetadataRepository _metadataRepository = metadataRepository;
+        private readonly IMapper _mapper = mapper;
+        private readonly ISystemFolderHelper _systemFolderHelper = systemFolderHelper;
 
-        public async Task<FolderDetailResponse> UpdateName(MetadataNameModificationRequest request)
+        public async Task<FolderDetailResponse> RenameFolderAsync(MetadataNameModificationRequest request)
         {
             var folder = await GetFolderAsync(request.Id);
-            folder.Name = request.NewName;
-            folder.AbsolutePath = AbsolutePathCreationHelper.ChangeName(request.NewName, folder.AbsolutePath);
-            await _metadataRepository.UpdateAsync(folder);
+            var newAbsolutePath = AbsolutePathCreationHelper.ChangeName(request.NewName, folder.AbsolutePath);
+            var oldAbsolutePath = folder.AbsolutePath;
 
-            await _metadataRepository.UpdateAbsolutePathByIdsAsync(folder.Children!.Select(m => m.Id).ToList(), folder.AbsolutePath);
+            await UpdateFolderMetadataAsync(folder, request.NewName, newAbsolutePath);
+            await UpdateChildrenMetadataAbsolutePathAsync(folder.Children.Select(m => m.Id).ToList(), newAbsolutePath);
+            RenamePhysicalFolder(oldAbsolutePath, newAbsolutePath);
 
             return _mapper.Map<FolderDetailResponse>(folder);
         }
@@ -30,6 +35,23 @@ namespace DigitalAssetManagement.UseCases.Folders.Update
                 throw new NotFoundException(ExceptionMessage.MetadataNotFound);
             }
             return metadata;
+        }
+
+        private async Task UpdateFolderMetadataAsync(Metadata folder, string newName, string newAbsolutePath)
+        {
+            folder.Name = newName;
+            folder.AbsolutePath = newAbsolutePath;
+            await _metadataRepository.UpdateAsync(folder);
+        }
+
+        private async Task UpdateChildrenMetadataAbsolutePathAsync(ICollection<int> childrenIds, string parentAbsolutePath)
+        {
+            await _metadataRepository.UpdateAbsolutePathByIdsAsync(childrenIds, parentAbsolutePath);
+        }
+
+        private void RenamePhysicalFolder(string oldAbsolutePath, string newAbsolutePath)
+        {
+            _systemFolderHelper.MoveFolder(oldAbsolutePath, newAbsolutePath);
         }
     }
 }

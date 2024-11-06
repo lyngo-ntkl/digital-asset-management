@@ -2,6 +2,6 @@
 {
     public interface FolderDeletion
     {
-        Task DeleteFolder(int id);
+        Task DeleteFolderAsync(int id);
     }
 }

@@ -7,9 +7,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace DigitalAssetManagement.Infrastructure.Common
+namespace DigitalAssetManagement.Infrastructure.Common.Helper
 {
-    public class JwtHelperImplementation : JwtHelper
+    public class JwtHelperImplementation : IJwtHelper
     {
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;

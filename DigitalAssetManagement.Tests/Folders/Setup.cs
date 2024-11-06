@@ -1,13 +1,4 @@
-﻿using AutoMapper;
-using DigitalAssetManagement.Application.Repositories;
-using DigitalAssetManagement.Application.Services;
-using DigitalAssetManagement.Domain.Entities;
-using DigitalAssetManagement.Infrastructure.Common;
-using DigitalAssetManagement.Infrastructure.Common.Mappers;
-using DigitalAssetManagement.Infrastructure.DatabaseContext;
-using DigitalAssetManagement.Infrastructure.Repositories;
-using DigitalAssetManagement.Infrastructure.Services;
-using Hangfire;
+﻿using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;

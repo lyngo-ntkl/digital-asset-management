@@ -1,6 +1,6 @@
 ﻿namespace DigitalAssetManagement.UseCases.Common
 {
-    public interface HashingHelper
+    public interface IHashingHelper
     {
         void Hash(string value, out string salt, out string hash);
         void Hash(string value, out byte[] salt, out byte[] hash);

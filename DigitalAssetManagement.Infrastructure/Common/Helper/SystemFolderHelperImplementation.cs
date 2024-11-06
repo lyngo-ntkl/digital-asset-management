@@ -1,8 +1,8 @@
 ﻿using DigitalAssetManagement.UseCases.Common;
 
-namespace DigitalAssetManagement.Infrastructure.Common
+namespace DigitalAssetManagement.Infrastructure.Common.Helper
 {
-    public class SystemFolderHelperImplementation(IHostEnvironment env) : SystemFolderHelper
+    public class SystemFolderHelperImplementation(IHostEnvironment env) : ISystemFolderHelper
     {
         private const string BaseFolder = "Files";
         private readonly string BasePath = $"{env.ContentRootPath}{FolderSeparator}{BaseFolder}{FolderSeparator}";
@@ -20,13 +20,11 @@ namespace DigitalAssetManagement.Infrastructure.Common
             Directory.Delete(path, recursive: true);
         }
 
-        public string MoveFolder(string oldFolderAbsolutePath, string newParentAbsolutePath)
+        public void MoveFolder(string oldAbsolutePath, string newAbsolutePath)
         {
-            var srcRelativePath = $"{BasePath}{oldFolderAbsolutePath}";
-            var newAbsolutePath = AbsolutePathCreationHelper.ChangeParentPath(oldFolderAbsolutePath, newParentAbsolutePath);
+            var srcRelativePath = $"{BasePath}{oldAbsolutePath}";
             var destRelativePath = $"{BasePath}{newAbsolutePath}";
             Directory.Move(srcRelativePath, destRelativePath);
-            return newAbsolutePath;
         }
     }
 }
