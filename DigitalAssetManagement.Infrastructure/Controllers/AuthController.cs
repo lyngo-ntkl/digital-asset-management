@@ -1,5 +1,6 @@
 ﻿using DigitalAssetManagement.UseCases.Users.Login;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DigitalAssetManagement.API.Controllers

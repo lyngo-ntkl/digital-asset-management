@@ -21,6 +21,15 @@ builder.Services.AddHangfireConfiguration(builder.Configuration);
 builder.Services.AddRabbitMQ();
 builder.Services.AddRedis(builder.Configuration);
 builder.Services.AddMappers();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("cors", opts =>
+    {
+        opts.WithOrigins("http://localhost:4200")
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
 
@@ -40,7 +49,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseCors();
+app.UseCors("cors");
 
 app.UseExceptionHandler();
 
