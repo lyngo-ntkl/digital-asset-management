@@ -8,6 +8,7 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<Metadata> Metadata { get; set; }
         public virtual DbSet<Permission> Permissions { get; set; }
+        public virtual DbSet<PermissionRequest> PermissionRequests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -24,6 +25,9 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext
                 options.HasMany(user => user.Permissions)
                     .WithOne(permission => permission.User)
                     .OnDelete(DeleteBehavior.Cascade);
+                options.HasMany(user => user.PermissionRequests)
+                    .WithOne(permissionRequest => permissionRequest.User)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Metadata>(options =>
@@ -36,9 +40,18 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext
                 options.HasMany(metadata => metadata.Children)
                     .WithOne(metadata => metadata.ParentMetadata)
                     .OnDelete(DeleteBehavior.Cascade);
+                options.HasMany(metadata => metadata.PermissionRequests)
+                    .WithOne(permissionRequest => permissionRequest.Metadata)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Permission>(options =>
+            {
+                options.HasIndex(permission => new { permission.UserId, permission.MetadataId })
+                    .IsUnique(true);
+            });
+
+            modelBuilder.Entity<PermissionRequest>(options =>
             {
                 options.HasIndex(permission => new { permission.UserId, permission.MetadataId })
                     .IsUnique(true);

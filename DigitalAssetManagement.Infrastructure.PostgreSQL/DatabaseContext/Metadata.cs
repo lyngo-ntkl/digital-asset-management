@@ -9,22 +9,23 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public required string Name { get; set; }
-        public required MetadataType Type { get; set; }
-        public required string AbsolutePath { get; set; }
-
-        public required int OwnerId { get; set; }
-        [ForeignKey(nameof(OwnerId))]
-        public virtual User? Owner { get; set; }
-        public virtual ICollection<Permission> Permissions { get; set; } = null!;
-
-        public int? ParentId { get; set; }
-        [ForeignKey(nameof(ParentId))]
-        public virtual Metadata? ParentMetadata { get; set; }
-        public virtual ICollection<Metadata> Children { get; set; } = null!;
-
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public DateTime ModifiedDate { get; set; } = DateTime.UtcNow;
+        public required string Name { get; set; }
+        public required MetadataType Type { get; set; }
+        public required int OwnerId { get; set; }
+        public required string AbsolutePath { get; set; }
+        public int? ParentId { get; set; }
+        public string? ContentType { get; set; }
         public bool IsDeleted { get; set; } = false;
+
+        [ForeignKey(nameof(OwnerId))]
+        public virtual User? Owner { get; set; }
+        [ForeignKey(nameof(ParentId))]
+        public virtual Metadata? ParentMetadata { get; set; }
+
+        public virtual ICollection<Metadata> Children { get; set; } = null!;
+        public virtual ICollection<Permission> Permissions { get; set; } = null!;
+        public virtual ICollection<PermissionRequest> PermissionRequests { get; set; } = null!;
     }
 }

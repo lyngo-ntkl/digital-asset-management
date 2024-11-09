@@ -15,7 +15,7 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Repositories
         {
             var dbMetadata = await _context.Metadata.AddAsync(_mapper.Map<Metadata>(metadata));
             await _context.SaveChangesAsync();
-            return _mapper.Map<Entities.DomainEntities.Metadata>(dbMetadata);
+            return _mapper.Map<Entities.DomainEntities.Metadata>(dbMetadata.Entity);
         }
 
         public async Task DeleteAsync(int id)
@@ -35,10 +35,7 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Repositories
 
         public async Task<Entities.DomainEntities.Metadata> GetByIdAsync(int id)
         {
-            var dbMetadata = await _context.Metadata
-                .Include(m => m.Permissions)
-                .Include(m => m.Children)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var dbMetadata = await _context.Metadata.FirstOrDefaultAsync(m => m.Id == id);
 
             if (dbMetadata == null)
             {
@@ -54,9 +51,19 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Repositories
             return _mapper.Map<Entities.DomainEntities.Metadata>(metadata);
         }
 
+        public ICollection<Entities.DomainEntities.Metadata> GetByParentIdAndNotIsDeleted(int parentId)
+        {
+            var metadata = _context.Metadata.Where(m => m.ParentId == parentId && !m.IsDeleted);
+            return _mapper.Map<ICollection<Entities.DomainEntities.Metadata>>(metadata);
+        }
+
         public async Task<Entities.DomainEntities.Metadata> GetByUserIdAndTypeDrive(int userId)
         {
             var dbDrive = await _context.Metadata.FirstOrDefaultAsync(m => m.OwnerId == userId && m.Type == MetadataType.Drive);
+            if (dbDrive == null)
+            {
+                throw new DriveNotFoundException();
+            }
             return _mapper.Map<Entities.DomainEntities.Metadata>(dbDrive);
         }
 
@@ -71,6 +78,18 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Repositories
         public async Task UpdateAbsolutePathByIdsAsync(ICollection<int> ids, string newParentAbsolutePath)
         {
             IQueryable<Metadata> metadata = _context.Metadata.Where(m => ids.Contains(m.Id));
+
+            await metadata.ExecuteUpdateAsync(
+                m => m.SetProperty(
+                    x => x.AbsolutePath,
+                    x => $"{newParentAbsolutePath}/{x.Name}"
+                )
+            );
+        }
+
+        public async Task UpdateAbsolutePathByParentIdAsync(int parentId, string newParentAbsolutePath)
+        {
+            IQueryable<Metadata> metadata = _context.Metadata.Where(m => m.ParentId == parentId);
 
             await metadata.ExecuteUpdateAsync(
                 m => m.SetProperty(

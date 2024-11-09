@@ -7,10 +7,10 @@ using DigitalAssetManagement.UseCases.UnitOfWork;
 
 namespace DigitalAssetManagement.UseCases.Permissions.Create
 {
-    public class FolderPermissionCreationHandler(IMetadataPermissionUnitOfWork unitOfWork, UserRepository userRepository) : FolderPermissionCreation
+    public class FolderPermissionCreationHandler(IMetadataPermissionUnitOfWork unitOfWork, IUserRepository userRepository) : FolderPermissionCreation
     {
         private readonly IMetadataPermissionUnitOfWork _unitOfWork = unitOfWork;
-        private readonly UserRepository _userRepository = userRepository;
+        private readonly IUserRepository _userRepository = userRepository;
 
         public async Task AddFolderPermissionAsync(PermissionCreationRequest request)
         {

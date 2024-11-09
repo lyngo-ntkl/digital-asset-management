@@ -18,7 +18,7 @@ namespace DigitalAssetManagement.UseCases.Files.Update
 
             var newFileAbsolutePath = _systemFileHelper.MoveFile(file.AbsolutePath, newParent.AbsolutePath);
 
-            file.ParentMetadataId = request.NewParentId;
+            file.ParentId = request.NewParentId;
             file.AbsolutePath = newFileAbsolutePath;
             await _unitOfWork.MetadataRepository.UpdateAsync(file);
 

@@ -7,7 +7,5 @@
         public required string PasswordHash { get; set; }
         public required string PasswordSalt { get; set; }
         public required string Name { get; set; }
-        public string? PhoneNumber { get; set; }
-        public byte[]? Avatar { get; set; }
     }
 }

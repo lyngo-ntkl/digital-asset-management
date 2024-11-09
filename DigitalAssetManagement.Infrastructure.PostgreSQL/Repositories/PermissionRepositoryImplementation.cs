@@ -3,7 +3,6 @@ using DigitalAssetManagement.Entities.Enums;
 using DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext;
 using DigitalAssetManagement.UseCases.Common;
 using DigitalAssetManagement.UseCases.Repositories;
-using System.Threading.Tasks;
 
 namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Repositories
 {
@@ -15,6 +14,7 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Repositories
         public async Task<Entities.DomainEntities.Permission> AddAsync(Entities.DomainEntities.Permission permission)
         {
             var dbPermission = await _context.Permissions.AddAsync(_mapper.Map<Permission>(permission));
+            await _context.SaveChangesAsync();
             return _mapper.Map<Entities.DomainEntities.Permission>(dbPermission.Entity);
         }
 
@@ -28,6 +28,7 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Repositories
         {
             var dbPermission = await _context.Permissions.FindAsync(permission.Id);
             _context.Permissions.Remove(dbPermission);
+            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteByMetadataIdsAsync(ICollection<int> ids)

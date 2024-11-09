@@ -3,7 +3,7 @@ using DigitalAssetManagement.UseCases.Repositories;
 
 namespace DigitalAssetManagement.UseCases.Folders.Read
 {
-    public class GetDriveHandler(IMetadataRepository metadataRepository, IJwtHelper jwtHelper, IMapper mapper) : GetDrive
+    public class GetDriveHandler(IMetadataRepository metadataRepository, IJwtHelper jwtHelper, IMapper mapper) : IGetDrive
     {
         private readonly IMetadataRepository _metadataRepository = metadataRepository;
         private readonly IJwtHelper _jwtHelper = jwtHelper;

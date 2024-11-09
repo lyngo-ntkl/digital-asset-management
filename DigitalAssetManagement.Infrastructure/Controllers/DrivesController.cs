@@ -4,13 +4,13 @@ using DigitalAssetManagement.UseCases.Folders.Read;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DigitalAssetManagement.API.Controllers
+namespace DigitalAssetManagement.Infrastructure.Controllers
 {
-    [Route("v1/api/drives")]
+    [Route("/v1/api/drives")]
     [ApiController]
-    public class DrivesController(GetDrive getDrive, IAuthorizationService authorizationService) : ControllerBase
+    public class DrivesController(IGetDrive getDrive, IAuthorizationService authorizationService) : ControllerBase
     {
-        private readonly GetDrive _getDrive = getDrive;
+        private readonly IGetDrive _getDrive = getDrive;
         private readonly IAuthorizationService _authorizationService = authorizationService;
 
         [HttpGet("my-drive")]

@@ -36,58 +36,7 @@ namespace DigitalAssetManagement.Tests.Users
         //    _configuration.Setup(c => c["jwt:issuer"]).Returns(Data.JwtIssuer);
         //}
 
-        //private static object[]? _registerTestCases = null;
-        //public static object[] RegisterTestCases
-        //{
-        //    get
-        //    {
-        //        if (_registerTestCases == null)
-        //        {
-        //            _registerTestCases = new object[Data.ArraySize];
-        //            for (int i = 0; i < Data.ArraySize; i++)
-        //            {
-        //                _registerTestCases[i] = new object[] { Data.Instance.Users[i].Email, Data.Instance.EmailPasswordRegistrationRequests![i] };
-        //            }
-        //        }
-        //        return _registerTestCases;
-        //    }
-        //}
-
-        //[Test]
-        //[TestCaseSource(nameof(RegisterTestCases))]
-        //public void Register_GivenExistedEmail_ThrowBadRequestException(string email, EmailPasswordRegistrationRequest request)
-        //{
-        //    // Arrange
-        //    _unitOfWork!.Setup(uow => uow.UserRepository.ExistByEmail(email)).Returns(true);
-
-        //    // Act
-        //    AsyncTestDelegate registration = async () =>
-        //    {
-        //        await _service!.Register(request);
-        //    };
-
-        //    // Assert
-        //    var exception = Assert.ThrowsAsync<BadRequestException>(registration);
-        //    Assert.That(exception, Is.Not.Null);
-        //    Assert.That(exception.Message, Is.EqualTo(ExceptionMessage.RegisteredEmail));
-        //}
-
-        //[Test]
-        //[TestCaseSource(nameof(RegisterTestCases))]
-        //public void Register_GivenRightRequest_NotThrowException(string email, EmailPasswordRegistrationRequest request)
-        //{
-        //    // Arrange
-        //    _unitOfWork!.Setup(uow => uow.UserRepository.ExistByEmail(email)).Returns(false);
-
-        //    // Act
-        //    AsyncTestDelegate registration = async () =>
-        //    {
-        //        await _service!.Register(request);
-        //    };
-
-        //    // Assert
-        //    Assert.DoesNotThrowAsync(registration);
-        //}
+        
 
         //private static object[]? _emailPasswordAuthUnregisterEmailTestCases = null;
         //public static object[] EmailPasswordAuthUnregisteredEmailTestCases

@@ -32,7 +32,7 @@ namespace DigitalAssetManagement.UseCases
 
             services.AddScoped<FolderCreation, FolderCreationHandler>();
             services.AddScoped<FolderDeletion, FolderDeletionHandler>();
-            services.AddScoped<GetDrive, GetDriveHandler>();
+            services.AddScoped<IGetDrive, GetDriveHandler>();
             services.AddScoped<GetFolder, GetFolderHandler>();
             services.AddScoped<FolderNameModification, FolderNameModificationHandler>();
             services.AddScoped<MoveFolderToTrash, MoveFolderToTrashHandler>();

@@ -22,7 +22,7 @@ namespace DigitalAssetManagement.UseCases.Folders.Update
             // modify folder metadata:
             //   for folder itself: parent id absolute path
             //   for children: absolute path
-            folder.ParentMetadataId = request.NewParentId;
+            folder.ParentId = request.NewParentId;
             folder.AbsolutePath = newAbsolutePath;
             await _unitOfWork.MetadataRepository.UpdateAsync(folder);
 
@@ -69,7 +69,7 @@ namespace DigitalAssetManagement.UseCases.Folders.Update
         {
             var parentPermissions = _unitOfWork.PermissionRepository.GetByMetadataIdNoTracking(parentId);
 
-            List<Permission> childrenPermissions = new();
+            var childrenPermissions = new List<Permission>(parentPermissions.Count * childrenIds.Count);
             foreach (int childId in childrenIds)
             {
                 foreach (var permission in parentPermissions)

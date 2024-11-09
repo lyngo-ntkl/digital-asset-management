@@ -7,9 +7,9 @@ using Newtonsoft.Json;
 
 namespace DigitalAssetManagement.Infrastructure.Redis.Repositories
 {
-    public class CachedUserRepositoryDecorator : UserRepository
+    public class CachedUserRepositoryDecorator : IUserRepository
     {
-        private static JsonSerializerSettings serializerSettings = new()
+        private static readonly JsonSerializerSettings serializerSettings = new()
         {
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore
         };

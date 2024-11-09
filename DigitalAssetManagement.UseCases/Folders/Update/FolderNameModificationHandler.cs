@@ -21,7 +21,7 @@ namespace DigitalAssetManagement.UseCases.Folders.Update
             var oldAbsolutePath = folder.AbsolutePath;
 
             await UpdateFolderMetadataAsync(folder, request.NewName, newAbsolutePath);
-            await UpdateChildrenMetadataAbsolutePathAsync(folder.Children.Select(m => m.Id).ToList(), newAbsolutePath);
+            await UpdateChildrenMetadataAbsolutePathAsync(folder.Id, newAbsolutePath);
             RenamePhysicalFolder(oldAbsolutePath, newAbsolutePath);
 
             return _mapper.Map<FolderDetailResponse>(folder);
@@ -44,9 +44,9 @@ namespace DigitalAssetManagement.UseCases.Folders.Update
             await _metadataRepository.UpdateAsync(folder);
         }
 
-        private async Task UpdateChildrenMetadataAbsolutePathAsync(ICollection<int> childrenIds, string parentAbsolutePath)
+        private async Task UpdateChildrenMetadataAbsolutePathAsync(int parentId, string parentAbsolutePath)
         {
-            await _metadataRepository.UpdateAbsolutePathByIdsAsync(childrenIds, parentAbsolutePath);
+            await _metadataRepository.UpdateAbsolutePathByParentIdAsync(parentId, parentAbsolutePath);
         }
 
         private void RenamePhysicalFolder(string oldAbsolutePath, string newAbsolutePath)

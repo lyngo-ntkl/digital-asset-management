@@ -2,6 +2,6 @@
 {
     public interface UserRegistration
     {
-        Task Register(RegistrationRequest request);
+        Task RegisterAsync(RegistrationRequest request);
     }
 }

@@ -44,7 +44,7 @@ namespace DigitalAssetManagement.UseCases.Folders.Create
                 AbsolutePath = absolutePath,
                 Name = folderName,
                 OwnerId = ownerId,
-                ParentMetadataId = parentId
+                ParentId = parentId
             };
             folder = await _unitOfWork.MetadataRepository.AddAsync(folder);
             return folder;

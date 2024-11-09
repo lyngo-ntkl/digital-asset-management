@@ -7,10 +7,10 @@ using DigitalAssetManagement.UseCases.UnitOfWork;
 
 namespace DigitalAssetManagement.UseCases.Permissions.Create
 {
-    public class FilePermissionCreationHandler(IMetadataPermissionUnitOfWork unitOfWork, UserRepository userRepository): FilePermissionCreation
+    public class FilePermissionCreationHandler(IMetadataPermissionUnitOfWork unitOfWork, IUserRepository userRepository): FilePermissionCreation
     {
         private readonly IMetadataPermissionUnitOfWork _unitOfWork = unitOfWork;
-        private readonly UserRepository _userRepository = userRepository;
+        private readonly IUserRepository _userRepository = userRepository;
         public async Task AddOrUpdateFilePermissionAsync(PermissionCreationRequest request)
         {
             await CheckFileExistanceAsync(request.MetadataId);

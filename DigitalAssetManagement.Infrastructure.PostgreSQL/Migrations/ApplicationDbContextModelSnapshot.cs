@@ -17,26 +17,29 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Proxies:ChangeTracking", false)
                 .HasAnnotation("Proxies:CheckEquality", false)
                 .HasAnnotation("Proxies:LazyLoading", true)
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "metadata_type", new[] { "file", "folder", "user_drive" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "metadata_type", new[] { "file", "folder", "drive" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "role", new[] { "admin", "contributor", "reader" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.Metadata", b =>
+            modelBuilder.Entity("DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext.Metadata", b =>
                 {
-                    b.Property<int?>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int?>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AbsolutePath")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ContentType")
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedDate")
@@ -44,9 +47,6 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
-
-                    b.Property<int>("MetadataType")
-                        .HasColumnType("integer");
 
                     b.Property<DateTime>("ModifiedDate")
                         .HasColumnType("timestamp with time zone");
@@ -58,7 +58,10 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Migrations
                     b.Property<int>("OwnerId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("ParentMetadataId")
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Type")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -68,30 +71,21 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.HasIndex("ParentMetadataId");
+                    b.HasIndex("ParentId");
 
                     b.ToTable("Metadata");
                 });
 
-            modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.Permission", b =>
+            modelBuilder.Entity("DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext.Permission", b =>
                 {
-                    b.Property<int?>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int?>("Id"));
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("MetadataId")
                         .HasColumnType("integer");
-
-                    b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Role")
                         .HasColumnType("integer");
@@ -109,29 +103,44 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Migrations
                     b.ToTable("Permissions");
                 });
 
-            modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.User", b =>
+            modelBuilder.Entity("DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext.PermissionRequest", b =>
                 {
-                    b.Property<int?>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int?>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<byte[]>("Avatar")
-                        .HasColumnType("bytea");
+                    b.Property<int>("MetadataId")
+                        .HasColumnType("integer");
 
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MetadataId");
+
+                    b.HasIndex("UserId", "MetadataId")
+                        .IsUnique();
+
+                    b.ToTable("PermissionRequests");
+                });
+
+            modelBuilder.Entity("DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("ModifiedDate")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -145,9 +154,6 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
@@ -156,17 +162,17 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.Metadata", b =>
+            modelBuilder.Entity("DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext.Metadata", b =>
                 {
-                    b.HasOne("DigitalAssetManagement.Domain.Entities.User", "Owner")
+                    b.HasOne("DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext.User", "Owner")
                         .WithMany("Metadata")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DigitalAssetManagement.Domain.Entities.Metadata", "ParentMetadata")
-                        .WithMany("ChildrenMetadata")
-                        .HasForeignKey("ParentMetadataId")
+                    b.HasOne("DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext.Metadata", "ParentMetadata")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Owner");
@@ -174,15 +180,15 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Migrations
                     b.Navigation("ParentMetadata");
                 });
 
-            modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.Permission", b =>
+            modelBuilder.Entity("DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext.Permission", b =>
                 {
-                    b.HasOne("DigitalAssetManagement.Domain.Entities.Metadata", "Metadata")
+                    b.HasOne("DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext.Metadata", "Metadata")
                         .WithMany("Permissions")
                         .HasForeignKey("MetadataId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DigitalAssetManagement.Domain.Entities.User", "User")
+                    b.HasOne("DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext.User", "User")
                         .WithMany("Permissions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -193,16 +199,39 @@ namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.Metadata", b =>
+            modelBuilder.Entity("DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext.PermissionRequest", b =>
                 {
-                    b.Navigation("ChildrenMetadata");
+                    b.HasOne("DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext.Metadata", "Metadata")
+                        .WithMany("PermissionRequests")
+                        .HasForeignKey("MetadataId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext.User", "User")
+                        .WithMany("PermissionRequests")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Metadata");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext.Metadata", b =>
+                {
+                    b.Navigation("Children");
+
+                    b.Navigation("PermissionRequests");
 
                     b.Navigation("Permissions");
                 });
 
-            modelBuilder.Entity("DigitalAssetManagement.Domain.Entities.User", b =>
+            modelBuilder.Entity("DigitalAssetManagement.Infrastructure.PostgreSQL.DatabaseContext.User", b =>
                 {
                     b.Navigation("Metadata");
+
+                    b.Navigation("PermissionRequests");
 
                     b.Navigation("Permissions");
                 });

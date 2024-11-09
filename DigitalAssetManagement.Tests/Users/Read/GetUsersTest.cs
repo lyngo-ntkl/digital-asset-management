@@ -10,12 +10,12 @@ namespace DigitalAssetManagement.Tests.Users.Read
     public class GetUsersTest: UserServiceSetUp
     {
         private GetUsers? _getUsers;
-        private Mock<UserRepository>? _userRepository;
+        private Mock<IUserRepository>? _userRepository;
         private Mock<IMapper>? _mapper;
         [SetUp]
         public void SetUp()
         {
-            _userRepository = new Mock<UserRepository>();
+            _userRepository = new Mock<IUserRepository>();
             _mapper = new Mock<IMapper>();
             _getUsers = new GetUsersHandler(_userRepository.Object, _mapper.Object);
         }

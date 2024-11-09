@@ -1,6 +1,6 @@
 ﻿namespace DigitalAssetManagement.UseCases.Folders.Read
 {
-    public interface GetDrive
+    public interface IGetDrive
     {
         Task<FolderDetailResponse> GetDrive();
     }

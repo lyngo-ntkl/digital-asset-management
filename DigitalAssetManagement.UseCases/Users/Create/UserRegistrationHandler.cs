@@ -2,23 +2,22 @@
 using DigitalAssetManagement.UseCases.Repositories;
 using DigitalAssetManagement.Entities.DomainEntities;
 using DigitalAssetManagement.UseCases.Common;
+using DigitalAssetManagement.UseCases.UnitOfWork;
 
 namespace DigitalAssetManagement.UseCases.Users.Create
 {
     public class UserRegistrationHandler(
-        UserRepository userRepository, 
-        IMetadataRepository metadataRepository, 
-        IPermissionRepository permissionRepository,
+        IUserRepository userRepository, 
+        IMetadataPermissionUnitOfWork unitOfWork,
         IHashingHelper hashingHelper,
         ISystemFolderHelper folderHelper): UserRegistration
     {
-        private readonly UserRepository _userRepository = userRepository;
-        private readonly IMetadataRepository _metadataRepository = metadataRepository;
-        private readonly IPermissionRepository _permissionRepository = permissionRepository;
+        private readonly IUserRepository _userRepository = userRepository;
+        private readonly IMetadataPermissionUnitOfWork _unitOfWork = unitOfWork;
         private readonly IHashingHelper _hashingHelper = hashingHelper;
         private readonly ISystemFolderHelper _systemFolderHelper = folderHelper;
 
-        public async Task Register(RegistrationRequest request)
+        public async Task RegisterAsync(RegistrationRequest request)
         {
             await CheckUserExistanceAsync(request.Email);
             var user = await AddUserAsync(request);
@@ -41,8 +40,7 @@ namespace DigitalAssetManagement.UseCases.Users.Create
                 Email = request.Email,
                 PasswordHash = hash,
                 PasswordSalt = salt,
-                Name = request.Name,
-                PhoneNumber = request.PhoneNumber
+                Name = request.Name
             };
 
             return await _userRepository.AddAsync(user);
@@ -71,7 +69,7 @@ namespace DigitalAssetManagement.UseCases.Users.Create
                 Name = $"{ownerId}",
                 OwnerId = ownerId
             };
-            metadata = await _metadataRepository.AddAsync(metadata);
+            metadata = await _unitOfWork.MetadataRepository.AddAsync(metadata);
             return metadata.Id;
         }
 
@@ -83,7 +81,7 @@ namespace DigitalAssetManagement.UseCases.Users.Create
                 MetadataId = driveId,
                 Role = Entities.Enums.Role.Admin
             };
-            await _permissionRepository.AddAsync(permission);
+            await _unitOfWork.PermissionRepository.AddAsync(permission);
         }
     }
 }

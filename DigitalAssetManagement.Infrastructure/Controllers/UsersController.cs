@@ -3,7 +3,7 @@ using DigitalAssetManagement.UseCases.Users.Read;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DigitalAssetManagement.API.Controllers
+namespace DigitalAssetManagement.Infrastructure.Controllers
 {
     [Route("/v1/api/users")]
     [ApiController]
@@ -12,11 +12,11 @@ namespace DigitalAssetManagement.API.Controllers
         private readonly UserRegistration _userRegistration = userRegistration;
         private readonly GetUsers _getUsers = getUsers;
 
-        [HttpPost("registration")]
+        [HttpPost()]
         [AllowAnonymous]
         public async Task Register([FromBody] RegistrationRequest request)
         {
-            await _userRegistration.Register(request);
+            await _userRegistration.RegisterAsync(request);
         }
 
         [HttpGet]

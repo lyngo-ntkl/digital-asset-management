@@ -17,7 +17,7 @@ namespace DigitalAssetManagement.Cache
             });
 
             services.AddScoped<ICache, CacheImplementation>();
-            services.AddScoped<UserRepository, CachedUserRepositoryDecorator>();
+            services.AddScoped<IUserRepository, CachedUserRepositoryDecorator>();
         }
     }
 }

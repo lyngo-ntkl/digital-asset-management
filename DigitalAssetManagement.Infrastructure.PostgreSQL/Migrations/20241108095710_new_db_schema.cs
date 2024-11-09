@@ -4,16 +4,16 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace DigitalAssetManagement.Infrastructure.Migrations
+namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Migrations
 {
     /// <inheritdoc />
-    public partial class redesign_database : Migration
+    public partial class new_db_schema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterDatabase()
-                .Annotation("Npgsql:Enum:metadata_type", "file,folder,user_drive")
+                .Annotation("Npgsql:Enum:metadata_type", "file,folder,drive")
                 .Annotation("Npgsql:Enum:role", "admin,contributor,reader");
 
             migrationBuilder.CreateTable(
@@ -25,12 +25,7 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
                     Email = table.Column<string>(type: "text", nullable: false),
                     PasswordHash = table.Column<string>(type: "text", nullable: false),
                     PasswordSalt = table.Column<string>(type: "text", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "text", nullable: true),
-                    Avatar = table.Column<byte[]>(type: "bytea", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    ModifiedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
+                    Name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -43,27 +38,55 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    MetadataType = table.Column<int>(type: "integer", nullable: false),
-                    AbsolutePath = table.Column<string>(type: "text", nullable: false),
-                    OwnerId = table.Column<int>(type: "integer", nullable: false),
-                    ParentMetadataId = table.Column<int>(type: "integer", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ModifiedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Type = table.Column<int>(type: "integer", nullable: false),
+                    OwnerId = table.Column<int>(type: "integer", nullable: false),
+                    AbsolutePath = table.Column<string>(type: "text", nullable: false),
+                    ParentId = table.Column<int>(type: "integer", nullable: true),
+                    ContentType = table.Column<string>(type: "text", nullable: true),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Metadata", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Metadata_Metadata_ParentMetadataId",
-                        column: x => x.ParentMetadataId,
+                        name: "FK_Metadata_Metadata_ParentId",
+                        column: x => x.ParentId,
                         principalTable: "Metadata",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Metadata_Users_OwnerId",
                         column: x => x.OwnerId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PermissionRequests",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Role = table.Column<int>(type: "integer", nullable: false),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    MetadataId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PermissionRequests", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PermissionRequests_Metadata_MetadataId",
+                        column: x => x.MetadataId,
+                        principalTable: "Metadata",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PermissionRequests_Users_UserId",
+                        column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -77,10 +100,7 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Role = table.Column<int>(type: "integer", nullable: false),
                     UserId = table.Column<int>(type: "integer", nullable: false),
-                    MetadataId = table.Column<int>(type: "integer", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    ModifiedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
+                    MetadataId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -111,9 +131,20 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
                 column: "OwnerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Metadata_ParentMetadataId",
+                name: "IX_Metadata_ParentId",
                 table: "Metadata",
-                column: "ParentMetadataId");
+                column: "ParentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PermissionRequests_MetadataId",
+                table: "PermissionRequests",
+                column: "MetadataId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PermissionRequests_UserId_MetadataId",
+                table: "PermissionRequests",
+                columns: new[] { "UserId", "MetadataId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Permissions_MetadataId",
@@ -136,6 +167,9 @@ namespace DigitalAssetManagement.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "PermissionRequests");
+
             migrationBuilder.DropTable(
                 name: "Permissions");
 

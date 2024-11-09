@@ -5,9 +5,9 @@ using DigitalAssetManagement.Entities.DomainEntities;
 
 namespace DigitalAssetManagement.UseCases.Users.Login
 {
-    public class LoginByEmailPasswordHandler(UserRepository userRepository, IHashingHelper hashingHelper, IJwtHelper jwtHelper): LoginByEmailPassword
+    public class LoginByEmailPasswordHandler(IUserRepository userRepository, IHashingHelper hashingHelper, IJwtHelper jwtHelper): LoginByEmailPassword
     {
-        private readonly UserRepository _userRepository = userRepository;
+        private readonly IUserRepository _userRepository = userRepository;
         private readonly IHashingHelper _hashingHelper = hashingHelper;
         private readonly IJwtHelper _jwtHelper = jwtHelper;
 

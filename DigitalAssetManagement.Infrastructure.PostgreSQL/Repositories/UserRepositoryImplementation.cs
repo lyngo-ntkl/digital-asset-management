@@ -5,7 +5,7 @@ using DigitalAssetManagement.UseCases.Common;
 
 namespace DigitalAssetManagement.Infrastructure.PostgreSQL.Repositories
 {
-    public class UserRepositoryImplementation(ApplicationDbContext context, IMapper mapper) : UserRepository
+    public class UserRepositoryImplementation(ApplicationDbContext context, IMapper mapper) : IUserRepository
     {
         private readonly ApplicationDbContext _context = context;
         private readonly IMapper _mapper = mapper;

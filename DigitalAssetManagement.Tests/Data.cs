@@ -40,21 +40,6 @@ namespace DigitalAssetManagement.Tests
         //public static int ArraySize = 10;
 
         //private User[]? _users = null;
-        //private EmailPasswordRegistrationRequest[]? _emailPasswordRegistrationRequests;
-        //public EmailPasswordRegistrationRequest[]? EmailPasswordRegistrationRequests {
-        //    get
-        //    {
-        //        if (_emailPasswordRegistrationRequests == null)
-        //        {
-        //            _emailPasswordRegistrationRequests = new EmailPasswordRegistrationRequest[ArraySize];
-        //            for (int i = 0; i < ArraySize; i++)
-        //            {
-        //                _emailPasswordRegistrationRequests[i] = new EmailPasswordRegistrationRequest { Email = $"user{i}@example.com", Name = $"User {i}", Password = TestPassword };
-        //            }
-        //        }
-        //        return _emailPasswordRegistrationRequests;
-        //    }
-        //}
         //public User[] Users
         //{
         //    get

@@ -6,16 +6,13 @@ using DigitalAssetManagement.Entities.Enums;
 
 namespace DigitalAssetManagement.Infrastructure.Common.AuthorizationHandler
 {
-    public class ResourceBasedAuthorizationHandler : AuthorizationHandler<CustomAuthorizationRequirement, ResourceBasedPermissionCheckingRequest>
+    public class ResourceBasedAuthorizationHandler(
+        IUserRepository userRepository, 
+        IPermissionRepository permissionRepository
+    ) : AuthorizationHandler<CustomAuthorizationRequirement, ResourceBasedPermissionCheckingRequest>
     {
-        private readonly UserRepository _userRepository;
-        private readonly IPermissionRepository _permissionRepository;
-
-        public ResourceBasedAuthorizationHandler(UserRepository userRepository, IPermissionRepository permissionRepository)
-        {
-            _userRepository = userRepository;
-            _permissionRepository = permissionRepository;
-        }
+        private readonly IUserRepository _userRepository = userRepository;
+        private readonly IPermissionRepository _permissionRepository = permissionRepository;
 
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, CustomAuthorizationRequirement requirement, ResourceBasedPermissionCheckingRequest resource)
         {
@@ -27,7 +24,8 @@ namespace DigitalAssetManagement.Infrastructure.Common.AuthorizationHandler
 
         private async Task<int> CheckAuthorizationAsync(AuthorizationHandlerContext context)
         {
-            if (!int.TryParse(context.User.FindFirstValue(ClaimTypes.Sid)!, out int loginUserId) &&
+            int loginUserId;
+            if (!int.TryParse(context.User.FindFirstValue(ClaimTypes.Sid)!, out loginUserId) &&
                 !await _userRepository.ExistByIdAsync(loginUserId))
             {
                 throw new UnauthorizedException();
